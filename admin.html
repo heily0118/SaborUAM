@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrador - SaborUAM</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <!-- Ícono de campana -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- ENCABEZADO -->
+  <header class="header">
+    <div class="titulo">
+      <h1>Administrador</h1>
+    </div>
+
+    <div class="acciones-header">
+      <i data-lucide="bell" class="icono"></i>
+      <button class="btn-cerrar">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="contenedor">
+
+
+    <div class="buscador">
+      <input type="text" placeholder="Buscar producto...">
+      <button>🔍</button>
+    </div>
+
+    <div class="productos">
+      <!-- Aquí se mostrarán las tarjetas dinámicas -->
+    </div>
+
+    <button id="btn-agregar" class="btn-agregar">+</button>
+  </main>
+
+  <!-- MODAL -->
+  <section class="modal" id="modal-agregar">
+    <div class="modal-contenido">
+      <h2>Agregar nuevo producto</h2>
+      <form>
+        <label>Nombre del producto:</label>
+        <input type="text" placeholder="Ej: Arepa con queso">
+
+        <label>Descripción:</label>
+        <textarea placeholder="Descripción del producto..."></textarea>
+
+        <label>Precio:</label>
+        <input type="number" placeholder="Ej: 8000">
+
+        <label>Ubicación:</label>
+        <input type="text" placeholder="Cafetería principal">
+
+        <label>Horario:</label>
+        <input type="text" placeholder="7:00 a.m - 11:00 a.m">
+
+        <label>Días de atención:</label>
+        <input type="text" placeholder="Lunes a viernes">
+
+        <div class="acciones">
+          <button type="submit">Guardar</button>
+          <button type="button" id="cancelar">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script src="js/admin.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
