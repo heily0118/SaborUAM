@@ -12,19 +12,21 @@ body {
   background-color: #004aad;
   border-bottom: 8px solid #d4af37;
   padding: 40px 20px;
+  position: relative;
 }
 
 .contenido-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: flex;               
+  align-items: center;         
+  justify-content: center; 
+  gap: 20px;  
 }
 
 .logo {
+  position: absolute;
+  left: 40px; 
   width: 100px;
   height: auto;
-  margin-bottom: 10px;
 }
 
 .texto-header h1 {
@@ -39,7 +41,8 @@ body {
 
 .slogan {
   color: #ffffff;
-  font-style: italic;
+  font-style: normal;
+  font-weight: bold;
   margin-top: 5px;
   font-size: 15px;
 }
