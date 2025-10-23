@@ -25,17 +25,75 @@
   <!-- CONTENIDO PRINCIPAL -->
   <main class="contenedor">
 
+    <!-- BARRA LATERAL DE FILTROS -->
+    <aside class="barra-filtro">
+      <h2>Menú</h2>
+      <ul>
+        <li><button class="filtro-btn activo">Todos</button></li>
+        <li><button class="filtro-btn">Desayunos</button></li>
+        <li><button class="filtro-btn">Almuerzos</button></li>
+        <li><button class="filtro-btn">Bebidas</button></li>
+        <li><button class="filtro-btn">Otros</button></li>
+      </ul>
+    </aside>
 
-    <div class="buscador">
-      <input type="text" placeholder="Buscar producto...">
-      <button>🔍</button>
-    </div>
+    <!-- ZONA PRINCIPAL -->
+    <section class="zona-principal">
+      
+      <!-- BUSCADOR -->
+      <div class="buscador">
+        <input type="text" placeholder="Buscar producto...">
+        <button><i data-lucide="search"></i></button>
+      </div>
 
-    <div class="productos">
-      <!-- Aquí se mostrarán las tarjetas dinámicas -->
-    </div>
+      <!-- TARJETAS DE PRODUCTOS -->
+      <div class="productos">
+        
+        <!-- Tarjeta 1 -->
+        <div class="tarjeta">
+          <img src="img/almuerzo1.jpg" alt="Almuerzo Ejecutivo">
+          <div class="info">
+            <h3>Almuerzo Ejecutivo</h3>
+            <p class="precio">$12.000</p>
+            <p class="restaurante">Restaurante UAM</p>
+          </div>
+          <div class="acciones-tarjeta">
+            <i data-lucide="more-vertical"></i>
+          </div>
+        </div>
 
+        <!-- Tarjeta 2 -->
+        <div class="tarjeta">
+          <img src="img/almuerzo2.jpg" alt="Almuerzo Vegetariano">
+          <div class="info">
+            <h3>Almuerzo Vegetariano</h3>
+            <p class="precio">$10.500</p>
+            <p class="restaurante">Verde Vida</p>
+          </div>
+          <div class="acciones-tarjeta">
+            <i data-lucide="more-vertical"></i>
+          </div>
+        </div>
+
+        <!-- Tarjeta 3 -->
+        <div class="tarjeta">
+          <img src="img/jugo.jpg" alt="Jugo natural">
+          <div class="info">
+            <h3>Jugo Natural</h3>
+            <p class="precio">$4.000</p>
+            <p class="restaurante">Café UAM</p>
+          </div>
+          <div class="acciones-tarjeta">
+            <i data-lucide="more-vertical"></i>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BOTÓN AGREGAR -->
     <button id="btn-agregar" class="btn-agregar">+</button>
+
   </main>
 
   <!-- MODAL -->
