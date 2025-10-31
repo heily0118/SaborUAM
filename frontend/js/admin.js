@@ -1,38 +1,37 @@
-// --- Abrir y cerrar modal ---
-const modal = document.getElementById('modal-agregar');
-const btnAbrir = document.getElementById('btn-agregar'); // botón con el círculo dorado "+"
-const btnCerrar = document.getElementById('cancelar');   // botón dentro del modal
+// --- MODAL AGREGAR --- 
+var modalAgregar = document.getElementById('modal-agregar');
+var btnAbrirAgregar = document.getElementById('btn-agregar'); 
+var btnCerrarAgregar = document.getElementById('cancelar');   
 
-// Abrir modal al presionar el botón "+"
-if (btnAbrir && modal) {
-  btnAbrir.addEventListener('click', () => {
-    modal.classList.add('activo');
+if (btnAbrirAgregar && modalAgregar) {
+  btnAbrirAgregar.addEventListener('click', function() {
+    modalAgregar.classList.add('activo');
   });
 }
 
-// Cerrar modal al presionar "Cancelar"
-if (btnCerrar && modal) {
-  btnCerrar.addEventListener('click', () => {
-    modal.classList.remove('activo');
+if (btnCerrarAgregar && modalAgregar) {
+  btnCerrarAgregar.addEventListener('click', function() {
+    modalAgregar.classList.remove('activo');
   });
 }
 
-// Cerrar modal al hacer clic fuera del contenido
-window.addEventListener('click', (e) => {
-  if (e.target === modal) {
-    modal.classList.remove('activo');
+window.addEventListener('click', function(e) {
+  if (e.target === modalAgregar) {
+    modalAgregar.classList.remove('activo');
   }
 });
 
-// --- Filtros laterales ---
-const botones = document.querySelectorAll('.btn-filtro');
+// --- FILTROS LATERALES ---
+var botones = document.querySelectorAll('.btn-filtro');
 
-botones.forEach(boton => {
-  boton.addEventListener('click', () => {
-    document.querySelector('.btn-filtro.activo')?.classList.remove('activo');
+botones.forEach(function(boton) {
+  boton.addEventListener('click', function() {
+    var activo = document.querySelector('.btn-filtro.activo');
+    if (activo) activo.classList.remove('activo');
+
     boton.classList.add('activo');
 
-    const categoria = boton.getAttribute('data-categoria');
+    var categoria = boton.getAttribute('data-categoria');
     console.log("Filtrando por:", categoria);
   });
 });
