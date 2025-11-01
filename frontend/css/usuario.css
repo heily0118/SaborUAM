@@ -94,16 +94,6 @@ body {
   color: white;
 }
 
-.btn-registro {
-  background-color: #d4af37;
-  color: white;
-  border: 2px solid #d4af37;
-}
-
-.btn-registro:hover {
-  background-color: #b8962c;
-}
-
 
 .modal {
   display: none;
