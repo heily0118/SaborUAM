@@ -1,6 +1,6 @@
 // backend/routes/productos.js
 import express from "express";
-import db from "../db/conexion.js"; // la conexión que hicimos antes
+import db from "../db/conexion.js"; 
 const router = express.Router();
 
 // Obtener todos los productos

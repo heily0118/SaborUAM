@@ -8,14 +8,14 @@ const router = express.Router();
 const conexion = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '#Septiembre18.', 
+  password: '', 
   database: 'saboruam'
 });
 
 // Probar conexión
 conexion.connect(err => {
-  if (err) console.error('❌ Error al conectar con MySQL:', err);
-  else console.log('✅ Conectado a la base de datos saboruam');
+  if (err) console.error(' Error al conectar con MySQL:', err);
+  else console.log('Conectado a la base de datos saboruam');
 });
 
 // --- REGISTRO DE USUARIO ---
