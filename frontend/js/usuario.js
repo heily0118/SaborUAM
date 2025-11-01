@@ -1,44 +1,45 @@
-// --- LOGIN ---
-document.getElementById('form-login').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const email = document.getElementById('email-login').value;
-  const password = document.getElementById('password-login').value;
+// frontend/js/usuarios.js
 
-  try {
-    const res = await fetch('http://localhost:3000/api/usuarios/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+document.addEventListener('DOMContentLoaded', () => {
+  const formRegistro = document.getElementById('form-registro'); // ✅ ID correcto
 
-    const data = await res.json();
-    alert('Login: ' + data.mensaje); // Muestra mensaje del backend
-  } catch (err) {
-    alert('Error al conectar con el backend');
-    console.error(err);
-  }
-});
+  formRegistro.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-// --- REGISTRO ---
-document.getElementById('form-registro').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const nombre = document.getElementById('nombre-registro').value;
-  const email = document.getElementById('email-registro').value;
-  const password = document.getElementById('password-registro').value;
+    // Captura de los campos del formulario
+    const tipo_de_documento = document.getElementById('tipo_de_documento').value.trim();
+    const numero_de_documento = document.getElementById('numero_de_documento').value.trim();
+    const nombre_completo = document.getElementById('nombre_completo').value.trim();
+    const correo_electronico = document.getElementById('correo_electronico').value.trim();
+    const contrasena = document.getElementById('contrasena').value.trim();
 
-  try {
-    const res = await fetch('http://localhost:3000/api/usuarios/registro', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre, email, password })
-    });
+    try {
+      // Envío de datos al backend
+      const res = await fetch('http://localhost:3000/api/usuarios/registro', { // ✅ ruta corregida
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tipo_de_documento,
+          numero_de_documento,
+          nombre_completo,
+          correo_electronico,
+          contrasena,
+        }),
+      });
 
-    const data = await res.json();
-    alert('Registro: ' + data.mensaje); // Muestra mensaje del backend
-  } catch (err) {
-    alert('Error al conectar con el backend');
-    console.error(err);
-  }
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Usuario registrado correctamente ✅');
+        console.log('Respuesta del backend:', data);
+        formRegistro.reset();
+      } else {
+        alert('Error de registro: ' + (data.mensaje || 'No se pudo registrar el usuario'));
+      }
+
+    } catch (error) {
+      console.error('Error al registrar usuario:', error);
+      alert('Hubo un error al conectar con el servidor');
+    }
+  });
 });
