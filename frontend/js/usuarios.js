@@ -112,15 +112,16 @@ window.addEventListener('click', (e) => {
     if (e.target === modalRegistro) toggleModal(modalRegistro, 'remove');
 });
 
-// --- ENVÍO DE REGISTRO ---
+
+// enviar registro
 if (formRegistro) {
     formRegistro.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        
-        if (validarRegistro()) {
+        // 1. Ejecutar la validación
+        if (validarRegistro()) { 
             const nombre = inputNombre.value.trim();
-            const cedula = inputCedula.value.trim(); // Dato a enviar
+            const cedula = inputCedula.value.trim(); 
             const email = inputEmail.value.trim();
             const password = inputPassword.value;
 
@@ -135,16 +136,21 @@ if (formRegistro) {
 
                 const data = await res.json();
 
-            
+                // 3. Manejo de respuesta del servidor
                 if (res.ok) { 
                     alert('Registro exitoso: ' + data.mensaje);
-                    toggleModal(modalRegistro, 'remove');
+                    // Llama a la función para cerrar el modal
+                    if (typeof toggleModal === 'function') {
+                        toggleModal(modalRegistro, 'remove'); 
+                    }
                     formRegistro.reset();
                 } else { 
+                    // Muestra el mensaje de error que viene del servidor (ej: usuario ya existe)
                     alert(' Error de Registro: ' + data.mensaje);
                 }
 
             } catch (err) {
+                // Este error se dispara si el servidor no está corriendo o hay un problema de CORS
                 alert(' Error de conexión. El servidor no responde.');
                 console.error('Error de conexión:', err);
             }
