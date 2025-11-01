@@ -30,7 +30,7 @@ router.post('/registro', (req, res) => {
   }
 
   const sql = `
-    INSERT INTO usuario (tipo_de_documento, numero_de_documento, correo_electronico, nombre_completo, contrasena)
+    INSERT INTO usuarios (tipo_de_documento, numero_de_documento, correo_electronico, nombre_completo, contrasena)
     VALUES (?, ?, ?, ?, ?)
   `;
 
