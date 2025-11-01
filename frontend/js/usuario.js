@@ -1,7 +1,7 @@
 // frontend/js/usuarios.js
 
 document.addEventListener('DOMContentLoaded', () => {
-  const formRegistro = document.getElementById('form-registro'); // ✅ ID correcto
+  const formRegistro = document.getElementById('form-registro'); 
 
   formRegistro.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       // Envío de datos al backend
-      const res = await fetch('http://localhost:3000/api/usuarios/registro', { // ✅ ruta corregida
+      const res = await fetch('http://localhost:3000/api/usuarios/registro', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert('Usuario registrado correctamente ✅');
+        alert('Usuario registrado correctamente ');
         console.log('Respuesta del backend:', data);
         formRegistro.reset();
       } else {
