@@ -1,20 +1,22 @@
 // backend/app.js
 import express from 'express';
 import cors from 'cors';
+import productosRouter from './routes/productos.js';
 import usuariosRouter from './routes/usuarios.js';
-import adminsRouter from './routes/admins.js';
+import lugaresRouter from './routes/lugares.js';
 
 const app = express();
 
-// Permite recibir datos JSON y evitar errores de CORS
+// Configuración general
 app.use(cors());
 app.use(express.json());
 
-// Rutas del backend
+// Rutas de la aplicación
+app.use('/api/productos', productosRouter);
 app.use('/api/usuarios', usuariosRouter);
-app.use('/api/admins', adminsRouter);
+app.use('/api/lugares', lugaresRouter);
 
-// Servidor escuchando en el puerto 3000
+// Servidor corriendo
 app.listen(3000, () => {
-  console.log('Servidor backend corriendo en http://localhost:3000');
+  console.log(' Servidor backend corriendo en http://localhost:3000');
 });
