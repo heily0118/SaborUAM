@@ -4,18 +4,21 @@ import mysql from 'mysql2';
 
 const router = express.Router();
 
-// Configuración de la conexión a MySQL
+// Configuración de conexión a MySQL
 const conexion = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '', 
+  password: '#Septiembre18.',
   database: 'saboruam'
 });
 
 // Probar conexión
 conexion.connect(err => {
-  if (err) console.error(' Error al conectar con MySQL:', err);
-  else console.log('Conectado a la base de datos saboruam');
+  if (err) {
+    console.error(' Error al conectar con MySQL:', err);
+  } else {
+    console.log('Conectado a la base de datos saboruam');
+  }
 });
 
 // --- REGISTRO DE USUARIO ---
@@ -31,9 +34,9 @@ router.post('/registro', (req, res) => {
     VALUES (?, ?, ?, ?, ?)
   `;
 
-  conexion.query(sql, [tipo_de_documento, numero_de_documento, correo_electronico, nombre_completo, contrasena], (err, result) => {
+  conexion.query(sql, [tipo_de_documento, numero_de_documento, correo_electronico, nombre_completo, contrasena], (err) => {
     if (err) {
-      console.error('Error al registrar usuario:', err);
+      console.error(' Error al registrar usuario:', err);
       res.status(500).json({ mensaje: 'Error al registrar usuario' });
     } else {
       res.json({ mensaje: 'Usuario registrado exitosamente' });
@@ -52,12 +55,12 @@ router.post('/login', (req, res) => {
 
   conexion.query(sql, [correo_electronico, contrasena], (err, results) => {
     if (err) {
-      console.error('Error al iniciar sesión:', err);
+      console.error(' Error al iniciar sesión:', err);
       res.status(500).json({ mensaje: 'Error en el servidor' });
     } else if (results.length === 0) {
       res.status(401).json({ mensaje: 'Correo o contraseña incorrectos' });
     } else {
-      res.json({ mensaje: 'Inicio de sesión exitoso', usuario: results[0] });
+      res.json({ mensaje: 'Inicio de sesión exitoso ', usuario: results[0] });
     }
   });
 });
