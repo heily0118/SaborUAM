@@ -185,7 +185,7 @@ body {
   color: #005c99;
 }
 
-.restaurante {
+.lugar{
   color: #666;
   font-size: 0.9em;
 }
@@ -229,6 +229,7 @@ body {
   background: rgba(0,0,0,0.4);
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .modal-contenido {
@@ -237,6 +238,12 @@ body {
   border-radius: 15px;
   width: 400px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  max-height: 85vh;         /* limita la altura para que quepa mejor */
+  overflow-y: auto;          /* activa el scroll vertical */
+  scroll-behavior: smooth;   /* movimiento suave */
+  scroll-padding-top: 0;     /* sin espacio extra arriba */
+  margin-top: 0;             /* elimina espacio superior */
+  padding-top: 0;            /* quita relleno superior */
 }
 
 .modal h2 {
@@ -288,3 +295,18 @@ body {
 .modal.activo {
   display: flex;
 }
+
+#modal-agregar {
+  max-height: 100vh; /* ocupa máximo 90% del alto de pantalla */
+  overflow-y: auto; /* permite hacer scroll vertical */
+}
+
+/* === FORZAR COLOR GRIS EN NOMBRE DEL LUGAR === */
+.productos .tarjeta .info .lugar {
+  color: #777 !important;   /* gris medio */
+  font-weight: 500;
+  font-size: 0.9em;
+  margin-top: 4px;
+  display: block;
+}
+

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administrador - SaborUAM</title>
   <link rel="stylesheet" href="css/admin.css">
-  <!-- Ícono de campana -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -25,7 +24,7 @@
   <!-- CONTENIDO PRINCIPAL -->
   <main class="contenedor">
 
-    <!-- BARRA LATERAL DE FILTROS -->
+    <!-- BARRA LATERAL -->
     <aside class="barra-filtro">
       <h2>Menú</h2>
       <ul>
@@ -39,15 +38,13 @@
 
     <!-- ZONA PRINCIPAL -->
     <section class="zona-principal">
-      
-      <!-- BUSCADOR -->
       <div class="buscador">
         <input type="text" placeholder="Buscar producto...">
         <button><i data-lucide="search"></i></button>
       </div>
 
-      <!-- TARJETAS DE PRODUCTOS -->
-      <div class="productos">
+    <!-- TARJETAS DE PRODUCTOS -->
+      <div class="productos" id="lista-productos">
         
         <!-- Tarjeta 1 -->
         <div class="tarjeta">
@@ -55,7 +52,7 @@
           <div class="info">
             <h3>Almuerzo Ejecutivo</h3>
             <p class="precio">$12.000</p>
-            <p class="restaurante">Restaurante UAM</p>
+            <p class="lugar">Restaurante UAM</p>
           </div>
           <div class="acciones-tarjeta">
             <i data-lucide="more-vertical"></i>
@@ -68,7 +65,7 @@
           <div class="info">
             <h3>Almuerzo Vegetariano</h3>
             <p class="precio">$10.500</p>
-            <p class="restaurante">Verde Vida</p>
+            <p class="lugar">Verde Vida</p>
           </div>
           <div class="acciones-tarjeta">
             <i data-lucide="more-vertical"></i>
@@ -81,7 +78,7 @@
           <div class="info">
             <h3>Jugo Natural</h3>
             <p class="precio">$4.000</p>
-            <p class="restaurante">Café UAM</p>
+            <p class="lugar">Café UAM</p>
           </div>
           <div class="acciones-tarjeta">
             <i data-lucide="more-vertical"></i>
@@ -89,6 +86,9 @@
         </div>
 
       </div>
+
+    </section>
+
     </section>
 
     <!-- BOTÓN AGREGAR -->
@@ -96,40 +96,107 @@
 
   </main>
 
-  <!-- MODAL -->
-  <section class="modal" id="modal-agregar">
+  <!-- MODAL AGREGAR PRODUCTO -->
+  <section class="modal" id="modal-agregar" style="display: none;">
     <div class="modal-contenido">
       <h2>Agregar nuevo producto</h2>
-      <form>
-        <label>Nombre del producto:</label>
-        <input type="text" placeholder="Ej: Arepa con queso">
 
-        <label>Descripción:</label>
-        <textarea placeholder="Descripción del producto..."></textarea>
+      <form id="form-producto">
+        <!-- Paso 1 -->
+        <div class="paso" id="paso1">
+          <label for="nombreProducto">Nombre del producto:</label>
+          <input type="text" id="nombreProducto" placeholder="Ej: Arepa con queso">
 
-        <label>Precio:</label>
-        <input type="number" placeholder="Ej: 8000">
+          <label for="codigo">Código:</label>
+          <input type="text" id="codigo" placeholder="Ej: 64A90">
 
-        <label>Ubicación:</label>
-        <input type="text" placeholder="Cafetería principal">
+          <label for="descripcion">Descripción:</label>
+          <textarea id="descripcion" placeholder="Descripción del producto..."></textarea>
 
-        <label>Horario:</label>
-        <input type="text" placeholder="7:00 a.m - 11:00 a.m">
+          <label for="tipo_menu">Tipo de menú:</label>
+          <select id="tipo_menu">
+            <option value="">Selecciona una opción</option>
+            <option value="Desayuno">Desayuno</option>
+            <option value="Almuerzo">Almuerzo</option>
+            <option value="Bebida">Bebida</option>
+            <option value="Otros">Otros</option>
+          </select>
 
-        <label>Días de atención:</label>
-        <input type="text" placeholder="Lunes a viernes">
+          <label for="precio">Precio:</label>
+          <input type="number" id="precio" placeholder="Ej: 8000">
 
-        <div class="acciones">
-          <button type="submit">Guardar</button>
-          <button type="button" id="cancelar">Cancelar</button>
+          <label for="imagen-producto">Imagen del producto:</label>
+          <input type="file" id="imagen-producto" accept="image/*">
+
+          <!-- BOTONES DE PASO 1 -->
+          <div class="acciones">
+          <button type="button" id="btn-cancelar">Cancelar</button>
+          <button type="button" id="btn-siguiente">Siguiente</button>
+
+          </div>
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="paso" id="paso2" style="display:none;">
+          <label for="nombreLugar">Nombre del lugar:</label>
+          <input type="text" id="nombreLugar" placeholder="Ej: Restaurante UAM">
+
+          <div class="campo">
+            <label for="estado">Estado del lugar:</label>
+            <select id="estado">
+              <option value="">Seleccione un estado</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="tipo">Tipo de lugar:</label>
+            <select id="tipo">
+              <option value="">Seleccione un tipo</option>
+              <option value="Restaurante">Restaurante</option>
+              <option value="Cafetería">Cafetería</option>
+              <option value="Bar">Bar</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+
+
+          <label for="NIT">NIT:</label>
+          <input type="text" id="NIT" placeholder="Ej: 123456789-0">
+
+
+          <label for="ubicacion">Ubicación:</label>
+          <input type="text" id="ubicacion" placeholder="Cafetería principal">
+
+          <label for="horario">Horario:</label>
+          <input type="text" id="horario" placeholder="7:00 a.m - 11:00 a.m">
+
+          <label for="dias">Días de atención:</label>
+          <input type="text" id="dias" placeholder="Lunes a viernes">
+
+          <label for="servicioDomicilio">¿Ofrece servicio a domicilio?</label>
+          <select id="servicioDomicilio">
+          <option value="">Selecciona una opción</option>
+          <option value="Sí">Sí</option>
+          <option value="No">No</option>
+        </select>
+
+          <label for="numeroContacto">Número de contacto para domicilio:</label>
+          <input type="text" id="numeroContacto" placeholder="Ej: 3101234567">
+
+          <div class="acciones">
+            <button type="button" id="btn-atras">Atrás</button>
+            <button type="submit" id="btn-agregar-final">Agregar</button>
+          </div>
         </div>
       </form>
     </div>
   </section>
 
+
+
   <script src="js/admin.js"></script>
-  <script>
-    lucide.createIcons();
-  </script>
+  <script>lucide.createIcons();</script>
 </body>
 </html>
