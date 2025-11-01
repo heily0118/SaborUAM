@@ -16,7 +16,7 @@ Query OK, 1 row affected (0.11 sec)
 
 mysql> USE saboruam;
 Database changed
-mysql> CREATE TABLE Usuario (
+mysql> CREATE TABLE Usuarios (
     ->     tipo_de_documento VARCHAR(20) NOT NULL,
     ->     numero_de_documento VARCHAR(20) PRIMARY KEY,
     ->     correo_electronico VARCHAR(100) NOT NULL UNIQUE,
@@ -25,7 +25,7 @@ mysql> CREATE TABLE Usuario (
     -> );
 Query OK, 0 rows affected (0.29 sec)
 
-mysql> CREATE TABLE Lugar (
+mysql> CREATE TABLE Lugares (
     ->     NIT VARCHAR(15) PRIMARY KEY,
     ->     nombre VARCHAR(100) NOT NULL,
     ->     tipo VARCHAR(50) NOT NULL,              
@@ -37,7 +37,7 @@ mysql> CREATE TABLE Lugar (
     -> );
 Query OK, 0 rows affected (0.05 sec)
 
-mysql> CREATE TABLE Producto (
+mysql> CREATE TABLE Productos (
     ->     codigo INT AUTO_INCREMENT PRIMARY KEY,
     ->     nombre VARCHAR(100) NOT NULL,
     ->     precio DECIMAL(10,2) NOT NULL,
@@ -46,13 +46,24 @@ mysql> CREATE TABLE Producto (
     ->    imagen VARCHAR(255));
 Query OK, 0 rows affected (0.06 sec)
 
-mysql> CREATE TABLE Producto_Lugar (
-    ->     NIT VARCHAR(15),
-    ->     codigo INT,
-    ->     PRIMARY KEY (NIT, codigo),
-    ->     FOREIGN KEY (NIT) REFERENCES Lugar(NIT) ON DELETE CASCADE ON UPDATE CASCADE,
-    ->     FOREIGN KEY (codigo) REFERENCES Producto(codigo) ON DELETE CASCADE ON UPDATE CASCADE
-    -> );
-Query OK, 0 rows affected (0.11 sec)
+mysql> CREATE TABLE productos_lugares (
+    lug_nit VARCHAR(15) NOT NULL,
+    pro_cod INT NOT NULL,
+    PRIMARY KEY (lug_nit, pro_cod),
+    FOREIGN KEY (lug_nit) REFERENCES lugares(NIT)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (pro_cod) REFERENCES productos(codigo)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
 
-mysql>
+mysql>CREATE TABLE consultas (
+    usu_num VARCHAR(20),
+    pro_cod INT,
+    fecha_consulta DATETIME DEFAULT NOW(),
+    PRIMARY KEY (usu_num, pro_cod),
+    FOREIGN KEY (usu_num) REFERENCES usuarios(numero_de_documento)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (pro_cod) REFERENCES productos(codigo)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
