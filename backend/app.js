@@ -9,8 +9,8 @@ const app = express();
 
 // Configuración general
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: "70mb" }));
+app.use(express.json({ limit: "70mb" }));
 
 // Rutas de la aplicación
 app.use('/api/productos', productosRouter);
@@ -19,5 +19,5 @@ app.use('/api/lugares', lugaresRouter);
 
 // Servidor corriendo
 app.listen(3000, () => {
-  console.log(' Servidor backend corriendo en http://localhost:3000');
+  console.log('Servidor backend corriendo en http://localhost:3000');
 });

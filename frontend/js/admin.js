@@ -1,3 +1,5 @@
+// adminis.js frontend
+
 // === SELECCIÓN DE ELEMENTOS ===
 const modal = document.getElementById('modal-agregar');
 const btnAgregar = document.getElementById('btn-agregar');
@@ -10,8 +12,6 @@ const paso1 = document.getElementById('paso1');
 const paso2 = document.getElementById('paso2');
 const inputImagen = document.getElementById('imagen-producto');
 
-let imagenSeleccionada = "";
-
 // === ABRIR MODAL ===
 btnAgregar.addEventListener('click', () => {
   modal.style.display = 'flex';
@@ -23,21 +23,6 @@ btnAgregar.addEventListener('click', () => {
 btnCancelar.addEventListener('click', () => {
   modal.style.display = 'none';
   formProducto.reset();
-  imagenSeleccionada = "";
-});
-
-// === PREVISUALIZAR IMAGEN ===
-inputImagen.addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imagenSeleccionada = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  } else {
-    imagenSeleccionada = "";
-  }
 });
 
 // === CAMBIAR A SIGUIENTE PESTAÑA ===
@@ -65,7 +50,7 @@ btnAtras.addEventListener('click', () => {
 });
 
 // === GUARDAR FORMULARIO ===
-formProducto.addEventListener('submit', (event) => {
+formProducto.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   // === DATOS DEL PRODUCTO ===
@@ -88,37 +73,69 @@ formProducto.addEventListener('submit', (event) => {
 
   // === VALIDACIÓN ===
   if (
-    !nombreLugar || !NIT || !ubicacion || !horario || !servicioDomicilio || !descripcion || !dias || !codigo || !tipo_menu ||
-    !estado || !tipo || !numeroContacto
+    !nombreLugar || !NIT || !ubicacion || !horario || !servicioDomicilio || !descripcion ||
+    !dias || !codigo || !tipo_menu || !estado || !tipo || !numeroContacto
   ) {
     alert("Por favor completa toda la información del lugar.");
     return;
   }
 
-  // === CREAR TARJETA VISUAL ===
-  const tarjeta = document.createElement('div');
-  tarjeta.classList.add('tarjeta');
-  tarjeta.innerHTML = `
-    <img src="${imagenSeleccionada}" alt="${nombreProducto}">
-    <div class="info">
-      <h3>${nombreProducto}</h3>
-      <p class="precio">$${precio}</p>
-      <p class="lugar">${nombreLugar}</p>
-    </div>
-    <div class="acciones-tarjeta">
-      <i data-lucide="more-vertical"></i>
-    </div>
-  `;
+  try {
+    // === CREAR FORM DATA PARA ENVIAR IMAGEN ===
+    const formData = new FormData();
+    formData.append("nombreProducto", nombreProducto);
+    formData.append("codigo", codigo);
+    formData.append("descripcion", descripcion);
+    formData.append("tipo_menu", tipo_menu);
+    formData.append("precio", precio);
+    formData.append("nombreLugar", nombreLugar);
+    formData.append("NIT", NIT);
+    formData.append("ubicacion", ubicacion);
+    formData.append("horario", horario);
+    formData.append("dias", dias);
+    formData.append("servicioDomicilio", servicioDomicilio);
+    formData.append("numeroContacto", numeroContacto);
+    formData.append("estado", estado);
+    formData.append("tipo", tipo);
+    formData.append("imagen", inputImagen.files[0]);
 
-  listaProductos.appendChild(tarjeta);
-  lucide.createIcons();
+    // === ENVIAR AL BACKEND ===
+    const respuesta = await fetch('http://localhost:3000/api/productos', {
+      method: 'POST',
+      body: formData
+    });
 
-  // === RESETEAR Y CERRAR MODAL ===
-  alert('Producto agregado correctamente.');
-  modal.style.display = 'none';
-  formProducto.reset();
-  paso1.style.display = 'block';
-  paso2.style.display = 'none';
-  imagenSeleccionada = "";
+    if (!respuesta.ok) throw new Error('Error al guardar el producto en el servidor');
+
+    const data = await respuesta.json();
+    console.log('✅ Producto guardado en BD:', data);
+
+    // === CREAR TARJETA VISUAL (DOM) ===
+    const tarjeta = document.createElement('div');
+    tarjeta.classList.add('tarjeta');
+    tarjeta.innerHTML = `
+      <img src="http://localhost:3000/uploads/${inputImagen.files[0].name}" alt="${nombreProducto}">
+      <div class="info">
+        <h3>${nombreProducto}</h3>
+        <p class="precio">$${precio}</p>
+        <p class="lugar">${nombreLugar}</p>
+      </div>
+      <div class="acciones-tarjeta">
+        <i data-lucide="more-vertical"></i>
+      </div>
+    `;
+
+    listaProductos.appendChild(tarjeta);
+    lucide.createIcons();
+
+    // === RESETEAR Y CERRAR MODAL ===
+    alert('Producto agregado correctamente.');
+    modal.style.display = 'none';
+    formProducto.reset();
+    paso1.style.display = 'block';
+    paso2.style.display = 'none';
+  } catch (error) {
+    console.error('Error al guardar el producto:', error);
+    alert('Hubo un error al guardar el producto. Revisa la consola.');
+  }
 });
-
