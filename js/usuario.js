@@ -27,3 +27,5 @@ window.addEventListener('click', (e) => {
   if (e.target === modalRegistro) modalRegistro.classList.remove('activo');
   if (e.target === modalLogin) modalLogin.classList.remove('activo');
 });
+
+
