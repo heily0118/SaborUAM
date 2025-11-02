@@ -1,36 +1,49 @@
-// backend/routes/lugares.js
 import express from "express";
+import multer from "multer";
 import db from "../db/conexion.js";
 
 const router = express.Router();
 
-// Obtener todos los lugares
-router.get("/", (req, res) => {
-  const sql = "SELECT * FROM lugares"; 
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Error al obtener lugares:", err);
-      return res.status(500).json({ mensaje: "Error al obtener lugares" });
-    }
-    res.json(results);
-  });
-});
+// Configuración de multer para leer campos de FormData (sin archivos)
+const upload = multer();
 
 // Registrar un nuevo lugar
-router.post("/registro", (req, res) => {
-  const { nombre, direccion, descripcion } = req.body;
+router.post("/registro", upload.none(), (req, res) => {
+  const { NIT, nombre, tipo, horario, estado, servicioDomicilio, numeroContacto, ubicacion } = req.body;
 
-  if (!nombre || !direccion || !descripcion) {
-    return res.status(400).json({ mensaje: "Todos los campos son obligatorios" });
+  console.log(" Datos recibidos:", req.body); // Para verificar lo que llega
+
+  // Validar campos obligatorios
+  if (!NIT || !nombre || !tipo) {
+    return res.status(400).json({ mensaje: "NIT, nombre y tipo son obligatorios" });
   }
 
-  const sql = "INSERT INTO lugares (nombre, direccion, descripcion) VALUES (?, ?, ?)";
-  db.query(sql, [nombre, direccion, descripcion], (err, result) => {
+  // Convertir servicioDomicilio a 0/1
+  const servicio = servicioDomicilio === "Sí" ? 1 : 0;
+
+  const sql = `
+    INSERT INTO lugares 
+    (NIT, nombre, tipo, horario_atencion, estado, servicio_domicilio, numero_contacto_domicilio, ubicacion)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      nombre = VALUES(nombre),
+      tipo = VALUES(tipo),
+      horario_atencion = VALUES(horario_atencion),
+      estado = VALUES(estado),
+      servicio_domicilio = VALUES(servicio_domicilio),
+      numero_contacto_domicilio = VALUES(numero_contacto_domicilio),
+      ubicacion = VALUES(ubicacion)
+  `;
+
+  const values = [NIT, nombre, tipo, horario, estado, servicio, numeroContacto, ubicacion];
+
+  db.query(sql, values, (err, result) => {
     if (err) {
-      console.error("Error al registrar lugar:", err);
+      console.error(" Error al registrar lugar:", err);
       return res.status(500).json({ mensaje: "Error al registrar lugar" });
     }
-    res.json({ mensaje: "Lugar registrado exitosamente", id: result.insertId });
+    console.log(" Lugar insertado/actualizado correctamente");
+    res.json({ mensaje: "Lugar registrado exitosamente", NIT });
   });
 });
 

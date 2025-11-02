@@ -62,7 +62,7 @@ formProducto.addEventListener('submit', async (event) => {
 
   // === DATOS DEL LUGAR ===
   const nombreLugar = document.getElementById('nombreLugar').value.trim();
-  const NIT = document.getElementById('NIT').value.trim();
+  const nit = document.getElementById('nit').value.trim();
   const ubicacion = document.getElementById('ubicacion').value.trim();
   const horario = document.getElementById('horario').value.trim();
   const dias = document.getElementById('dias').value.trim();
@@ -72,45 +72,62 @@ formProducto.addEventListener('submit', async (event) => {
   const tipo = document.getElementById('tipo').value.trim();
 
   // === VALIDACIÓN ===
-  if (
-    !nombreLugar || !NIT || !ubicacion || !horario || !servicioDomicilio || !descripcion ||
-    !dias || !codigo || !tipo_menu || !estado || !tipo || !numeroContacto
-  ) {
+  if (!nombreProducto || !codigo || !tipo_menu || !descripcion || !precio) {
+    alert("Por favor completa todos los campos del producto.");
+    return;
+  }
+
+  if (!nombreLugar || !nit || !ubicacion || !horario || !dias || !servicioDomicilio || !numeroContacto || !estado || !tipo) {
     alert("Por favor completa toda la información del lugar.");
     return;
   }
 
   try {
-    // === CREAR FORM DATA PARA ENVIAR IMAGEN ===
+    // === 1️⃣ GUARDAR EL LUGAR (en JSON) ===
+    const lugarData = {
+      NIT: nit,
+      nombre: nombreLugar,
+      tipo,
+      horario,
+      estado,
+      servicioDomicilio,
+      numeroContacto,
+      ubicacion
+    };
+
+    // CÓDIGO CORREGIDO: DEBE FUNCIONAR
+    const respuestaLugar = await fetch('http://localhost:3000/api/lugares/registro', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lugarData)
+    });
+
+    const dataLugar = await respuestaLugar.json();
+    console.log('✅ Lugar guardado:', dataLugar);
+
+    if (!respuestaLugar.ok) throw new Error(dataLugar.mensaje || 'Error al guardar el lugar');
+
+    // === 2️⃣ GUARDAR EL PRODUCTO (con imagen en FormData) ===
     const formData = new FormData();
     formData.append("nombreProducto", nombreProducto);
     formData.append("codigo", codigo);
     formData.append("descripcion", descripcion);
     formData.append("tipo_menu", tipo_menu);
     formData.append("precio", precio);
-    formData.append("nombreLugar", nombreLugar);
-    formData.append("NIT", NIT);
-    formData.append("ubicacion", ubicacion);
-    formData.append("horario", horario);
-    formData.append("dias", dias);
-    formData.append("servicioDomicilio", servicioDomicilio);
-    formData.append("numeroContacto", numeroContacto);
-    formData.append("estado", estado);
-    formData.append("tipo", tipo);
     formData.append("imagen", inputImagen.files[0]);
+    formData.append("NIT", nit); // Relación con el lugar
 
-    // === ENVIAR AL BACKEND ===
-    const respuesta = await fetch('http://localhost:3000/api/productos', {
+    const respuestaProducto = await fetch('http://localhost:3000/api/productos', {
       method: 'POST',
       body: formData
     });
 
-    if (!respuesta.ok) throw new Error('Error al guardar el producto en el servidor');
+    const dataProducto = await respuestaProducto.json();
+    console.log('✅ Producto guardado:', dataProducto);
 
-    const data = await respuesta.json();
-    console.log('✅ Producto guardado en BD:', data);
+    if (!respuestaProducto.ok) throw new Error(dataProducto.mensaje || 'Error al guardar el producto');
 
-    // === CREAR TARJETA VISUAL (DOM) ===
+    // === MOSTRAR TARJETA VISUAL ===
     const tarjeta = document.createElement('div');
     tarjeta.classList.add('tarjeta');
     tarjeta.innerHTML = `
@@ -124,18 +141,17 @@ formProducto.addEventListener('submit', async (event) => {
         <i data-lucide="more-vertical"></i>
       </div>
     `;
-
     listaProductos.appendChild(tarjeta);
     lucide.createIcons();
 
-    // === RESETEAR Y CERRAR MODAL ===
-    alert('Producto agregado correctamente.');
+    alert('✅ Producto y lugar agregados correctamente.');
     modal.style.display = 'none';
     formProducto.reset();
     paso1.style.display = 'block';
     paso2.style.display = 'none';
+
   } catch (error) {
-    console.error('Error al guardar el producto:', error);
-    alert('Hubo un error al guardar el producto. Revisa la consola.');
+    console.error('❌ Error al guardar producto o lugar:', error);
+    alert('Hubo un error al guardar. Revisa la consola.');
   }
 });

@@ -1,70 +1,69 @@
-// backend/routes/productos.js
 import express from "express";
-import db from "../db/conexion.js";
 import multer from "multer";
 import path from "path";
+import db from "../db/conexion.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 const router = express.Router();
 
-// Configurar multer
+// 📦 Configuración de subida de imágenes
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const upload = multer({ dest: path.join(__dirname, "../uploads") });
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../uploads'));
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
+// 📦 REGISTRO DE PRODUCTO Y RELACIÓN CON LUGAR
+router.post("/", upload.single("imagen"), (req, res) => {
+  const { codigo, nombreProducto, descripcion, tipo_menu, precio, NIT } = req.body;
+  const imagen = req.file ? req.file.filename : null;
+
+  console.log("📦 Datos recibidos del producto:", req.body);
+  console.log("🖼️ Archivo recibido:", req.file);
+
+  // Validar campos requeridos
+  if (!codigo || !nombreProducto || !precio || !NIT) {
+    return res.status(400).json({ error: "Faltan datos obligatorios" });
   }
-});
 
-const upload = multer({ storage });
+  // 1️⃣ Insertar producto
+  const sqlProducto = `
+    INSERT INTO productos (codigo, nombre, descripcion, tipo_menu, precio, imagen)
+    VALUES (?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      nombre = VALUES(nombre),
+      descripcion = VALUES(descripcion),
+      tipo_menu = VALUES(tipo_menu),
+      precio = VALUES(precio),
+      imagen = VALUES(imagen)
+  `;
+  const valuesProducto = [codigo, nombreProducto, descripcion, tipo_menu, precio, imagen];
 
-// Obtener todos los productos
-router.get("/", (req, res) => {
-  const sql = "SELECT * FROM productos";
-  db.query(sql, (err, result) => {
+  db.query(sqlProducto, valuesProducto, (err) => {
     if (err) {
-      console.error("Error al obtener productos:", err);
-      return res.status(500).json({ error: "Error al obtener los productos" });
-    }
-    res.json(result);
-  });
-});
-
-// Crear nuevo producto
-router.post("/", upload.single('imagen'), (req, res) => {
-  try {
-    const { codigo, nombreProducto, descripcion, tipo_menu, precio } = req.body;
-
-    if (!req.file) {
-      return res.status(400).json({ error: "No se subió ninguna imagen" });
+      console.error("❌ Error al insertar producto:", err);
+      return res.status(500).json({ error: "Error al insertar producto" });
     }
 
-    const imagen = req.file.filename;
+    console.log("✅ Producto insertado/actualizado correctamente");
 
-    const sql = `
-      INSERT INTO productos (codigo, nombre, descripcion, tipo_menu, precio, imagen)
-      VALUES (?, ?, ?, ?, ?, ?)
+    // 2️⃣ Insertar relación producto-lugar
+    const sqlRelacion = `
+      INSERT INTO productos_lugares (lug_nit, pro_cod)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE lug_nit = VALUES(lug_nit)
     `;
+    const valuesRelacion = [NIT, codigo];
 
-    const values = [codigo, nombreProducto, descripcion, tipo_menu, precio, imagen];
-
-    db.query(sql, values, (err, result) => {
+    db.query(sqlRelacion, valuesRelacion, (err) => {
       if (err) {
-        console.error("Error al insertar producto:", err);
-        return res.status(500).json({ error: "Error al guardar el producto" });
+        console.error("❌ Error al insertar relación producto-lugar:", err);
+        return res.status(500).json({ error: "Error al insertar relación producto-lugar" });
       }
-      res.json({ mensaje: "Producto guardado correctamente", id: result.insertId });
+
+      console.log("✅ Relación producto-lugar creada correctamente");
+      res.json({ mensaje: "✅ Producto y relación insertados correctamente" });
     });
-  } catch (error) {
-    console.error("Error en POST /productos:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
+  });
 });
 
 export default router;

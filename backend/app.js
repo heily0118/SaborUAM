@@ -12,6 +12,9 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true, limit: "70mb" }));
 app.use(express.json({ limit: "70mb" }));
 
+// Servir imágenes estáticas (carpeta uploads)
+app.use('/uploads', express.static('./uploads'));
+
 // Rutas de la aplicación
 app.use('/api/productos', productosRouter);
 app.use('/api/usuarios', usuariosRouter);
