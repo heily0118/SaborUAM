@@ -1,4 +1,5 @@
-// adminis.js frontend
+// === CONFIGURACIÓN BASE ===
+const API_URL = "http://localhost:3000";
 
 // === SELECCIÓN DE ELEMENTOS ===
 const modal = document.getElementById('modal-agregar');
@@ -35,7 +36,7 @@ btnSiguiente.addEventListener('click', () => {
   const archivo = inputImagen.files[0];
 
   if (!nombre || !codigo || !tipo_menu || !descripcion || !precio || !archivo) {
-    alert('Por favor completa todos los campos del producto antes de continuar.');
+    alert('Por favor completa todos los campos antes de continuar.');
     return;
   }
 
@@ -71,19 +72,8 @@ formProducto.addEventListener('submit', async (event) => {
   const estado = document.getElementById('estado').value.trim();
   const tipo = document.getElementById('tipo').value.trim();
 
-  // === VALIDACIÓN ===
-  if (!nombreProducto || !codigo || !tipo_menu || !descripcion || !precio) {
-    alert("Por favor completa todos los campos del producto.");
-    return;
-  }
-
-  if (!nombreLugar || !nit || !ubicacion || !horario || !dias || !servicioDomicilio || !numeroContacto || !estado || !tipo) {
-    alert("Por favor completa toda la información del lugar.");
-    return;
-  }
-
   try {
-    // === 1️⃣ GUARDAR EL LUGAR (en JSON) ===
+    // === 1️⃣ GUARDAR EL LUGAR ===
     const lugarData = {
       NIT: nit,
       nombre: nombreLugar,
@@ -95,19 +85,16 @@ formProducto.addEventListener('submit', async (event) => {
       ubicacion
     };
 
-    // CÓDIGO CORREGIDO: DEBE FUNCIONAR
-    const respuestaLugar = await fetch('http://localhost:3000/api/lugares/registro', {
+    const respuestaLugar = await fetch(`${API_URL}/api/lugares/registro`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(lugarData)
     });
 
     const dataLugar = await respuestaLugar.json();
-    console.log('✅ Lugar guardado:', dataLugar);
-
     if (!respuestaLugar.ok) throw new Error(dataLugar.mensaje || 'Error al guardar el lugar');
 
-    // === 2️⃣ GUARDAR EL PRODUCTO (con imagen en FormData) ===
+    // === 2️⃣ GUARDAR EL PRODUCTO ===
     const formData = new FormData();
     formData.append("nombreProducto", nombreProducto);
     formData.append("codigo", codigo);
@@ -115,34 +102,15 @@ formProducto.addEventListener('submit', async (event) => {
     formData.append("tipo_menu", tipo_menu);
     formData.append("precio", precio);
     formData.append("imagen", inputImagen.files[0]);
-    formData.append("NIT", nit); // Relación con el lugar
+    formData.append("NIT", nit);
 
-    const respuestaProducto = await fetch('http://localhost:3000/api/productos', {
+    const respuestaProducto = await fetch(`${API_URL}/api/productos`, {
       method: 'POST',
       body: formData
     });
 
     const dataProducto = await respuestaProducto.json();
-    console.log('✅ Producto guardado:', dataProducto);
-
     if (!respuestaProducto.ok) throw new Error(dataProducto.mensaje || 'Error al guardar el producto');
-
-    // === MOSTRAR TARJETA VISUAL ===
-    const tarjeta = document.createElement('div');
-    tarjeta.classList.add('tarjeta');
-    tarjeta.innerHTML = `
-      <img src="http://localhost:3000/uploads/${inputImagen.files[0].name}" alt="${nombreProducto}">
-      <div class="info">
-        <h3>${nombreProducto}</h3>
-        <p class="precio">$${precio}</p>
-        <p class="lugar">${nombreLugar}</p>
-      </div>
-      <div class="acciones-tarjeta">
-        <i data-lucide="more-vertical"></i>
-      </div>
-    `;
-    listaProductos.appendChild(tarjeta);
-    lucide.createIcons();
 
     alert('✅ Producto y lugar agregados correctamente.');
     modal.style.display = 'none';
@@ -150,8 +118,44 @@ formProducto.addEventListener('submit', async (event) => {
     paso1.style.display = 'block';
     paso2.style.display = 'none';
 
+    // 🔄 Recargar lista sin recargar la página
+    cargarProductos();
   } catch (error) {
     console.error('❌ Error al guardar producto o lugar:', error);
     alert('Hubo un error al guardar. Revisa la consola.');
   }
 });
+
+// === FUNCIÓN PARA CARGAR PRODUCTOS EXISTENTES ===
+async function cargarProductos() {
+  try {
+    const res = await fetch(`${API_URL}/api/productos`);
+    const productos = await res.json();
+
+    listaProductos.innerHTML = ""; // Limpiar antes de volver a pintar
+
+    productos.forEach(producto => {
+      const tarjeta = document.createElement('div');
+      tarjeta.classList.add('tarjeta');
+      tarjeta.innerHTML = `
+        <img src="${API_URL}/uploads/${producto.imagen}" alt="${producto.nombreProducto}">
+        <div class="info">
+          <h3>${producto.nombreProducto}</h3>
+          <p class="precio">$${producto.precio}</p>
+          <p class="lugar">${producto.NOMBRE_LUGAR || 'Sin lugar'}</p>
+        </div>
+        <div class="acciones-tarjeta">
+          <i data-lucide="more-vertical"></i>
+        </div>
+      `;
+      listaProductos.appendChild(tarjeta);
+    });
+
+    lucide.createIcons();
+  } catch (error) {
+    console.error('❌ Error al cargar productos:', error);
+  }
+}
+
+// === CARGAR PRODUCTOS AL INICIO ===
+window.addEventListener('DOMContentLoaded', cargarProductos);

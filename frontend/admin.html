@@ -43,52 +43,10 @@
         <button><i data-lucide="search"></i></button>
       </div>
 
-    <!-- TARJETAS DE PRODUCTOS -->
+      <!-- CONTENEDOR DE TARJETAS DINÁMICAS -->
       <div class="productos" id="lista-productos">
-        
-        <!-- Tarjeta 1 -->
-        <div class="tarjeta">
-          <img src="img/Almuerzo_Ejecutivo.png" alt="Almuerzo Ejecutivo">
-          <div class="info">
-            <h3>Almuerzo Ejecutivo</h3>
-            <p class="precio">$12.000</p>
-            <p class="lugar">Restaurante UAM</p>
-          </div>
-          <div class="acciones-tarjeta">
-            <i data-lucide="more-vertical"></i>
-          </div>
-        </div>
-
-        <!-- Tarjeta 2 -->
-        <div class="tarjeta">
-          <img src="img/Almuerzo_Vegetariano.jpeg" alt="Almuerzo Vegetariano">
-          <div class="info">
-            <h3>Almuerzo Vegetariano</h3>
-            <p class="precio">$10.500</p>
-            <p class="lugar">Verde Vida</p>
-          </div>
-          <div class="acciones-tarjeta">
-            <i data-lucide="more-vertical"></i>
-          </div>
-        </div>
-
-        <!-- Tarjeta 3 -->
-        <div class="tarjeta">
-          <img src="img/Jugo_Natural.jpg" alt="Jugo natural">
-          <div class="info">
-            <h3>Jugo Natural</h3>
-            <p class="precio">$4.000</p>
-            <p class="lugar">Café UAM</p>
-          </div>
-          <div class="acciones-tarjeta">
-            <i data-lucide="more-vertical"></i>
-          </div>
-        </div>
-
+        <!-- Las tarjetas se cargarán aquí desde JS -->
       </div>
-
-    </section>
-
     </section>
 
     <!-- BOTÓN AGREGAR -->
@@ -128,11 +86,9 @@
           <label for="imagen-producto">Imagen del producto:</label>
           <input type="file" id="imagen-producto" accept="image/*">
 
-          <!-- BOTONES DE PASO 1 -->
           <div class="acciones">
-          <button type="button" id="btn-cancelar">Cancelar</button>
-          <button type="button" id="btn-siguiente">Siguiente</button>
-
+            <button type="button" id="btn-cancelar">Cancelar</button>
+            <button type="button" id="btn-siguiente">Siguiente</button>
           </div>
         </div>
 
@@ -161,11 +117,8 @@
             </select>
           </div>
 
-
           <label for="nit">NIT:</label>
           <input type="text" id="nit" placeholder="Ej: 123456789-0">
-
-
 
           <label for="ubicacion">Ubicación:</label>
           <input type="text" id="ubicacion" placeholder="Cafetería principal">
@@ -178,10 +131,10 @@
 
           <label for="servicioDomicilio">¿Ofrece servicio a domicilio?</label>
           <select id="servicioDomicilio">
-          <option value="">Selecciona una opción</option>
-          <option value="Sí">Sí</option>
-          <option value="No">No</option>
-        </select>
+            <option value="">Selecciona una opción</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+          </select>
 
           <label for="numeroContacto">Número de contacto para domicilio:</label>
           <input type="text" id="numeroContacto" placeholder="Ej: 3101234567">
@@ -194,8 +147,6 @@
       </form>
     </div>
   </section>
-
-
 
   <script src="js/admin.js"></script>
   <script>lucide.createIcons();</script>

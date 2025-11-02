@@ -12,6 +12,28 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const upload = multer({ dest: path.join(__dirname, "../uploads") });
 
+// ======================================================
+// ✅ Ruta GET: obtener todos los productos con su lugar
+// ======================================================
+router.get("/", (req, res) => {
+  const sql = `
+    SELECT p.codigo, p.nombre AS nombreProducto, p.descripcion, p.tipo_menu, p.precio, p.imagen,
+           l.nombre AS NOMBRE_LUGAR
+    FROM productos p
+    LEFT JOIN productos_lugares pl ON p.codigo = pl.pro_cod
+    LEFT JOIN lugares l ON pl.lug_nit = l.NIT
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Error al obtener productos:", err);
+      return res.status(500).json({ error: "Error al obtener productos" });
+    }
+    res.json(results);
+  });
+});
+
+
 // 📦 REGISTRO DE PRODUCTO Y RELACIÓN CON LUGAR
 router.post("/", upload.single("imagen"), (req, res) => {
   const { codigo, nombreProducto, descripcion, tipo_menu, precio, NIT } = req.body;
