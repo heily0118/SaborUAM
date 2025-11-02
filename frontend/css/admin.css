@@ -157,6 +157,8 @@ body {
   overflow: hidden;
   position: relative;
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .tarjeta:hover {
@@ -170,14 +172,18 @@ body {
 }
 
 .info {
-  padding: 10px;
-  text-align: left;
+  position: relative;
+  padding: 8px 25px 8px 12px;
 }
 
 .info h3 {
+  margin-right: 25px;
   margin: 5px 0;
   font-size: 1.1em;
   color: #005c99;
+  white-space: nowrap;        /* evita que el título se parta en varias líneas */
+  overflow: hidden;           /* oculta el exceso de texto */
+  text-overflow: ellipsis;
 }
 
 .precio {
@@ -192,8 +198,8 @@ body {
 
 .acciones-tarjeta {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 158px;
+  right: 6px;
   color: #333;
   cursor: pointer;
 }
