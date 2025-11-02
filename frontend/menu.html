@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu - SaborUAM</title>
+  <link rel="stylesheet" href="css/menu.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- ENCABEZADO -->
+  <header class="header">
+    <div class="titulo">
+      <h1>SaborUAM</h1>
+    </div>
+
+    <div class="acciones-header">
+      <i data-lucide="bell" class="icono"></i>
+      <button class="btn-cerrar">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="contenedor">
+
+    <!-- BARRA LATERAL -->
+    <aside class="barra-filtro">
+      <h2>Menú</h2>
+      <ul>
+        <li><button class="filtro-btn activo">Todos</button></li>
+        <li><button class="filtro-btn">Desayunos</button></li>
+        <li><button class="filtro-btn">Almuerzos</button></li>
+        <li><button class="filtro-btn">Bebidas</button></li>
+        <li><button class="filtro-btn">Otros</button></li>
+      </ul>
+    </aside>
+
+    <!-- ZONA PRINCIPAL -->
+    <section class="zona-principal">
+      <div class="buscador">
+        <input type="text" placeholder="Buscar producto...">
+        <button><i data-lucide="search"></i></button>
+      </div>
+
+    <!-- TARJETAS DE PRODUCTOS -->
+      <div class="productos" id="lista-productos">
+        
+        <!-- Tarjeta 1 -->
+        <div class="tarjeta">
+          <img src="img/Almuerzo_Ejecutivo.png" alt="Almuerzo Ejecutivo">
+          <div class="info">
+            <h3>Almuerzo Ejecutivo</h3>
+            <p class="precio">$12.000</p>
+            <p class="lugar">Restaurante UAM</p>
+          </div>
+          <div class="acciones-tarjeta">
+            <i data-lucide="more-vertical"></i>
+          </div>
+        </div>
+
+        <!-- Tarjeta 2 -->
+        <div class="tarjeta">
+          <img src="img/Almuerzo_Vegetariano.jpeg" alt="Almuerzo Vegetariano">
+          <div class="info">
+            <h3>Almuerzo Vegetariano</h3>
+            <p class="precio">$10.500</p>
+            <p class="lugar">Verde Vida</p>
+          </div>
+          <div class="acciones-tarjeta">
+            <i data-lucide="more-vertical"></i>
+          </div>
+        </div>
+
+        <!-- Tarjeta 3 -->
+        <div class="tarjeta">
+          <img src="img/Jugo_Natural.jpg" alt="Jugo natural">
+          <div class="info">
+            <h3>Jugo Natural</h3>
+            <p class="precio">$4.000</p>
+            <p class="lugar">Café UAM</p>
+          </div>
+          <div class="acciones-tarjeta">
+            <i data-lucide="more-vertical"></i>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    </section>
+
+
+
+  <script src="js/admin.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

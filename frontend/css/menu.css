@@ -1,0 +1,299 @@
+/* ======= GENERAL ======= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ======= ENCABEZADO ======= */
+.header {
+  background-color: #005c99;
+  border-bottom: 6px solid #d4af37;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+}
+
+.titulo h1 {
+  font-size: 1.8em;
+  margin: 0;
+  font-weight: 700;
+}
+
+.acciones-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.icono {
+  width: 26px;
+  height: 26px;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-cerrar {
+  background-color: white;
+  color: #005c99;
+  border: 2px solid #005c99;
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cerrar:hover {
+  background-color: #005c99;
+  color: white;
+}
+
+/* ======= CONTENEDOR PRINCIPAL ======= */
+.contenedor {
+  display: flex;
+  flex: 1;
+}
+
+/* ======= BARRA LATERAL ======= */
+.barra-filtro {
+  width: 220px;
+  background-color: white;
+  border-right: 3px solid #d4af37;
+  padding: 20px;
+}
+
+.barra-filtro h2 {
+  text-align: center;
+  color: #005c99;
+  border-bottom: 2px solid #d4af37;
+  padding-bottom: 10px;
+}
+
+.barra-filtro ul {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+}
+
+.barra-filtro li {
+  margin: 15px 0;
+}
+
+.filtro-btn {
+  width: 100%;
+  background: none;
+  border: 2px solid #d4af37;
+  padding: 10px;
+  border-radius: 8px;
+  color: #005c99;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.filtro-btn:hover,
+.filtro-btn.activo {
+  background-color: #005c99;
+  color: white;
+  border-color: #005c99;
+}
+
+/* ======= ZONA PRINCIPAL ======= */
+.zona-principal {
+  flex: 1;
+  padding: 30px;
+}
+/* ======= BUSCADOR ======= */
+.buscador {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 40px auto; /* más espacio arriba y abajo */
+}
+
+.buscador input {
+  padding: 10px 15px;
+  width: 300px; /* un poco más angosto para verse más centrado */
+  border-radius: 10px 0 0 10px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+
+.buscador button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #005c99;
+  color: white;
+  border-radius: 0 10px 10px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buscador button:hover {
+  background-color: #004b80;
+}
+
+/* ======= TARJETAS ======= */
+.productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.tarjeta {
+  background: white;
+  border: 2px solid #d4af37;
+  border-radius: 15px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.tarjeta:hover {
+  transform: translateY(-5px);
+}
+
+.tarjeta img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.info {
+  padding: 10px;
+  text-align: left;
+}
+
+.info h3 {
+  margin: 5px 0;
+  font-size: 1.1em;
+  color: #005c99;
+}
+
+.precio {
+  font-weight: bold;
+  color: #005c99;
+}
+
+.lugar{
+  color: #666;
+  font-size: 0.9em;
+}
+
+.acciones-tarjeta {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #333;
+  cursor: pointer;
+}
+
+/* ======= BOTÓN FLOTANTE ======= */
+.btn-agregar {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #d4af37;
+  color: white;
+  font-size: 2em;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.btn-agregar:hover {
+  transform: scale(1.1);
+  background-color: #b8962c;
+}
+
+/* ======= MODAL ======= */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-contenido {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  width: 400px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  max-height: 85vh;         /* limita la altura para que quepa mejor */
+  overflow-y: auto;          /* activa el scroll vertical */
+  scroll-behavior: smooth;   /* movimiento suave */
+  scroll-padding-top: 0;     /* sin espacio extra arriba */
+  margin-top: 0;             /* elimina espacio superior */
+  padding-top: 0;            /* quita relleno superior */
+}
+
+.modal h2 {
+  margin-bottom: 15px;
+  color: #005c99;
+  text-align: center;
+}
+
+.modal label {
+  display: block;
+  margin-top: 10px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal input,
+.modal textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+.acciones {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.acciones button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.acciones button:first-child {
+  background-color: #005c99;
+  color: white;
+}
+
+.acciones button:last-child {
+  background-color: #ccc;
+  color: #333;
+}
+/* Cuando el modal está activo (visible) */
+.modal.activo {
+  display: flex;
+}
+
+
