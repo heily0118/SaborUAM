@@ -7,14 +7,12 @@ import { dirname } from "path";
 
 const router = express.Router();
 
-// 📦 Configuración de subida de imágenes
+// Configuración de subida de imágenes
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const upload = multer({ dest: path.join(__dirname, "../uploads") });
 
-// ======================================================
-// ✅ Ruta GET: obtener todos los productos con su lugar
-// ======================================================
+// Ruta GET: obtener todos los productos con su lugar
 router.get("/", (req, res) => {
   const sql = `
     SELECT p.codigo, p.nombre AS nombreProducto, p.descripcion, p.tipo_menu, p.precio, p.imagen,
@@ -26,7 +24,7 @@ router.get("/", (req, res) => {
 
   db.query(sql, (err, results) => {
     if (err) {
-      console.error("❌ Error al obtener productos:", err);
+      console.error("Error al obtener productos:", err);
       return res.status(500).json({ error: "Error al obtener productos" });
     }
     res.json(results);
@@ -34,20 +32,20 @@ router.get("/", (req, res) => {
 });
 
 
-// 📦 REGISTRO DE PRODUCTO Y RELACIÓN CON LUGAR
+// REGISTRO DE PRODUCTO Y RELACIÓN CON LUGAR
 router.post("/", upload.single("imagen"), (req, res) => {
   const { codigo, nombreProducto, descripcion, tipo_menu, precio, NIT } = req.body;
   const imagen = req.file ? req.file.filename : null;
 
-  console.log("📦 Datos recibidos del producto:", req.body);
-  console.log("🖼️ Archivo recibido:", req.file);
+  console.log("Datos recibidos del producto:", req.body);
+  console.log("Archivo recibido:", req.file);
 
   // Validar campos requeridos
   if (!codigo || !nombreProducto || !precio || !NIT) {
     return res.status(400).json({ error: "Faltan datos obligatorios" });
   }
 
-  // 1️⃣ Insertar producto
+  // Insertar producto
   const sqlProducto = `
     INSERT INTO productos (codigo, nombre, descripcion, tipo_menu, precio, imagen)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -62,13 +60,13 @@ router.post("/", upload.single("imagen"), (req, res) => {
 
   db.query(sqlProducto, valuesProducto, (err) => {
     if (err) {
-      console.error("❌ Error al insertar producto:", err);
+      console.error("Error al insertar producto:", err);
       return res.status(500).json({ error: "Error al insertar producto" });
     }
 
-    console.log("✅ Producto insertado/actualizado correctamente");
+    console.log("Producto insertado/actualizado correctamente");
 
-    // 2️⃣ Insertar relación producto-lugar
+    // Insertar relación producto-lugar
     const sqlRelacion = `
       INSERT INTO productos_lugares (lug_nit, pro_cod)
       VALUES (?, ?)
@@ -78,12 +76,12 @@ router.post("/", upload.single("imagen"), (req, res) => {
 
     db.query(sqlRelacion, valuesRelacion, (err) => {
       if (err) {
-        console.error("❌ Error al insertar relación producto-lugar:", err);
+        console.error("Error al insertar relación producto-lugar:", err);
         return res.status(500).json({ error: "Error al insertar relación producto-lugar" });
       }
 
-      console.log("✅ Relación producto-lugar creada correctamente");
-      res.json({ mensaje: "✅ Producto y relación insertados correctamente" });
+      console.log("Relación producto-lugar creada correctamente");
+      res.json({ mensaje: "Producto y relación insertados correctamente" });
     });
   });
 });

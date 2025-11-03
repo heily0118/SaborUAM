@@ -1,4 +1,4 @@
-// backend/app.js
+
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -9,7 +9,7 @@ import usuariosRouter from "./routes/usuarios.js";
 import lugaresRouter from "./routes/lugares.js";
 import consultasRouter from './routes/consultas.js';
 
-// ===> 🔧 Solución al error de __dirname y __filename
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
