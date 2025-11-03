@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import productosRouter from "./routes/productos.js";
 import usuariosRouter from "./routes/usuarios.js";
 import lugaresRouter from "./routes/lugares.js";
+import consultasRouter from './routes/consultas.js';
 
 // ===> 🔧 Solución al error de __dirname y __filename
 const __filename = fileURLToPath(import.meta.url);
@@ -26,6 +27,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/productos", productosRouter);
 app.use("/api/usuarios", usuariosRouter);
 app.use("/api/lugares", lugaresRouter);
+app.use('/api/consultas', consultasRouter);
 
 // Servidor corriendo
 app.listen(3000, () => {

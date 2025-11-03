@@ -3,79 +3,96 @@ const API_URL = "http://localhost:3000";
 
 // === SELECCIÓN DE ELEMENTOS ===
 const listaProductos = document.getElementById('lista-productos');
-const botonesFiltro = document.querySelectorAll('.filtro-btn'); // Selecciona todos los botones de la barra lateral
+const botonesFiltro = document.querySelectorAll('.filtro-btn');
+const btnCerrar = document.getElementById('btn-cerrar');
 
-// 1. === FUNCIÓN PRINCIPAL PARA CARGAR Y MOSTRAR PRODUCTOS ===
-// Ahora acepta un parámetro opcional 'filtro'
+// === FUNCIÓN PRINCIPAL: CARGAR PRODUCTOS ===
 async function cargarProductosMenu(filtro = 'Todos') {
-    try {
-        listaProductos.innerHTML = '<p class="cargando">Cargando productos...</p>'; // Mostrar mensaje de carga
+  try {
+    listaProductos.innerHTML = '<p class="cargando">Cargando productos...</p>';
 
-        // 1. Petición a la API para obtener todos los productos
-        const res = await fetch(`${API_URL}/api/productos`);
-        let productos = await res.json();
+    const res = await fetch(`${API_URL}/api/productos`);
+    let productos = await res.json();
 
-        // 2. Aplicar el filtro si no es 'Todos'
-        if (filtro !== 'Todos') {
-            // La propiedad en la base de datos es 'tipo_menu'
-            productos = productos.filter(producto => producto.tipo_menu === filtro);
-        }
-
-        // 3. Limpiar el contenedor
-        listaProductos.innerHTML = "";
-
-        if (productos.length === 0) {
-            listaProductos.innerHTML = `<p class="sin-resultados">No hay productos disponibles en la categoría: **${filtro}**.</p>`;
-            return;
-        }
-
-        // 4. Iterar sobre los productos y crear una tarjeta para cada uno
-        productos.forEach(producto => {
-            const nombreLugar = producto.NOMBRE_LUGAR || 'Lugar Desconocido'; 
-            const tarjeta = document.createElement('div');
-            tarjeta.classList.add('tarjeta');
-            tarjeta.innerHTML = `
-                <img src="${API_URL}/uploads/${producto.imagen}" alt="${producto.nombreProducto}">
-                <div class="info">
-                    <h3>${producto.nombreProducto}</h3>
-                    <p class="precio">$${producto.precio}</p>
-                    <p class="lugar">${nombreLugar}</p>
-                </div>
-                <div class="acciones-tarjeta">
-                    <i data-lucide="more-vertical"></i>
-                </div>
-            `;
-            listaProductos.appendChild(tarjeta);
-        });
-
-        // 5. Recargar los íconos de Lucide
-        lucide.createIcons();
-
-    } catch (error) {
-        console.error('❌ Error al cargar productos en el menú:', error);
-        listaProductos.innerHTML = "<p>Hubo un problema de conexión. Intenta más tarde.</p>";
+    // FILTRAR
+    if (filtro !== 'Todos') {
+      productos = productos.filter(p => p.tipo_menu === filtro);
     }
+
+    listaProductos.innerHTML = "";
+
+    if (productos.length === 0) {
+      listaProductos.innerHTML = `<p class="sin-resultados">No hay productos en la categoría: <strong>${filtro}</strong>.</p>`;
+      return;
+    }
+
+    // MOSTRAR TARJETAS
+    productos.forEach(producto => {
+      const nombreLugar = producto.NOMBRE_LUGAR || 'Lugar Desconocido';
+      const tarjeta = document.createElement('div');
+      tarjeta.classList.add('tarjeta');
+      tarjeta.innerHTML = `
+        <img src="${API_URL}/uploads/${producto.imagen}" alt="${producto.nombreProducto}">
+        <div class="info">
+          <h3>${producto.nombreProducto}</h3>
+          <p class="precio">$${producto.precio}</p>
+          <p class="lugar">${nombreLugar}</p>
+        </div>
+        <div class="acciones-tarjeta">
+          <i data-lucide="more-vertical"></i>
+        </div>
+      `;
+
+      // 💾 Registrar consulta al hacer clic
+      tarjeta.addEventListener('click', async () => {
+        const usu_num = localStorage.getItem('usuario_num');
+        if (!usu_num) {
+          alert("Inicia sesión para registrar consultas.");
+          return;
+        }
+
+        try {
+          await fetch(`${API_URL}/api/consultas`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              usu_num: usu_num,
+              pro_cod: producto.codigo
+            })
+          });
+          console.log(`✅ Consulta registrada para ${producto.nombreProducto}`);
+        } catch (error) {
+          console.error("❌ Error al registrar consulta:", error);
+        }
+      });
+
+      listaProductos.appendChild(tarjeta);
+    });
+
+    lucide.createIcons();
+  } catch (error) {
+    console.error('❌ Error al cargar productos:', error);
+    listaProductos.innerHTML = "<p>Hubo un problema al cargar los productos.</p>";
+  }
 }
 
-// 2. === EVENT LISTENERS PARA LOS BOTONES DE FILTRO ===
+// === EVENTOS DE FILTRO ===
 botonesFiltro.forEach(btn => {
-    btn.addEventListener('click', (event) => {
-        // a. Obtener el texto del botón, que es nuestro filtro (Ej: "Desayunos")
-        const filtro = event.target.textContent; 
-
-        // b. Remover la clase 'activo' de todos los botones
-        botonesFiltro.forEach(b => b.classList.remove('activo'));
-
-        // c. Agregar la clase 'activo' al botón clickeado
-        event.target.classList.add('activo');
-
-        // d. Llamar a la función principal con el filtro
-        cargarProductosMenu(filtro);
-    });
+  btn.addEventListener('click', e => {
+    const filtro = e.target.textContent;
+    botonesFiltro.forEach(b => b.classList.remove('activo'));
+    e.target.classList.add('activo');
+    cargarProductosMenu(filtro);
+  });
 });
 
-// 3. === CARGAR PRODUCTOS AL INICIO DE LA PÁGINA MENÚ ===
+// === CERRAR SESIÓN ===
+btnCerrar.addEventListener('click', () => {
+  localStorage.removeItem('usuario_num');
+  window.location.href = 'usuario.html';
+});
+
+// === CARGAR PRODUCTOS AL INICIO ===
 window.addEventListener('DOMContentLoaded', () => {
-    // La primera vez, carga 'Todos'
-    cargarProductosMenu('Todos');
+  cargarProductosMenu('Todos');
 });

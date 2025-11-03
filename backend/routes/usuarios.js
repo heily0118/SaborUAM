@@ -60,7 +60,12 @@ router.post('/login', (req, res) => {
     } else if (results.length === 0) {
       res.status(401).json({ mensaje: 'Correo o contraseña incorrectos' });
     } else {
-      res.json({ mensaje: 'Inicio de sesión exitoso ', usuario: results[0] });
+      res.json({
+      mensaje: 'Inicio de sesión exitoso',
+      numero_de_documento: results[0].numero_de_documento,
+      nombre_completo: results[0].nombre_completo
+    });
+
     }
   });
 });
