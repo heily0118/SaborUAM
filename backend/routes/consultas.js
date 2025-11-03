@@ -28,12 +28,12 @@ router.post('/registro', (req, res) => {
 
     conexion.query(sql, values, (err, result) => {
         if (err) {
-            console.error('❌ Error al registrar consulta:', err);
+            console.error('Error al registrar consulta:', err);
             // Si quieres ser específico con el error (ej: clave foránea)
             // if (err.code === 'ER_NO_REFERENCED_ROW_2') { ... }
             return res.status(500).json({ mensaje: 'Error al registrar consulta' });
         } else {
-            console.log('✅ Consulta registrada correctamente');
+            console.log('Consulta registrada correctamente');
             res.status(201).json({ 
                 mensaje: 'Consulta registrada correctamente',
                 id: result.insertId // Es útil devolver el ID insertado
