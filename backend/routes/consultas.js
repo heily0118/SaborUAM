@@ -2,7 +2,7 @@
 // backend/routes/consultas/consultas.js
 
 import express from 'express';
-import conexion from '../../db/conexion.js'; // Asegúrate que esta ruta sea correcta
+import db from "../db/conexion.js";
 
 const router = express.Router();
 
