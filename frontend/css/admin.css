@@ -156,7 +156,7 @@ body {
   border: 2px solid #d4af37;
   border-radius: 15px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   transition: transform 0.2s ease;
   display: flex;
@@ -317,4 +317,66 @@ body {
   margin-top: 4px;
   display: block;
 }
+
+/* === MENÚ DE TRES PUNTOS EN TARJETAS === */
+
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.menu-btn:hover {
+  color: #005c99;
+}
+
+.menu-opciones {
+  display: none;
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background-color: #fff;
+  border: 2px solid #333;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 50;
+  padding: 8px;
+}
+
+.menu-opciones.show {
+  display: block;
+}
+
+.menu-opciones button {
+  display: flex;
+  align-items: center;           /* Centra verticalmente */
+  justify-content: center;
+  width: 100%;
+  padding: 6px 14px;
+  margin: 5px 0;
+  background: white;
+  border: 2px solid #000;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.menu-opciones button:hover {
+  background-color: #f1f1f1;
+}
+
+/* Ajuste visual para que se vea coherente con el diseño dorado/azul */
+.menu-opciones button {
+  border-color: #333;
+  color: #333;
+}
+
+.menu-opciones button:hover {
+  background-color: #f7f4ea;
+}
+
 

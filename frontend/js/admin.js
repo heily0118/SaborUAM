@@ -145,13 +145,48 @@ async function cargarProductos() {
           <p class="lugar">${producto.NOMBRE_LUGAR || 'Sin lugar'}</p>
         </div>
         <div class="acciones-tarjeta">
-          <i data-lucide="more-vertical"></i>
+          <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
+          <div class="menu-opciones">
+            <button class="ver-btn">Ver más</button>
+            <button class="editar-btn">Actualizar</button>
+            <button class="eliminar-btn">Eliminar</button>
+          </div>
         </div>
       `;
       listaProductos.appendChild(tarjeta);
     });
 
     lucide.createIcons();
+
+    // === ABRIR / CERRAR MENÚ ===
+document.querySelectorAll(".menu-btn").forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const menu = btn.nextElementSibling;
+    document.querySelectorAll(".menu-opciones").forEach(m => {
+      if (m !== menu) m.classList.remove("show");
+    });
+    menu.classList.toggle("show");
+  });
+});
+
+// === CERRAR MENÚ AL HACER CLIC FUERA ===
+document.addEventListener("click", () => {
+  document.querySelectorAll(".menu-opciones").forEach(menu => menu.classList.remove("show"));
+});
+
+// === ACCIONES DE LOS BOTONES ===
+document.addEventListener("click", e => {
+  if (e.target.classList.contains("ver-btn")) {
+    alert("👀 Ver detalles del producto");
+  }
+  if (e.target.classList.contains("editar-btn")) {
+    alert("✏️ Editar producto");
+  }
+  if (e.target.classList.contains("eliminar-btn")) {
+    alert("🗑️ Eliminar producto");
+  }
+});
   } catch (error) {
     console.error('❌ Error al cargar productos:', error);
   }
