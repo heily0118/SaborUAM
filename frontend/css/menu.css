@@ -1,3 +1,5 @@
+/*Menu.css*/
+
 /* ======= GENERAL ======= */
 body {
   font-family: 'Poppins', sans-serif;
@@ -192,11 +194,13 @@ body {
 
 .acciones-tarjeta {
   position: absolute;
-  top: 10px;
+  top: 170px; 
   right: 10px;
   color: #333;
   cursor: pointer;
 }
+
+
 
 /* ======= BOTÓN FLOTANTE ======= */
 .btn-agregar {
