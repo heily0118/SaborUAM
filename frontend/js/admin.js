@@ -94,7 +94,7 @@ formProducto.addEventListener('submit', async (event) => {
     const dataLugar = await respuestaLugar.json();
     if (!respuestaLugar.ok) throw new Error(dataLugar.mensaje || 'Error al guardar el lugar');
 
-    // === 2️⃣ GUARDAR EL PRODUCTO ===
+    // === GUARDAR EL PRODUCTO ===
     const formData = new FormData();
     formData.append("nombreProducto", nombreProducto);
     formData.append("codigo", codigo);
@@ -112,7 +112,7 @@ formProducto.addEventListener('submit', async (event) => {
     const dataProducto = await respuestaProducto.json();
     if (!respuestaProducto.ok) throw new Error(dataProducto.mensaje || 'Error al guardar el producto');
 
-    alert('✅ Producto y lugar agregados correctamente.');
+    alert(' Producto y lugar agregados correctamente.');
     modal.style.display = 'none';
     formProducto.reset();
     paso1.style.display = 'block';
