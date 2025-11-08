@@ -304,7 +304,7 @@ body {
 }
 
 .acciones button:last-child {
-  background-color: #ccc;
+  background-color: #d4af37;
   color: #333;
 }
 /* Cuando el modal está activo (visible) */
