@@ -12,6 +12,7 @@ const listaProductos = document.getElementById('lista-productos');
 const paso1 = document.getElementById('paso1');
 const paso2 = document.getElementById('paso2');
 const inputImagen = document.getElementById('imagen-producto');
+const inputBuscador = document.getElementById('buscador'); // 👈 Asegúrate de tener <input id="buscador">
 
 // === ABRIR MODAL ===
 btnAgregar.addEventListener('click', () => {
@@ -168,7 +169,6 @@ function mostrarProductos(lista) {
       estadoTexto = producto.estado || 'Sin estado';
     }
 
-    // 💰 Formato en pesos colombianos
     const precioNumerico = parseFloat(producto.precio) || 0;
     const precioFormateado = new Intl.NumberFormat("es-CO", {
       style: "currency",
@@ -177,7 +177,6 @@ function mostrarProductos(lista) {
       maximumFractionDigits: 0
     }).format(precioNumerico);
 
-    // === TARJETA DE PRODUCTO ===
     const tarjeta = document.createElement('div');
     tarjeta.classList.add('tarjeta');
     tarjeta.innerHTML = `
@@ -226,10 +225,9 @@ function mostrarProductos(lista) {
   });
 }
 
-// === 🟠 FILTRO POR TIPO DE MENÚ ===
+// === FILTRO POR TIPO DE MENÚ ===
 document.querySelectorAll(".filtro-btn").forEach(boton => {
   boton.addEventListener("click", e => {
-    // Cambiar botón activo
     document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"));
     e.target.classList.add("activo");
 
@@ -240,10 +238,8 @@ document.querySelectorAll(".filtro-btn").forEach(boton => {
       return;
     }
 
-    // Normalizamos nombres (para que coincidan aunque sean singulares/plurales)
     const filtrados = productosGlobal.filter(p => {
       const tipoProducto = (p.tipo_menu || "").toLowerCase().trim();
-
       return (
         (tipoSeleccionado === "desayunos" && tipoProducto.includes("desayuno")) ||
         (tipoSeleccionado === "almuerzos" && tipoProducto.includes("almuerzo")) ||
@@ -255,6 +251,23 @@ document.querySelectorAll(".filtro-btn").forEach(boton => {
     mostrarProductos(filtrados);
   });
 });
+
+// === FUNCIÓN DE BÚSQUEDA ===
+function aplicarFiltros() {
+  const texto = inputBuscador.value.toLowerCase().trim();
+
+  const filtrados = productosGlobal.filter(p => {
+    const nombre = (p.nombreProducto || "").toLowerCase();
+    const tipo = (p.tipo_menu || "").toLowerCase();
+    return nombre.includes(texto) || tipo.includes(texto);
+  });
+
+  mostrarProductos(filtrados);
+}
+
+// === EVENTOS DEL BUSCADOR ===
+inputBuscador.addEventListener('keyup', aplicarFiltros);
+inputBuscador.addEventListener('change', aplicarFiltros);
 
 // === CARGAR PRODUCTOS AL INICIO ===
 window.addEventListener('DOMContentLoaded', cargarProductos);

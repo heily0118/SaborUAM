@@ -39,7 +39,8 @@
     <!-- ZONA PRINCIPAL -->
     <section class="zona-principal">
       <div class="buscador">
-        <input type="text" placeholder="Buscar producto...">
+        <!-- 👇 AÑADIDO EL id="buscador" -->
+        <input type="text" id="buscador" placeholder="Buscar producto...">
         <button><i data-lucide="search"></i></button>
       </div>
 
@@ -82,13 +83,12 @@
 
           <label for="precio">Precio:</label>
           <input type="number" id="precio" placeholder="Ej: 8000">
+
           <label for="estadoProducto">Estado del producto:</label>
           <select id="estadoProducto">
             <option value="Disponible">Disponible</option>
             <option value="No disponible">No disponible</option>
           </select>
-
-          
 
           <label for="imagen-producto">Imagen del producto:</label>
           <input type="file" id="imagen-producto" accept="image/*">
@@ -155,6 +155,7 @@
     </div>
   </section>
 
+  <!-- === SCRIPTS === -->
   <script src="js/admin.js"></script>
   <script>lucide.createIcons();</script>
 </body>
