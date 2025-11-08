@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="info">
           <h3>${producto.nombreProducto}</h3>
           <p class="precio">${precioFormateado}</p>
-          <p class="lugar">${producto.NOMBRE_LUGAR || 'Sin lugar'}</p>
+          <p class="lugar">${producto.lugar?.nombre || 'Sin lugar'}</p>
           <p class="estado">Estado: <strong class="estado-texto ${colorClase}">${estadoTexto}</strong></p>
         </div>
 
