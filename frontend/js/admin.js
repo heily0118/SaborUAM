@@ -103,7 +103,7 @@ formProducto.addEventListener('submit', async (event) => {
     formData.append("descripcion", descripcion);
     formData.append("tipo_menu", tipo_menu);
     formData.append("precio", precio);
-    formData.append("estado", estadoProducto); 
+    formData.append("estado", estadoProducto);
     formData.append("imagen", inputImagen.files[0]);
     formData.append("NIT", nit);
 
@@ -113,7 +113,7 @@ formProducto.addEventListener('submit', async (event) => {
     });
 
     const dataProducto = await respuestaProducto.json();
-    if (!respuestaProducto.ok) throw new Error(dataProducto.mensaje || 'Error al guardar el producto');
+    if (!respuestaProducto.ok) throw new Error(dataProducto.error || 'Error al guardar el producto');
 
     alert('✅ Producto y lugar agregados correctamente.');
 
@@ -122,7 +122,6 @@ formProducto.addEventListener('submit', async (event) => {
     paso1.style.display = 'block';
     paso2.style.display = 'none';
 
-    // 🔄 Recargar lista sin recargar la página
     await cargarProductos();
   } catch (error) {
     console.error('❌ Error al guardar producto o lugar:', error);
@@ -131,85 +130,129 @@ formProducto.addEventListener('submit', async (event) => {
 });
 
 // === FUNCIÓN PARA CARGAR PRODUCTOS EXISTENTES ===
+let productosGlobal = [];
+
 async function cargarProductos() {
   try {
     const res = await fetch(`${API_URL}/api/productos`);
     const productos = await res.json();
-
-    listaProductos.innerHTML = ""; // Limpiar antes de volver a pintar
-
-    productos.forEach(producto => {
-      const estado = (producto.estado || '').toLowerCase().trim();
-
-      // Detectar el color correcto
-      let colorClase = '';
-      let estadoTexto = '';
-
-      if (estado === 'disponible') {
-        colorClase = 'estado-disponible';
-        estadoTexto = 'Disponible';
-      } else if (estado === 'no disponible') {
-        colorClase = 'estado-no-disponible';
-        estadoTexto = 'No disponible';
-      } else {
-        // En caso de valores inesperados
-        colorClase = 'estado-desconocido';
-        estadoTexto = producto.estado || 'Sin estado';
-      }
-
-      const tarjeta = document.createElement('div');
-      tarjeta.classList.add('tarjeta');
-      tarjeta.innerHTML = `
-        <img src="${API_URL}/uploads/${producto.imagen}" alt="${producto.nombreProducto}">
-        <div class="info">
-          <h3>${producto.nombreProducto}</h3>
-          <p class="precio">$${producto.precio}</p>
-          <p class="lugar">${producto.NOMBRE_LUGAR || 'Sin lugar'}</p>
-          <p class="estado">
-            Estado:
-            <strong class="estado-texto ${colorClase}">
-              ${estadoTexto}
-            </strong>
-          </p>
-        </div>
-
-        <div class="acciones-tarjeta">
-          <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
-          <div class="menu-opciones">
-            <button class="ver-btn">Ver más</button>
-            <button class="editar-btn">Actualizar</button>
-            <button class="eliminar-btn">Eliminar</button>
-          </div>
-        </div>
-      `;
-
-      listaProductos.appendChild(tarjeta);
-    });
-
-    lucide.createIcons();
-
-    // === ABRIR / CERRAR MENÚ ===
-    document.querySelectorAll(".menu-btn").forEach(btn => {
-      btn.addEventListener("click", e => {
-        e.stopPropagation();
-        const menu = btn.nextElementSibling;
-        document.querySelectorAll(".menu-opciones").forEach(m => {
-          if (m !== menu) m.classList.remove("show");
-        });
-        menu.classList.toggle("show");
-      });
-    });
-
-    // === CERRAR MENÚ AL HACER CLIC FUERA ===
-    document.addEventListener("click", () => {
-      document.querySelectorAll(".menu-opciones").forEach(menu => menu.classList.remove("show"));
-    });
-
+    productosGlobal = productos;
+    mostrarProductos(productosGlobal);
   } catch (error) {
     console.error('❌ Error al cargar productos:', error);
   }
 }
 
+// === FUNCIÓN PARA MOSTRAR PRODUCTOS ===
+function mostrarProductos(lista) {
+  listaProductos.innerHTML = "";
+
+  if (lista.length === 0) {
+    listaProductos.innerHTML = "<p>No hay productos disponibles.</p>";
+    return;
+  }
+
+  lista.forEach(producto => {
+    const estado = (producto.estado || '').toLowerCase().trim();
+    let colorClase = '';
+    let estadoTexto = '';
+
+    if (estado === 'disponible') {
+      colorClase = 'estado-disponible';
+      estadoTexto = 'Disponible';
+    } else if (estado === 'no disponible') {
+      colorClase = 'estado-no-disponible';
+      estadoTexto = 'No disponible';
+    } else {
+      colorClase = 'estado-desconocido';
+      estadoTexto = producto.estado || 'Sin estado';
+    }
+
+    // 💰 Formato en pesos colombianos
+    const precioFormateado = new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0
+    }).format(producto.precio);
+
+    // === TARJETA DE PRODUCTO ===
+    const tarjeta = document.createElement('div');
+    tarjeta.classList.add('tarjeta');
+    tarjeta.innerHTML = `
+      <img src="${API_URL}/uploads/${producto.imagen}" alt="${producto.nombreProducto}">
+      <div class="info">
+        <h3>${producto.nombreProducto}</h3>
+        <p class="precio">${precioFormateado}</p>
+        <p class="lugar">${producto.NOMBRE_LUGAR || 'Sin lugar'}</p>
+        <p class="estado">
+          Estado:
+          <strong class="estado-texto ${colorClase}">
+            ${estadoTexto}
+          </strong>
+        </p>
+      </div>
+
+      <div class="acciones-tarjeta">
+        <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
+        <div class="menu-opciones">
+          <button class="ver-btn">Ver más</button>
+          <button class="editar-btn">Actualizar</button>
+          <button class="eliminar-btn">Eliminar</button>
+        </div>
+      </div>
+    `;
+
+    listaProductos.appendChild(tarjeta);
+  });
+
+  lucide.createIcons();
+
+  // === MENÚ CONTEXTUAL ===
+  document.querySelectorAll(".menu-btn").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const menu = btn.nextElementSibling;
+      document.querySelectorAll(".menu-opciones").forEach(m => {
+        if (m !== menu) m.classList.remove("show");
+      });
+      menu.classList.toggle("show");
+    });
+  });
+
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".menu-opciones").forEach(menu => menu.classList.remove("show"));
+  });
+}
+
+// === 🟠 FILTRO POR TIPO DE MENÚ ===
+document.querySelectorAll(".filtro-btn").forEach(boton => {
+  boton.addEventListener("click", e => {
+    // Cambiar botón activo
+    document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"));
+    e.target.classList.add("activo");
+
+    const tipoSeleccionado = e.target.textContent.trim().toLowerCase();
+
+    if (tipoSeleccionado === "todos") {
+      mostrarProductos(productosGlobal);
+      return;
+    }
+
+    // Normalizamos nombres (para que coincidan aunque sean singulares/plurales)
+    const filtrados = productosGlobal.filter(p => {
+      const tipoProducto = (p.tipo_menu || "").toLowerCase().trim();
+
+      return (
+        (tipoSeleccionado === "desayunos" && tipoProducto.includes("desayuno")) ||
+        (tipoSeleccionado === "almuerzos" && tipoProducto.includes("almuerzo")) ||
+        (tipoSeleccionado === "bebidas" && tipoProducto.includes("bebida")) ||
+        (tipoSeleccionado === "otros" && tipoProducto.includes("otro"))
+      );
+    });
+
+    mostrarProductos(filtrados);
+  });
+});
 
 // === CARGAR PRODUCTOS AL INICIO ===
 window.addEventListener('DOMContentLoaded', cargarProductos);
