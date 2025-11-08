@@ -12,21 +12,32 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const upload = multer({ dest: path.join(__dirname, "../uploads") });
 
-// === RUTA GET: obtener todos los productos con su lugar ===
+
+// === RUTA GET: obtener productos con su información de lugar ===
 router.get("/", (req, res) => {
   const sql = `
-    SELECT 
-      p.codigo,
-      p.nombre AS nombreProducto,
-      p.descripcion,
-      p.tipo_menu,
-      pl.precio,
-      pl.estado,
-      p.imagen,
-      l.nombre AS NOMBRE_LUGAR
-    FROM productos p
-    LEFT JOIN productos_lugares pl ON p.codigo = pl.pro_cod
-    LEFT JOIN lugares l ON pl.lug_nit = l.NIT
+ SELECT 
+  p.codigo,
+  p.nombre AS nombreProducto, 
+  p.descripcion,
+  p.tipo_menu,
+  pl.precio,
+  pl.estado,
+  p.imagen,
+  l.NIT,
+  l.nombre AS nombreLugar, 
+  l.tipo,
+  l.horario_atencion,
+  l.estado AS estadoLugar,
+  l.servicio_domicilio,
+  l.numero_contacto_domicilio,
+  l.ubicacion,
+  l.dias
+
+FROM productos p
+LEFT JOIN productos_lugares pl ON p.codigo = pl.pro_cod
+LEFT JOIN lugares l ON pl.lug_nit = l.NIT
+
   `;
 
   db.query(sql, (err, results) => {
@@ -34,9 +45,34 @@ router.get("/", (req, res) => {
       console.error("❌ Error al obtener productos:", err);
       return res.status(500).json({ error: "Error al obtener productos" });
     }
-    res.json(results);
+
+    // 🧩 Reformatear cada fila para separar producto y lugar
+    const productos = results.map(row => ({
+      codigo: row.codigo,
+      nombreProducto: row.nombreProducto,
+      descripcion: row.descripcion,
+      tipo_menu: row.tipo_menu,
+      precio: row.precio,
+      estado: row.estado,
+      imagen: row.imagen,
+      lugar: {
+        NIT: row.NIT,
+        nombre: row.nombreLugar,
+        tipo: row.tipo,
+        horario_atencion: row.horario_atencion,
+        estado: row.estadoLugar,
+        servicio_domicilio: row.servicio_domicilio,
+        numero_contacto_domicilio: row.numero_contacto_domicilio,
+        ubicacion: row.ubicacion,
+        dias: row.dias
+      }
+    }));
+
+
+    res.json(productos);
   });
 });
+
 
 // === RUTA POST: registrar producto y relación con lugar ===
 router.post("/", upload.single("imagen"), (req, res) => {

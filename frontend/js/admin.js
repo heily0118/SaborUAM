@@ -1,285 +1,245 @@
+// admin.js (reemplaza tu archivo actual con esto)
+
 // === CONFIGURACIÓN BASE ===
 const API_URL = "http://localhost:3000";
 
-// === SELECCIÓN DE ELEMENTOS ===
-const modal = document.getElementById('modal-agregar');
-const btnAgregar = document.getElementById('btn-agregar');
-const btnCancelar = document.getElementById('btn-cancelar');
-const btnSiguiente = document.getElementById('btn-siguiente');
-const btnAtras = document.getElementById('btn-atras');
-const formProducto = document.getElementById('form-producto');
-const listaProductos = document.getElementById('lista-productos');
-const paso1 = document.getElementById('paso1');
-const paso2 = document.getElementById('paso2');
-const inputImagen = document.getElementById('imagen-producto');
-const inputBuscador = document.getElementById('buscador');
+// === Encapsulamos todo hasta que el DOM esté listo ===
+document.addEventListener('DOMContentLoaded', () => {
+  // === SELECCIÓN DE ELEMENTOS (AHORA CON SEGURIDAD) ===
+  const modal = document.getElementById('modal-agregar');
+  const btnAgregar = document.getElementById('btn-agregar');
+  const btnCancelar = document.getElementById('btn-cancelar');
+  const btnSiguiente = document.getElementById('btn-siguiente');
+  const btnAtras = document.getElementById('btn-atras');
+  const formProducto = document.getElementById('form-producto');
+  const listaProductos = document.getElementById('lista-productos');
+  const paso1 = document.getElementById('paso1');
+  const paso2 = document.getElementById('paso2');
+  const inputImagen = document.getElementById('imagen-producto');
+  const inputBuscador = document.getElementById('buscador');
 
-// === ABRIR MODAL ===
-btnAgregar.addEventListener('click', () => {
-  modal.style.display = 'flex';
-  paso1.style.display = 'block';
-  paso2.style.display = 'none';
-});
+  // NOTIFICACIONES
+  const campanaContainer = document.getElementById('campana-container'); // contenedor clickeable
+  const iconoCampana = document.getElementById('iconoCampana');         // icono (opcional)
+  const panelNotificaciones = document.getElementById('panel-notificaciones');
 
-// === CERRAR MODAL ===
-btnCancelar.addEventListener('click', () => {
-  modal.style.display = 'none';
-  formProducto.reset();
-});
+  // seguridad: si no encuentra elementos críticos, muestra warning y evita errores
+  if (!listaProductos) console.warn('lista-productos no encontrada');
+  if (!inputBuscador) console.warn('buscador no encontrado');
 
-// === CAMBIAR A SIGUIENTE PESTAÑA ===
-btnSiguiente.addEventListener('click', () => {
-  const nombre = document.getElementById('nombreProducto').value.trim();
-  const codigo = document.getElementById('codigo').value.trim();
-  const tipo_menu = document.getElementById('tipo_menu').value.trim();
-  const descripcion = document.getElementById('descripcion').value.trim();
-  const precio = document.getElementById('precio').value.trim();
-  const estado = document.getElementById("estadoProducto").value;
-  const archivo = inputImagen.files[0];
+  // === FUNCIONES UTILES ===
 
-  if (!nombre || !codigo || !tipo_menu || !descripcion || !precio || !archivo || !estado) {
-    alert('⚠️ Por favor completa todos los campos antes de continuar.');
-    return;
-  }
-
-  paso1.style.display = 'none';
-  paso2.style.display = 'block';
-});
-
-// === VOLVER A LA PESTAÑA ANTERIOR ===
-btnAtras.addEventListener('click', () => {
-  paso2.style.display = 'none';
-  paso1.style.display = 'block';
-});
-
-// === GUARDAR FORMULARIO ===
-formProducto.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  // === DATOS DEL PRODUCTO ===
-  const nombreProducto = document.getElementById('nombreProducto').value.trim();
-  const codigo = document.getElementById('codigo').value.trim();
-  const descripcion = document.getElementById('descripcion').value.trim();
-  const tipo_menu = document.getElementById('tipo_menu').value.trim();
-  const precio = document.getElementById('precio').value.trim();
-  const estadoProducto = document.getElementById('estadoProducto').value.trim();
-
-  // === DATOS DEL LUGAR ===
-  const nombreLugar = document.getElementById('nombreLugar').value.trim();
-  const nit = document.getElementById('nit').value.trim();
-  const ubicacion = document.getElementById('ubicacion').value.trim();
-  const horario = document.getElementById('horario').value.trim();
-  const dias = document.getElementById('dias').value.trim();
-  const servicioDomicilio = document.getElementById('servicioDomicilio').value.trim();
-  const numeroContacto = document.getElementById('numeroContacto').value.trim();
-  const estadoLugar = document.getElementById('estado').value.trim();
-  const tipo = document.getElementById('tipo').value.trim();
-
-  try {
-    // === 1️⃣ GUARDAR EL LUGAR ===
-    const lugarData = {
-      NIT: nit,
-      nombre: nombreLugar,
-      tipo,
-      horario,
-      estado: estadoLugar,
-      servicioDomicilio,
-      numeroContacto,
-      ubicacion
-    };
-
-    const respuestaLugar = await fetch(`${API_URL}/api/lugares/registro`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lugarData)
-    });
-
-    const dataLugar = await respuestaLugar.json();
-    if (!respuestaLugar.ok) throw new Error(dataLugar.mensaje || 'Error al guardar el lugar');
-
-    // === 2️⃣ GUARDAR EL PRODUCTO ===
-    const formData = new FormData();
-    formData.append("nombreProducto", nombreProducto);
-    formData.append("codigo", codigo);
-    formData.append("descripcion", descripcion);
-    formData.append("tipo_menu", tipo_menu);
-    formData.append("precio", precio);
-    formData.append("estado", estadoProducto);
-    formData.append("imagen", inputImagen.files[0]);
-    formData.append("NIT", nit);
-
-    const respuestaProducto = await fetch(`${API_URL}/api/productos`, {
-      method: 'POST',
-      body: formData
-    });
-
-    const dataProducto = await respuestaProducto.json();
-    if (!respuestaProducto.ok) throw new Error(dataProducto.error || 'Error al guardar el producto');
-
-    alert('✅ Producto y lugar agregados correctamente.');
-
-    modal.style.display = 'none';
-    formProducto.reset();
-    paso1.style.display = 'block';
-    paso2.style.display = 'none';
-
-    await cargarProductos();
-  } catch (error) {
-    console.error('❌ Error al guardar producto o lugar:', error);
-    alert('Hubo un error al guardar. Revisa la consola.');
-  }
-});
-
-// === FUNCIÓN PARA CARGAR PRODUCTOS EXISTENTES ===
-let productosGlobal = [];
-
-async function cargarProductos() {
-  try {
-    const res = await fetch(`${API_URL}/api/productos`);
-    const productos = await res.json();
-    productosGlobal = productos;
-    mostrarProductos(productosGlobal);
-  } catch (error) {
-    console.error('❌ Error al cargar productos:', error);
-  }
-}
-
-// === FUNCIÓN PARA MOSTRAR PRODUCTOS ===
-function mostrarProductos(lista) {
-  listaProductos.innerHTML = "";
-
-  if (lista.length === 0) {
-    listaProductos.innerHTML = "<p>No hay productos disponibles.</p>";
-    return;
-  }
-
-  lista.forEach(producto => {
-    const estado = (producto.estado || '').toLowerCase().trim();
-    let colorClase = '';
-    let estadoTexto = '';
-
-    if (estado === 'disponible') {
-      colorClase = 'estado-disponible';
-      estadoTexto = 'Disponible';
-    } else if (estado === 'no disponible') {
-      colorClase = 'estado-no-disponible';
-      estadoTexto = 'No disponible';
-    } else {
-      colorClase = 'estado-desconocido';
-      estadoTexto = producto.estado || 'Sin estado';
+  async function cargarProductos() {
+    try {
+      const res = await fetch(`${API_URL}/api/productos`);
+      if (!res.ok) {
+        console.warn('No se pudieron obtener productos desde la API (simulando).');
+        mostrarProductosSimulados(); // fallback
+        return;
+      }
+      const productos = await res.json();
+      mostrarProductos(productos);
+    } catch (error) {
+      console.error('❌ Error al cargar productos:', error);
+      mostrarProductosSimulados(); // fallback local para pruebas
     }
+  }
 
-    const precioNumerico = parseFloat(producto.precio) || 0;
-    const precioFormateado = new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(precioNumerico);
 
-    const tarjeta = document.createElement('div');
-    tarjeta.classList.add('tarjeta');
-    tarjeta.innerHTML = `
-      <img src="${API_URL}/uploads/${producto.imagen}" alt="${producto.nombreProducto}">
-      <div class="info">
-        <h3>${producto.nombreProducto}</h3>
-        <p class="precio">${precioFormateado}</p>
-        <p class="lugar">${producto.NOMBRE_LUGAR || 'Sin lugar'}</p>
-        <p class="estado">
-          Estado:
-          <strong class="estado-texto ${colorClase}">
-            ${estadoTexto}
-          </strong>
-        </p>
-      </div>
 
-      <div class="acciones-tarjeta">
-        <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
-        <div class="menu-opciones">
-          <button class="ver-btn">Ver más</button>
-          <button class="editar-btn">Actualizar</button>
-          <button class="eliminar-btn">Eliminar</button>
-        </div>
-      </div>
-    `;
+  // Renderizado de tarjetas — espera lista de objetos con tus campos reales
+  function mostrarProductos(lista) {
+    if (!listaProductos) return;
+    listaProductos.innerHTML = "";
 
-    listaProductos.appendChild(tarjeta);
-  });
-
-  lucide.createIcons();
-
-  document.querySelectorAll(".menu-btn").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const menu = btn.nextElementSibling;
-      document.querySelectorAll(".menu-opciones").forEach(m => {
-        if (m !== menu) m.classList.remove("show");
-      });
-      menu.classList.toggle("show");
-    });
-  });
-
-  document.addEventListener("click", () => {
-    document.querySelectorAll(".menu-opciones").forEach(menu => menu.classList.remove("show"));
-  });
-}
-
-// === FILTRO POR TIPO DE MENÚ ===
-document.querySelectorAll(".filtro-btn").forEach(boton => {
-  boton.addEventListener("click", e => {
-    document.querySelectorAll(".filtro-btn").forEach(b => b.classList.remove("activo"));
-    e.target.classList.add("activo");
-
-    const tipoSeleccionado = e.target.textContent.trim().toLowerCase();
-
-    if (tipoSeleccionado === "todos") {
-      mostrarProductos(productosGlobal);
+    if (!Array.isArray(lista) || lista.length === 0) {
+      listaProductos.innerHTML = "<p>No hay productos disponibles.</p>";
       return;
     }
 
-    const filtrados = productosGlobal.filter(p => {
-      const tipoProducto = (p.tipo_menu || "").toLowerCase().trim();
-      return (
-        (tipoSeleccionado === "desayunos" && tipoProducto.includes("desayuno")) ||
-        (tipoSeleccionado === "almuerzos" && tipoProducto.includes("almuerzo")) ||
-        (tipoSeleccionado === "bebidas" && tipoProducto.includes("bebida")) ||
-        (tipoSeleccionado === "otros" && tipoProducto.includes("otro"))
-      );
+    lista.forEach(producto => {
+      const estado = (producto.estado || '').toLowerCase().trim();
+      let colorClase = '';
+      let estadoTexto = '';
+
+      if (estado === 'disponible') {
+        colorClase = 'estado-disponible';
+        estadoTexto = 'Disponible';
+      } else if (estado === 'no disponible') {
+        colorClase = 'estado-no-disponible';
+        estadoTexto = 'No disponible';
+      } else {
+        colorClase = 'estado-desconocido';
+        estadoTexto = producto.estado || 'Sin estado';
+      }
+
+      const precioNumerico = parseFloat(producto.precio) || 0;
+      const precioFormateado = new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(precioNumerico);
+
+      const tarjeta = document.createElement('div');
+      tarjeta.classList.add('tarjeta');
+
+      const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
+      tarjeta.innerHTML = `
+        <img src="${imgSrc}" alt="${producto.nombreProducto}">
+        <div class="info">
+          <h3>${producto.nombreProducto}</h3>
+          <p class="precio">${precioFormateado}</p>
+          <p class="lugar">${producto.NOMBRE_LUGAR || 'Sin lugar'}</p>
+          <p class="estado">Estado: <strong class="estado-texto ${colorClase}">${estadoTexto}</strong></p>
+        </div>
+
+        <div class="acciones-tarjeta">
+          <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
+          <div class="menu-opciones">
+            <button class="ver-btn">Ver más</button>
+            <button class="editar-btn">Actualizar</button>
+            <button class="eliminar-btn">Eliminar</button>
+          </div>
+        </div>
+      `;
+
+      // anexar producto original al elemento para usarlo en modales
+      tarjeta.dataset.producto = JSON.stringify(producto);
+
+      listaProductos.appendChild(tarjeta);
     });
 
-    mostrarProductos(filtrados);
-  });
-});
+    // recrear iconos y asignar listeners (después de appendar las tarjetas)
+    try { lucide.createIcons(); } catch (e) { /* lucide puede bloquearse por prevención de tracking en algunos navegadores */ }
 
-// === FUNCIÓN DE BÚSQUEDA ===
-function aplicarFiltros() {
-  const texto = inputBuscador.value.toLowerCase().trim();
+    // menú contextual: abrir/cerrar y asignar acciones
+    document.querySelectorAll(".tarjeta").forEach(t => {
+      const menuBtn = t.querySelector('.menu-btn');
+      const menu = t.querySelector('.menu-opciones');
 
-  const filtrados = productosGlobal.filter(p => {
-    const nombre = (p.nombreProducto || "").toLowerCase();
-    const tipo = (p.tipo_menu || "").toLowerCase();
-    return nombre.includes(texto) || tipo.includes(texto);
-  });
+      if (menuBtn && menu) {
+        menuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // cerrar otros menús
+          document.querySelectorAll(".menu-opciones").forEach(m => {
+            if (m !== menu) m.classList.remove('show');
+          });
+          menu.classList.toggle('show');
+        });
+      }
 
-  mostrarProductos(filtrados);
-}
+      // asignar acciones: extraer objeto producto del dataset
+      const prod = t.dataset.producto ? JSON.parse(t.dataset.producto) : null;
+      if (prod) {
+        const ver = t.querySelector('.ver-btn');
+        const editar = t.querySelector('.editar-btn');
+        const eliminar = t.querySelector('.eliminar-btn');
 
-inputBuscador.addEventListener('keyup', aplicarFiltros);
-inputBuscador.addEventListener('change', aplicarFiltros);
+        if (ver) ver.addEventListener('click', (ev) => { ev.stopPropagation(); mostrarModalVerMas(prod); menu && menu.classList.remove('show'); });
+        if (editar) editar.addEventListener('click', (ev) => { ev.stopPropagation(); mostrarModalActualizar(prod); menu && menu.classList.remove('show'); });
+        if (eliminar) eliminar.addEventListener('click', (ev) => { ev.stopPropagation(); mostrarModalEliminar(prod); menu && menu.classList.remove('show'); });
+      }
+    });
 
-document.addEventListener('DOMContentLoaded', () => {
-  // --- Elementos relacionados con notificaciones ---
-  const campanaContainer = document.getElementById('campana-container'); // contenedor clickeable
-  const iconoCampana = document.getElementById('iconoCampana');         // icono (SVG creado por lucide)
-  const panelNotificaciones = document.getElementById('panel-notificaciones');
-
-  // --- Seguridad: si no encuentra los elementos, no hace nada ---
-  if (!campanaContainer || !iconoCampana || !panelNotificaciones) {
-    console.warn('Elemento de notificaciones no encontrado en el DOM.');
-    return;
+    // cerrar menús al click fuera
+    document.addEventListener('click', () => {
+      document.querySelectorAll(".menu-opciones").forEach(menu => menu.classList.remove("show"));
+    });
   }
 
-  // --- Función para generar contenido del panel (simulado) ---
+  // ======= MODALES SIMULADOS =======
+
+  function crearModal(titulo, contenidoHTML, hasClose = true) {
+    const modal = document.createElement('div');
+    modal.classList.add('modal', 'activo');
+    modal.innerHTML = `
+      <div class="modal-contenido">
+        <h2>${titulo}</h2>
+        <div class="contenido-modal">${contenidoHTML}</div>
+        ${ hasClose ? `<div class="acciones"><button class="btn-cerrar-modal">Cerrar</button></div>` : '' }
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    if (hasClose) {
+      modal.querySelector('.btn-cerrar-modal').addEventListener('click', () => modal.remove());
+    }
+    return modal;
+  }
+
+function mostrarModalVerMas(producto) {
+  const contenido = `
+    <h3>🛒 Información del producto</h3>
+    <p><strong>Nombre:</strong> ${producto.nombreProducto || ''}</p>
+    <p><strong>Descripción:</strong> ${producto.descripcion || ''}</p>
+    <p><strong>Tipo:</strong> ${producto.tipo_menu || ''}</p>
+    <p><strong>Precio:</strong> ${producto.precio || ''}</p>
+    <p><strong>Estado:</strong> ${producto.estado || ''}</p>
+
+    <hr style="margin:10px 0;">
+
+    <h3>🏪 Información del lugar</h3>
+    <p><strong>NIT:</strong> ${producto.lugar?.NIT || ''}</p>
+    <p><strong>Nombre:</strong> ${producto.lugar?.nombre || ''}</p>
+    <p><strong>Tipo:</strong> ${producto.lugar?.tipo || ''}</p>
+    <p><strong>Horario:</strong> ${producto.lugar?.horario_atencion || ''}</p>
+    <p><strong>Días:</strong> ${producto.lugar?.dias || ''}</p>
+    <p><strong>Ubicación:</strong> ${producto.lugar?.ubicacion || ''}</p>
+  `;
+  crearModal('Detalles del producto', contenido);
+}
+
+function mostrarModalActualizar(producto) {
+  const contenido = `
+    <h3>🛒 Editar producto</h3>
+    <label>Nombre</label><input type="text" value="${producto.nombreProducto || ''}">
+    <label>Precio</label><input type="number" value="${producto.precio || ''}">
+    <label>Tipo</label><input type="text" value="${producto.tipo_menu || ''}">
+    <label>Estado</label><input type="text" value="${producto.estado || ''}">
+
+    <hr style="margin:10px 0;">
+
+    <h3>🏪 Información del lugar</h3>
+    <label>NIT</label><input type="text" value="${producto.lugar?.NIT || ''}">
+    <label>Nombre</label><input type="text" value="${producto.lugar?.nombre || ''}">
+    <label>Horario</label><input type="text" value="${producto.lugar?.horario_atencion || ''}">
+    <label>Ubicación</label><input type="text" value="${producto.lugar?.ubicacion || ''}">
+
+    <div class="acciones" style="margin-top:12px;">
+      <button class="btn-simular-actualizar" style="background:#005c99;color:white;">Actualizar</button>
+      <button class="btn-cancelar-actualizar" style="background:#d4af37;color:#333;margin-left:8px;">Cancelar</button>
+    </div>
+  `;
+
+  const modal = crearModal('Editar producto ', contenido, false);
+
+  modal.querySelector('.btn-cancelar-actualizar').addEventListener('click', () => modal.remove());
+  modal.querySelector('.btn-simular-actualizar').addEventListener('click', () => {
+    alert('Simulación: cambios aplicados (no se guardan realmente).');
+    modal.remove();
+  });
+}
+
+
+  function mostrarModalEliminar(producto) {
+    const contenido = `
+      <p>¿Deseas eliminar el producto <strong>${producto.nombreProducto || ''}</strong>?</p>
+      <div class="acciones" style="margin-top:12px;">
+        <button class="btn-confirmar-eliminar" style="background:#c0392b;color:white;">Sí</button>
+        <button class="btn-cancelar-eliminar" style="background:#d4af37;color:#333;margin-left:8px;">No</button>
+      </div>
+    `;
+    const modal = crearModal('Confirmar eliminación', contenido, false);
+
+    modal.querySelector('.btn-cancelar-eliminar').addEventListener('click', () => modal.remove());
+    modal.querySelector('.btn-confirmar-eliminar').addEventListener('click', () => {
+      alert('Simulación: el producto se eliminaría (no se elimina realmente).');
+      modal.remove();
+    });
+  }
+
+  // ======= NOTIFICACIONES (panel lateral) =======
   function generarContenidoNotificaciones() {
     const notificacionesSimuladas = [
       { tipo: 'pedido', mensaje: '🍔 Nuevo pedido en Cafetería Principal' },
@@ -291,50 +251,87 @@ document.addEventListener('DOMContentLoaded', () => {
       html += '<ul><li>No hay notificaciones nuevas.</li></ul>';
     } else {
       html += '<ul>';
-      notificacionesSimuladas.forEach(n => {
-        html += `<li>${n.mensaje}</li>`;
-      });
+      notificacionesSimuladas.forEach(n => { html += `<li>${n.mensaje}</li>`; });
       html += '</ul>';
     }
     return html;
   }
 
-  // --- Función para abrir el panel ---
-  function abrirPanel() {
+  function abrirPanelNotificaciones() {
+    if (!panelNotificaciones) return;
     panelNotificaciones.innerHTML = generarContenidoNotificaciones();
     panelNotificaciones.classList.add('mostrar');
     panelNotificaciones.setAttribute('aria-hidden', 'false');
   }
 
-  // --- Función para cerrar el panel ---
-  function cerrarPanel() {
+  function cerrarPanelNotificaciones() {
+    if (!panelNotificaciones) return;
     panelNotificaciones.classList.remove('mostrar');
     panelNotificaciones.setAttribute('aria-hidden', 'true');
   }
 
-  // --- Abrir/cerrar al hacer clic en la campana ---
-  campanaContainer.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const abierto = panelNotificaciones.classList.contains('mostrar');
-    if (abierto) cerrarPanel();
-    else abrirPanel();
-  });
+  if (campanaContainer) {
+    campanaContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const abierto = panelNotificaciones && panelNotificaciones.classList.contains('mostrar');
+      if (abierto) cerrarPanelNotificaciones();
+      else abrirPanelNotificaciones();
+    });
+  }
 
-  // --- Cerrar si se hace clic fuera del panel ---
   document.addEventListener('click', (e) => {
-    if (!panelNotificaciones.contains(e.target) && !campanaContainer.contains(e.target)) {
-      cerrarPanel();
+    if (!panelNotificaciones) return;
+    if (!panelNotificaciones.contains(e.target) && (!campanaContainer || !campanaContainer.contains(e.target))) {
+      cerrarPanelNotificaciones();
     }
   });
 
-  // --- Evitar que se cierre al hacer clic dentro del panel ---
-  panelNotificaciones.addEventListener('click', (e) => {
-    e.stopPropagation();
+  if (panelNotificaciones) {
+    panelNotificaciones.addEventListener('click', (e) => e.stopPropagation());
+  }
+
+  // ======= MODAL AGREGAR (botones del formulario) =======
+  if (btnAgregar) {
+    btnAgregar.addEventListener('click', () => {
+      if (!modal) return;
+      modal.style.display = 'flex';
+      if (paso1) paso1.style.display = 'block';
+      if (paso2) paso2.style.display = 'none';
+    });
+  }
+  if (btnCancelar) btnCancelar.addEventListener('click', () => { if (modal) modal.style.display = 'none'; if (formProducto) formProducto.reset(); });
+  if (btnSiguiente) btnSiguiente.addEventListener('click', () => {
+    const nombre = document.getElementById('nombreProducto')?.value.trim();
+    const codigo = document.getElementById('codigo')?.value.trim();
+    const tipo_menu = document.getElementById('tipo_menu')?.value.trim();
+    const descripcion = document.getElementById('descripcion')?.value.trim();
+    const precio = document.getElementById('precio')?.value.trim();
+    const estado = document.getElementById("estadoProducto")?.value;
+    const archivo = inputImagen?.files?.[0];
+
+    if (!nombre || !codigo || !tipo_menu || !descripcion || !precio || !archivo || !estado) {
+      alert('⚠️ Por favor completa todos los campos antes de continuar.');
+      return;
+    }
+    if (paso1) paso1.style.display = 'none';
+    if (paso2) paso2.style.display = 'block';
   });
-});
+  if (btnAtras) btnAtras.addEventListener('click', () => { if (paso2) paso2.style.display = 'none'; if (paso1) paso1.style.display = 'block'; });
 
+  // búsqueda
+  if (inputBuscador) {
+    inputBuscador.addEventListener('keyup', () => {
+      const texto = inputBuscador.value.toLowerCase().trim();
+      const filtrados = productosGlobal.filter(p => {
+        const nombre = (p.nombreProducto || "").toLowerCase();
+        const tipo = (p.tipo_menu || "").toLowerCase();
+        return nombre.includes(texto) || tipo.includes(texto);
+      });
+      mostrarProductos(filtrados);
+    });
+    inputBuscador.addEventListener('change', () => inputBuscador.dispatchEvent(new Event('keyup')));
+  }
 
-
-
-// === CARGAR PRODUCTOS AL INICIO ===
-window.addEventListener('DOMContentLoaded', cargarProductos);
+  // ==== Iniciar carga inicial ====
+  cargarProductos();
+}); // end DOMContentLoaded

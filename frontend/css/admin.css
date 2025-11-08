@@ -450,3 +450,53 @@ body {
 @keyframes nf-aparecer {
   to { opacity: 1; transform: translateY(0); }
 }
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-contenido {
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+.modal-contenido h2 {
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+}
+
+.modal-contenido p {
+  margin: 8px 0;
+  font-size: 15px;
+  color: #555;
+}
+
+.modal-contenido .acciones {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.modal-contenido button {
+  background-color: #f0b429;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.modal-contenido button:hover {
+  background-color: #d99a1b;
+}
