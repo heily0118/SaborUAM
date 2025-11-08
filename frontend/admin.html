@@ -9,30 +9,29 @@
 </head>
 <body>
 
- <!-- ENCABEZADO -->
-<header class="header">
-  <div class="titulo">
-    <h1>Administrador</h1>
-  </div>
-
-  <div class="acciones-header">
-    <!-- campana con id -->
-    <div id="campana-container" style="display:inline-block;">
-      <i data-lucide="bell" id="iconoCampana" class="icono"></i>
+  <!-- ENCABEZADO -->
+  <header class="header">
+    <div class="titulo">
+      <h1>Administrador</h1>
     </div>
 
-    <button class="btn-cerrar">Cerrar sesión</button>
+    <div class="acciones-header">
+      <!-- 🔔 Campana con id -->
+      <div id="campana-container" style="display:inline-block;">
+        <i data-lucide="bell" id="iconoCampana" class="icono"></i>
+      </div>
+
+      <button class="btn-cerrar">Cerrar sesión</button>
+    </div>
+  </header>
+  <!-- 🔔 PANEL DE NOTIFICACIONES -->
+  <div class="notificaciones" id="panel-notificaciones" aria-hidden="true">
+    <!-- Aquí se cargan dinámicamente las notificaciones -->
   </div>
-</header>
-
-<!-- PANEL DE NOTIFICACIONES -->
-<div class="notificaciones" id="panel-notificaciones" aria-hidden="true">
-  <!-- Se rellena dinámicamente desde JS -->
-</div>
-
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="contenedor">
+
     <!-- BARRA LATERAL -->
     <aside class="barra-filtro">
       <h2>Menú</h2>
@@ -52,13 +51,11 @@
         <button><i data-lucide="search"></i></button>
       </div>
 
-      <!-- CONTENEDOR DE TARJETAS DINÁMICAS -->
       <div class="productos" id="lista-productos">
         <!-- Las tarjetas se cargarán aquí desde JS -->
       </div>
     </section>
 
-    <!-- BOTÓN AGREGAR -->
     <button id="btn-agregar" class="btn-agregar">+</button>
   </main>
 
@@ -68,7 +65,6 @@
       <h2>Agregar nuevo producto</h2>
 
       <form id="form-producto">
-        <!-- Paso 1 -->
         <div class="paso" id="paso1">
           <label for="nombreProducto">Nombre del producto:</label>
           <input type="text" id="nombreProducto" placeholder="Ej: Arepa con queso">
@@ -106,7 +102,6 @@
           </div>
         </div>
 
-        <!-- Paso 2 -->
         <div class="paso" id="paso2" style="display:none;">
           <label for="nombreLugar">Nombre del lugar:</label>
           <input type="text" id="nombreLugar" placeholder="Ej: Restaurante UAM">
@@ -162,27 +157,8 @@
     </div>
   </section>
 
-  <!-- MODAL VER MÁS -->
-<section class="modal" id="modal-vermas" style="display: none;">
-  <div class="modal-contenido">
-    <h2>Detalles del producto</h2>
-
-    <div id="info-producto">
-      <!-- Aquí se cargará la información desde JS -->
-    </div>
-
-    <div class="acciones">
-      <button type="button" id="btn-cerrar-vermas">Cerrar</button>
-    </div>
-  </div>
-</section>
-
-
   <!-- === SCRIPTS === -->
   <script src="js/admin.js"></script>
-  <script>
-    lucide.createIcons();
-  </script>
-
+  <script>lucide.createIcons();</script>
 </body>
 </html>
