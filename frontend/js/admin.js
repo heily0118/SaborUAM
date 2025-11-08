@@ -12,7 +12,7 @@ const listaProductos = document.getElementById('lista-productos');
 const paso1 = document.getElementById('paso1');
 const paso2 = document.getElementById('paso2');
 const inputImagen = document.getElementById('imagen-producto');
-const inputBuscador = document.getElementById('buscador'); // 👈 Asegúrate de tener <input id="buscador">
+const inputBuscador = document.getElementById('buscador');
 
 // === ABRIR MODAL ===
 btnAgregar.addEventListener('click', () => {
@@ -208,7 +208,6 @@ function mostrarProductos(lista) {
 
   lucide.createIcons();
 
-  // === MENÚ CONTEXTUAL ===
   document.querySelectorAll(".menu-btn").forEach(btn => {
     btn.addEventListener("click", e => {
       e.stopPropagation();
@@ -265,9 +264,77 @@ function aplicarFiltros() {
   mostrarProductos(filtrados);
 }
 
-// === EVENTOS DEL BUSCADOR ===
 inputBuscador.addEventListener('keyup', aplicarFiltros);
 inputBuscador.addEventListener('change', aplicarFiltros);
+
+document.addEventListener('DOMContentLoaded', () => {
+  // --- Elementos relacionados con notificaciones ---
+  const campanaContainer = document.getElementById('campana-container'); // contenedor clickeable
+  const iconoCampana = document.getElementById('iconoCampana');         // icono (SVG creado por lucide)
+  const panelNotificaciones = document.getElementById('panel-notificaciones');
+
+  // --- Seguridad: si no encuentra los elementos, no hace nada ---
+  if (!campanaContainer || !iconoCampana || !panelNotificaciones) {
+    console.warn('Elemento de notificaciones no encontrado en el DOM.');
+    return;
+  }
+
+  // --- Función para generar contenido del panel (simulado) ---
+  function generarContenidoNotificaciones() {
+    const notificacionesSimuladas = [
+      { tipo: 'pedido', mensaje: '🍔 Nuevo pedido en Cafetería Principal' },
+      { tipo: 'producto', mensaje: '📦 Producto "Empanada" marcado como No disponible' }
+    ];
+
+    let html = '<h3>🎉 Notificaciones</h3>';
+    if (notificacionesSimuladas.length === 0) {
+      html += '<ul><li>No hay notificaciones nuevas.</li></ul>';
+    } else {
+      html += '<ul>';
+      notificacionesSimuladas.forEach(n => {
+        html += `<li>${n.mensaje}</li>`;
+      });
+      html += '</ul>';
+    }
+    return html;
+  }
+
+  // --- Función para abrir el panel ---
+  function abrirPanel() {
+    panelNotificaciones.innerHTML = generarContenidoNotificaciones();
+    panelNotificaciones.classList.add('mostrar');
+    panelNotificaciones.setAttribute('aria-hidden', 'false');
+  }
+
+  // --- Función para cerrar el panel ---
+  function cerrarPanel() {
+    panelNotificaciones.classList.remove('mostrar');
+    panelNotificaciones.setAttribute('aria-hidden', 'true');
+  }
+
+  // --- Abrir/cerrar al hacer clic en la campana ---
+  campanaContainer.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const abierto = panelNotificaciones.classList.contains('mostrar');
+    if (abierto) cerrarPanel();
+    else abrirPanel();
+  });
+
+  // --- Cerrar si se hace clic fuera del panel ---
+  document.addEventListener('click', (e) => {
+    if (!panelNotificaciones.contains(e.target) && !campanaContainer.contains(e.target)) {
+      cerrarPanel();
+    }
+  });
+
+  // --- Evitar que se cierre al hacer clic dentro del panel ---
+  panelNotificaciones.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+});
+
+
+
 
 // === CARGAR PRODUCTOS AL INICIO ===
 window.addEventListener('DOMContentLoaded', cargarProductos);

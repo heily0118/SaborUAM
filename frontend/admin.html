@@ -9,21 +9,30 @@
 </head>
 <body>
 
-  <!-- ENCABEZADO -->
-  <header class="header">
-    <div class="titulo">
-      <h1>Administrador</h1>
+ <!-- ENCABEZADO -->
+<header class="header">
+  <div class="titulo">
+    <h1>Administrador</h1>
+  </div>
+
+  <div class="acciones-header">
+    <!-- campana con id -->
+    <div id="campana-container" style="display:inline-block;">
+      <i data-lucide="bell" id="iconoCampana" class="icono"></i>
     </div>
 
-    <div class="acciones-header">
-      <i data-lucide="bell" class="icono"></i>
-      <button class="btn-cerrar">Cerrar sesión</button>
-    </div>
-  </header>
+    <button class="btn-cerrar">Cerrar sesión</button>
+  </div>
+</header>
+
+<!-- PANEL DE NOTIFICACIONES -->
+<div class="notificaciones" id="panel-notificaciones" aria-hidden="true">
+  <!-- Se rellena dinámicamente desde JS -->
+</div>
+
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="contenedor">
-
     <!-- BARRA LATERAL -->
     <aside class="barra-filtro">
       <h2>Menú</h2>
@@ -39,7 +48,6 @@
     <!-- ZONA PRINCIPAL -->
     <section class="zona-principal">
       <div class="buscador">
-        <!-- 👇 AÑADIDO EL id="buscador" -->
         <input type="text" id="buscador" placeholder="Buscar producto...">
         <button><i data-lucide="search"></i></button>
       </div>
@@ -52,7 +60,6 @@
 
     <!-- BOTÓN AGREGAR -->
     <button id="btn-agregar" class="btn-agregar">+</button>
-
   </main>
 
   <!-- MODAL AGREGAR PRODUCTO -->
@@ -157,6 +164,9 @@
 
   <!-- === SCRIPTS === -->
   <script src="js/admin.js"></script>
-  <script>lucide.createIcons();</script>
+  <script>
+    lucide.createIcons();
+  </script>
+
 </body>
 </html>
