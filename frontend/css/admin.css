@@ -213,7 +213,8 @@ body {
   z-index: 120; 
 }
 
-/* ======= BOTÓN FLOTANTE ======= */
+
+/* ======= BOTÓN FLOTANTE - CORREGIDO (Admin.sss) ======= */
 .btn-agregar {
   position: fixed;
   bottom: 30px;
@@ -228,8 +229,8 @@ body {
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0,0,0,0.3);
   transition: transform 0.2s ease, background-color 0.3s ease;
+  z-index: 100; /* 💡 Agregamos un z-index alto */
 }
-
 .btn-agregar:hover {
   transform: scale(1.1);
   background-color: #b8962c;
@@ -385,6 +386,19 @@ body {
 .menu-opciones button:hover {
   background-color: #f7f4ea;
 }
+.estado-disponible {
+  color: gold; /* Dorado */
+  font-weight: bold;
+}
 
+.estado-no-disponible {
+  color: gray;
+  font-weight: bold;
+}
+
+.estado-desconocido {
+  color: red;
+  font-weight: bold;
+}
 
 

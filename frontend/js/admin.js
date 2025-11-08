@@ -33,10 +33,11 @@ btnSiguiente.addEventListener('click', () => {
   const tipo_menu = document.getElementById('tipo_menu').value.trim();
   const descripcion = document.getElementById('descripcion').value.trim();
   const precio = document.getElementById('precio').value.trim();
+  const estado = document.getElementById("estadoProducto").value;
   const archivo = inputImagen.files[0];
 
-  if (!nombre || !codigo || !tipo_menu || !descripcion || !precio || !archivo) {
-    alert('Por favor completa todos los campos antes de continuar.');
+  if (!nombre || !codigo || !tipo_menu || !descripcion || !precio || !archivo || !estado) {
+    alert('⚠️ Por favor completa todos los campos antes de continuar.');
     return;
   }
 
@@ -60,6 +61,7 @@ formProducto.addEventListener('submit', async (event) => {
   const descripcion = document.getElementById('descripcion').value.trim();
   const tipo_menu = document.getElementById('tipo_menu').value.trim();
   const precio = document.getElementById('precio').value.trim();
+  const estadoProducto = document.getElementById('estadoProducto').value.trim();
 
   // === DATOS DEL LUGAR ===
   const nombreLugar = document.getElementById('nombreLugar').value.trim();
@@ -69,7 +71,7 @@ formProducto.addEventListener('submit', async (event) => {
   const dias = document.getElementById('dias').value.trim();
   const servicioDomicilio = document.getElementById('servicioDomicilio').value.trim();
   const numeroContacto = document.getElementById('numeroContacto').value.trim();
-  const estado = document.getElementById('estado').value.trim();
+  const estadoLugar = document.getElementById('estado').value.trim();
   const tipo = document.getElementById('tipo').value.trim();
 
   try {
@@ -79,7 +81,7 @@ formProducto.addEventListener('submit', async (event) => {
       nombre: nombreLugar,
       tipo,
       horario,
-      estado,
+      estado: estadoLugar,
       servicioDomicilio,
       numeroContacto,
       ubicacion
@@ -94,13 +96,14 @@ formProducto.addEventListener('submit', async (event) => {
     const dataLugar = await respuestaLugar.json();
     if (!respuestaLugar.ok) throw new Error(dataLugar.mensaje || 'Error al guardar el lugar');
 
-    // === GUARDAR EL PRODUCTO ===
+    // === 2️⃣ GUARDAR EL PRODUCTO ===
     const formData = new FormData();
     formData.append("nombreProducto", nombreProducto);
     formData.append("codigo", codigo);
     formData.append("descripcion", descripcion);
     formData.append("tipo_menu", tipo_menu);
     formData.append("precio", precio);
+    formData.append("estado", estadoProducto); 
     formData.append("imagen", inputImagen.files[0]);
     formData.append("NIT", nit);
 
@@ -112,14 +115,15 @@ formProducto.addEventListener('submit', async (event) => {
     const dataProducto = await respuestaProducto.json();
     if (!respuestaProducto.ok) throw new Error(dataProducto.mensaje || 'Error al guardar el producto');
 
-    alert(' Producto y lugar agregados correctamente.');
+    alert('✅ Producto y lugar agregados correctamente.');
+
     modal.style.display = 'none';
     formProducto.reset();
     paso1.style.display = 'block';
     paso2.style.display = 'none';
 
     // 🔄 Recargar lista sin recargar la página
-    cargarProductos();
+    await cargarProductos();
   } catch (error) {
     console.error('❌ Error al guardar producto o lugar:', error);
     alert('Hubo un error al guardar. Revisa la consola.');
@@ -135,6 +139,24 @@ async function cargarProductos() {
     listaProductos.innerHTML = ""; // Limpiar antes de volver a pintar
 
     productos.forEach(producto => {
+      const estado = (producto.estado || '').toLowerCase().trim();
+
+      // Detectar el color correcto
+      let colorClase = '';
+      let estadoTexto = '';
+
+      if (estado === 'disponible') {
+        colorClase = 'estado-disponible';
+        estadoTexto = 'Disponible';
+      } else if (estado === 'no disponible') {
+        colorClase = 'estado-no-disponible';
+        estadoTexto = 'No disponible';
+      } else {
+        // En caso de valores inesperados
+        colorClase = 'estado-desconocido';
+        estadoTexto = producto.estado || 'Sin estado';
+      }
+
       const tarjeta = document.createElement('div');
       tarjeta.classList.add('tarjeta');
       tarjeta.innerHTML = `
@@ -143,7 +165,14 @@ async function cargarProductos() {
           <h3>${producto.nombreProducto}</h3>
           <p class="precio">$${producto.precio}</p>
           <p class="lugar">${producto.NOMBRE_LUGAR || 'Sin lugar'}</p>
+          <p class="estado">
+            Estado:
+            <strong class="estado-texto ${colorClase}">
+              ${estadoTexto}
+            </strong>
+          </p>
         </div>
+
         <div class="acciones-tarjeta">
           <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
           <div class="menu-opciones">
@@ -153,44 +182,34 @@ async function cargarProductos() {
           </div>
         </div>
       `;
+
       listaProductos.appendChild(tarjeta);
     });
 
     lucide.createIcons();
 
     // === ABRIR / CERRAR MENÚ ===
-document.querySelectorAll(".menu-btn").forEach(btn => {
-  btn.addEventListener("click", e => {
-    e.stopPropagation();
-    const menu = btn.nextElementSibling;
-    document.querySelectorAll(".menu-opciones").forEach(m => {
-      if (m !== menu) m.classList.remove("show");
+    document.querySelectorAll(".menu-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const menu = btn.nextElementSibling;
+        document.querySelectorAll(".menu-opciones").forEach(m => {
+          if (m !== menu) m.classList.remove("show");
+        });
+        menu.classList.toggle("show");
+      });
     });
-    menu.classList.toggle("show");
-  });
-});
 
-// === CERRAR MENÚ AL HACER CLIC FUERA ===
-document.addEventListener("click", () => {
-  document.querySelectorAll(".menu-opciones").forEach(menu => menu.classList.remove("show"));
-});
+    // === CERRAR MENÚ AL HACER CLIC FUERA ===
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".menu-opciones").forEach(menu => menu.classList.remove("show"));
+    });
 
-// === ACCIONES DE LOS BOTONES ===
-document.addEventListener("click", e => {
-  if (e.target.classList.contains("ver-btn")) {
-    alert("👀 Ver detalles del producto");
-  }
-  if (e.target.classList.contains("editar-btn")) {
-    alert("✏️ Editar producto");
-  }
-  if (e.target.classList.contains("eliminar-btn")) {
-    alert("🗑️ Eliminar producto");
-  }
-});
   } catch (error) {
     console.error('❌ Error al cargar productos:', error);
   }
 }
+
 
 // === CARGAR PRODUCTOS AL INICIO ===
 window.addEventListener('DOMContentLoaded', cargarProductos);
