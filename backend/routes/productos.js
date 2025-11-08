@@ -1,4 +1,3 @@
-// routes/productos.js
 import express from "express";
 import multer from "multer";
 import path from "path";
@@ -21,7 +20,7 @@ router.get("/", (req, res) => {
       p.nombre AS nombreProducto,
       p.descripcion,
       p.tipo_menu,
-      CONCAT( FORMAT(pl.precio, 0, 'es_CO')) AS precio, 
+      pl.precio,
       pl.estado,
       p.imagen,
       l.nombre AS NOMBRE_LUGAR
@@ -70,7 +69,6 @@ router.post("/", upload.single("imagen"), (req, res) => {
     }
 
     if (resultados.length > 0) {
-      // Ya existe → no se permite registrar de nuevo
       console.log("❌ Error: ya existe un producto con ese código");
       return res.status(400).json({
         error: "Ya existe un producto con ese código. No se puede volver a registrar."

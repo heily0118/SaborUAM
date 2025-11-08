@@ -169,11 +169,13 @@ function mostrarProductos(lista) {
     }
 
     // 💰 Formato en pesos colombianos
+    const precioNumerico = parseFloat(producto.precio) || 0;
     const precioFormateado = new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
-      minimumFractionDigits: 0
-    }).format(producto.precio);
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(precioNumerico);
 
     // === TARJETA DE PRODUCTO ===
     const tarjeta = document.createElement('div');
