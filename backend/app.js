@@ -31,5 +31,5 @@ app.use('/api/consultas', consultasRouter);
 
 // Servidor corriendo
 app.listen(3000, () => {
-  console.log("✅ Servidor backend corriendo en http://localhost:3000");
+  console.log("Servidor backend corriendo en http://localhost:3000");
 });
