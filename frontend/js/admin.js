@@ -63,61 +63,75 @@ document.addEventListener('DOMContentLoaded', () => {
   // GUARDAR PRODUCTO Y LUGAR
   // ===========================
   formProducto?.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    const nombreProducto = document.getElementById('nombreProducto')?.value.trim();
-    const codigo = document.getElementById('codigo')?.value.trim();
-    const descripcion = document.getElementById('descripcion')?.value.trim();
-    const tipo_menu = document.getElementById('tipo_menu')?.value.trim();
-    const precio = document.getElementById('precio')?.value.trim();
-    const estadoProducto = document.getElementById('estadoProducto')?.value.trim();
+  const nombreProducto = document.getElementById('nombreProducto')?.value.trim();
+  const codigo = document.getElementById('codigo')?.value.trim();
+  const descripcion = document.getElementById('descripcion')?.value.trim();
+  const tipo_menu = document.getElementById('tipo_menu')?.value.trim();
+  const precio = document.getElementById('precio')?.value.trim();
+  const estadoProducto = document.getElementById('estadoProducto')?.value.trim();
 
-    const nombreLugar = document.getElementById('nombreLugar')?.value.trim();
-    const nit = document.getElementById('nit')?.value.trim();
-    const ubicacion = document.getElementById('ubicacion')?.value.trim();
-    const horario = document.getElementById('horario')?.value.trim();
-    const dias = document.getElementById('dias')?.value.trim();
-    const servicioDomicilio = document.getElementById('servicioDomicilio')?.value.trim();
-    const numeroContacto = document.getElementById('numeroContacto')?.value.trim();
-    const estadoLugar = document.getElementById('estado')?.value.trim();
-    const tipo = document.getElementById('tipo')?.value.trim();
+  const nombreLugar = document.getElementById('nombreLugar')?.value.trim();
+  const nit = document.getElementById('nit')?.value.trim();
+  const ubicacion = document.getElementById('ubicacion')?.value.trim();
+  const horario = document.getElementById('horario')?.value.trim();
+  const dias = document.getElementById('dias')?.value.trim(); // <-- capturar días
+  const servicioDomicilio = document.getElementById('servicioDomicilio')?.value.trim();
+  const numeroContacto = document.getElementById('numeroContacto')?.value.trim();
+  const estadoLugar = document.getElementById('estado')?.value.trim();
+  const tipo = document.getElementById('tipo')?.value.trim();
 
-    try {
-      // Guardar lugar
-      const lugarData = { NIT: nit, nombre: nombreLugar, tipo, horario, estado: estadoLugar, servicioDomicilio, numeroContacto, ubicacion };
-      const resLugar = await fetch(`${API_URL}/api/lugares/registro`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lugarData)
-      });
-      const dataLugar = await resLugar.json();
-      if (!resLugar.ok) throw new Error(dataLugar.mensaje || 'Error al guardar el lugar');
+  try {
+    // Guardar lugar
+    const lugarData = { 
+      NIT: nit, 
+      nombre: nombreLugar, 
+      tipo, 
+      horario, 
+      estado: estadoLugar, 
+      servicioDomicilio, 
+      numeroContacto, 
+      ubicacion,
+      dias // <-- agregar aquí
+    };
 
-      // Guardar producto
-      const formData = new FormData();
-      formData.append("nombreProducto", nombreProducto);
-      formData.append("codigo", codigo);
-      formData.append("descripcion", descripcion);
-      formData.append("tipo_menu", tipo_menu);
-      formData.append("precio", precio);
-      formData.append("estado", estadoProducto);
-      formData.append("imagen", inputImagen.files[0]);
-      formData.append("NIT", nit);
+    const resLugar = await fetch(`${API_URL}/api/lugares/registro`, {
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(lugarData)
+    });
 
-      const resProducto = await fetch(`${API_URL}/api/productos`, { method: 'POST', body: formData });
-      const dataProducto = await resProducto.json();
-      if (!resProducto.ok) throw new Error(dataProducto.error || 'Error al guardar el producto');
+    const dataLugar = await resLugar.json();
+    if (!resLugar.ok) throw new Error(dataLugar.mensaje || 'Error al guardar el lugar');
 
-      alert('✅ Producto y lugar agregados correctamente.');
-      modal.style.display = 'none';
-      formProducto.reset();
-      paso1.style.display = 'block';
-      paso2.style.display = 'none';
-      cargarProductos();
+    // Guardar producto
+    const formData = new FormData();
+    formData.append("nombreProducto", nombreProducto);
+    formData.append("codigo", codigo);
+    formData.append("descripcion", descripcion);
+    formData.append("tipo_menu", tipo_menu);
+    formData.append("precio", precio);
+    formData.append("estado", estadoProducto);
+    formData.append("imagen", inputImagen.files[0]);
+    formData.append("NIT", nit);
 
-    } catch (error) {
-      console.error('❌ Error al guardar producto o lugar:', error);
-      alert('Hubo un error al guardar. Revisa la consola.');
-    }
-  });
+    const resProducto = await fetch(`${API_URL}/api/productos`, { method: 'POST', body: formData });
+    const dataProducto = await resProducto.json();
+    if (!resProducto.ok) throw new Error(dataProducto.error || 'Error al guardar el producto');
+
+    alert('✅ Producto y lugar agregados correctamente.');
+    modal.style.display = 'none';
+    formProducto.reset();
+    paso1.style.display = 'block';
+    paso2.style.display = 'none';
+    cargarProductos();
+
+  } catch (error) {
+    console.error('❌ Error al guardar producto o lugar:', error);
+    alert('Hubo un error al guardar. Revisa la consola.');
+  }
+});
 
   // ===========================
   // CARGAR PRODUCTOS
@@ -213,69 +227,83 @@ document.addEventListener('DOMContentLoaded', () => {
     return m;
   }
 
-  function mostrarModalVerMas(producto) {
-    const contenido = `
-      <h3>🛒 Información del producto</h3>
-      <p><strong>Nombre:</strong> ${producto.nombreProducto}</p>
-      <p><strong>Descripción:</strong> ${producto.descripcion}</p>
-      <p><strong>Tipo:</strong> ${producto.tipo_menu}</p>
-      <p><strong>Precio:</strong> ${producto.precio}</p>
-      <p><strong>Estado:</strong> ${producto.estado}</p>
-      <hr>
-      <h3>🏪 Información del lugar</h3>
-      <p><strong>NIT:</strong> ${producto.lugar?.NIT}</p>
-      <p><strong>Nombre:</strong> ${producto.lugar?.nombre}</p>
-      <p><strong>Tipo:</strong> ${producto.lugar?.tipo}</p>
-      <p><strong>Horario:</strong> ${producto.lugar?.horario_atencion}</p>
-      <p><strong>Días:</strong> ${producto.lugar?.dias}</p>
-      <p><strong>Ubicación:</strong> ${producto.lugar?.ubicacion}</p>
-    `;
-    crearModal('Detalles del producto', contenido);
-  }
+function mostrarModalVerMas(producto) {
+  console.log("Producto recibido:", producto); // <-- depuración
 
-  function mostrarModalActualizar(producto) {
-    const contenido = `
-      <label>Nombre</label><input type="text" class="m-edit-nombre" value="${producto.nombreProducto}">
-      <label>Precio</label><input type="number" class="m-edit-precio" value="${producto.precio}">
-      <label>Tipo</label><input type="text" class="m-edit-tipo" value="${producto.tipo_menu}">
-      <label>Estado</label><input type="text" class="m-edit-estado" value="${producto.estado}">
-      <hr>
-      <button class="btn-simular-actualizar">Actualizar</button>
-      <button class="btn-cancelar-actualizar">Cancelar</button>
-    `;
-    const m = crearModal('Editar producto', contenido, false);
+  const contenido = `
+    <h3>🛒 Información del producto</h3>
+    <p><strong>Nombre:</strong> ${producto.nombreProducto || ''}</p>
+    <p><strong>Descripción:</strong> ${producto.descripcion || ''}</p>
+    <p><strong>Tipo:</strong> ${producto.tipo_menu || ''}</p>
+    <p><strong>Precio:</strong> ${producto.precio || ''}</p>
+    <p><strong>Estado:</strong> ${producto.estado || ''}</p>
 
-    m.querySelector('.btn-cancelar-actualizar')?.addEventListener('click', () => m.remove());
-    m.querySelector('.btn-simular-actualizar')?.addEventListener('click', () => {
-      const nuevoNombre = m.querySelector('.m-edit-nombre').value;
-      const nuevoPrecio = m.querySelector('.m-edit-precio').value;
-      const nuevoTipo = m.querySelector('.m-edit-tipo').value;
-      const nuevoEstado = m.querySelector('.m-edit-estado').value;
+    <hr style="margin:10px 0;">
 
-      const i = productosGlobal.findIndex(p => p.nombreProducto === producto.nombreProducto && p.precio == producto.precio);
-      if (i !== -1) {
-        productosGlobal[i] = { ...productosGlobal[i], nombreProducto: nuevoNombre, precio: nuevoPrecio, tipo_menu: nuevoTipo, estado: nuevoEstado };
-        mostrarProductos(productosGlobal);
-      }
-      alert('Simulación: cambios aplicados (no guardados en backend).');
-      m.remove();
-    });
-  }
+    <h3>🏪 Información del lugar</h3>
+    <p><strong>NIT:</strong> ${producto.lugar?.NIT || ''}</p>
+    <p><strong>Nombre:</strong> ${producto.lugar?.nombre || ''}</p>
+    <p><strong>Tipo:</strong> ${producto.lugar?.tipo || ''}</p>
+    <p><strong>Horario:</strong> ${producto.lugar?.horario_atencion || ''}</p>
+    <p><strong>Días:</strong> ${producto.lugar?.dias || ''}</p>  <!-- ahora sí se muestra -->
+    <p><strong>Ubicación:</strong> ${producto.lugar?.ubicacion || ''}</p>
+  `;
+  crearModal('Detalles del producto', contenido);
+}
+
+
+function mostrarModalActualizar(producto) {
+  const contenido = `
+    <h3>🛒 Editar producto</h3>
+    <label>Nombre</label><input type="text" value="${producto.nombreProducto || ''}">
+    <label>Precio</label><input type="number" value="${producto.precio || ''}">
+    <label>Tipo</label><input type="text" value="${producto.tipo_menu || ''}">
+    <label>Estado</label><input type="text" value="${producto.estado || ''}">
+
+    <hr style="margin:10px 0;">
+
+    <h3>🏪 Información del lugar</h3>
+    <label>NIT</label><input type="text" value="${producto.lugar?.NIT || ''}">
+    <label>Nombre</label><input type="text" value="${producto.lugar?.nombre || ''}">
+    <label>Tipo</label><input type="text" value="${producto.lugar?.tipo || ''}">
+    <label>Horario</label><input type="text" value="${producto.lugar?.horario_atencion || ''}">
+    <label>Días de atención</label><input type="text" value="${producto.lugar?.dias || ''}">
+    <label>Ubicación</label><input type="text" value="${producto.lugar?.ubicacion || ''}">
+    <label>Servicio a domicilio</label>
+    <input type="text" value="${producto.lugar?.servicio_domicilio ? 'Sí' : 'No'}">
+
+    <div class="acciones" style="margin-top:12px;">
+      <button class="btn-simular-actualizar" style="background:#005c99;color:white;">Actualizar</button>
+      <button class="btn-cancelar-actualizar" style="background:#d4af37;color:#333;margin-left:8px;">Cancelar</button>
+    </div>
+  `;
+
+  const modal = crearModal('Editar producto', contenido, false);
+
+  modal.querySelector('.btn-cancelar-actualizar').addEventListener('click', () => modal.remove());
+  modal.querySelector('.btn-simular-actualizar').addEventListener('click', () => {
+    alert('Simulación: cambios aplicados (no se guardan realmente).');
+    modal.remove();
+  });
+}
+
+
+
 
   function mostrarModalEliminar(producto) {
     const contenido = `
-      <p>¿Deseas eliminar el producto <strong>${producto.nombreProducto}</strong>?</p>
-      <button class="btn-confirmar-eliminar">Sí</button>
-      <button class="btn-cancelar-eliminar">No</button>
+      <p>¿Deseas eliminar el producto <strong>${producto.nombreProducto || ''}</strong>?</p>
+      <div class="acciones" style="margin-top:12px;">
+        <button class="btn-confirmar-eliminar" style="background:#c0392b;color:white;">Sí</button>
+        <button class="btn-cancelar-eliminar" style="background:#d4af37;color:#333;margin-left:8px;">No</button>
+      </div>
     `;
-    const m = crearModal('Confirmar eliminación', contenido, false);
+    const modal = crearModal('Confirmar eliminación', contenido, false);
 
-    m.querySelector('.btn-cancelar-eliminar')?.addEventListener('click', () => m.remove());
-    m.querySelector('.btn-confirmar-eliminar')?.addEventListener('click', () => {
-      productosGlobal = productosGlobal.filter(p => !(p.nombreProducto === producto.nombreProducto && p.precio == producto.precio));
-      mostrarProductos(productosGlobal);
-      alert('Simulación: producto eliminado (no guardado en backend).');
-      m.remove();
+    modal.querySelector('.btn-cancelar-eliminar').addEventListener('click', () => modal.remove());
+    modal.querySelector('.btn-confirmar-eliminar').addEventListener('click', () => {
+      alert('Simulación: el producto se eliminaría (no se elimina realmente).');
+      modal.remove();
     });
   }
 

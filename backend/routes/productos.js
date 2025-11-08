@@ -16,16 +16,16 @@ const upload = multer({ dest: path.join(__dirname, "../uploads") });
 // === RUTA GET: obtener productos con su información de lugar ===
 router.get("/", (req, res) => {
   const sql = `
- SELECT 
+SELECT
   p.codigo,
-  p.nombre AS nombreProducto, 
+  p.nombre AS nombreProducto,
   p.descripcion,
   p.tipo_menu,
   pl.precio,
   pl.estado,
   p.imagen,
   l.NIT,
-  l.nombre AS nombreLugar, 
+  l.nombre AS nombreLugar,
   l.tipo,
   l.horario_atencion,
   l.estado AS estadoLugar,
@@ -33,10 +33,10 @@ router.get("/", (req, res) => {
   l.numero_contacto_domicilio,
   l.ubicacion,
   l.dias
-
 FROM productos p
 LEFT JOIN productos_lugares pl ON p.codigo = pl.pro_cod
 LEFT JOIN lugares l ON pl.lug_nit = l.NIT
+
 
   `;
 
