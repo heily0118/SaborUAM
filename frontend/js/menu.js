@@ -129,19 +129,27 @@ async function cargarDatosIniciales() {
 }
 
 
-// --- EVENT LISTENERS ---
+  // ===========================
+  // FILTROS POR TIPO DE MENÚ
+  // ===========================
+  document.querySelectorAll('.filtro-btn').forEach(boton => {
+    boton.addEventListener('click', () => {
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+      boton.classList.add('activo');
 
-// 1. EVENTOS DE FILTRO DE MENÚ (Barra lateral)
-botonesFiltro.forEach(btn => {
-    btn.addEventListener('click', e => {
-        // Desactivar todos y activar el clicado
-        botonesFiltro.forEach(b => b.classList.remove('activo'));
-        e.target.classList.add('activo');
-        
-        // Volver a aplicar filtros (esto incluye la búsqueda actual)
-        aplicarFiltros(); 
+      const tipoSeleccionado = boton.textContent.toLowerCase();
+      if (tipoSeleccionado === 'todos') { mostrarProductos(productosGlobal); return; }
+
+      const filtrados = productosGlobal.filter(p => {
+        const tipoProducto = (p.tipo_menu||'').toLowerCase();
+        return (tipoSeleccionado==='desayunos' && tipoProducto.includes('desayuno')) ||
+               (tipoSeleccionado==='almuerzos' && tipoProducto.includes('almuerzo')) ||
+               (tipoSeleccionado==='bebidas' && tipoProducto.includes('bebida')) ||
+               (tipoSeleccionado==='otros' && tipoProducto.includes('otro'));
+      });
+      mostrarProductos(filtrados);
     });
-});
+  });
 
 // 2. EVENTO DE BÚSQUEDA (Al escribir en el input)
 inputBuscador.addEventListener('keyup', aplicarFiltros);
