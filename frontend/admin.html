@@ -1,41 +1,60 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Ayuda a definir si el documento está en español -->
   <meta charset="UTF-8">
+
+  <!-- Hace que la página se vea bien en pantallas pequeñas -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Es el título que aparece en la pestaña del navegador -->
   <title>Administrador - SaborUAM</title>
+
+  <!-- Este es el archivo de estilos (contiene colores, tamaños de letras, formas, entre otros) -->
   <link rel="stylesheet" href="css/admin.css">
+
+  <!-- Es la librería de íconos llamada Lucide -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-  <!-- ENCABEZADO -->
+  <!-- Encabezado -->
+
+  <!-- Muestra en la parte superior de la página -->
   <header class="header">
     <div class="titulo">
+
+      <!-- Muestra el título de la página -->
       <h1>Administrador</h1>
     </div>
 
     <div class="acciones-header">
-      <!-- 🔔 Campana con id -->
+      <!-- Crea la campana de notificaciones -->
       <div id="campana-container" style="display:inline-block;">
+
+        <!-- Muestra el icono de la campana (Lucide o .css la convierte en imagen) -->
         <i data-lucide="bell" id="iconoCampana" class="icono"></i>
       </div>
 
+      <!-- Es el botón de cerrar sesión del administrador -->
       <button class="btn-cerrar">Cerrar sesión</button>
     </div>
   </header>
-  <!-- 🔔 PANEL DE NOTIFICACIONES -->
+
+  <!-- Panel de notificaciones -->
+  <!-- Muestra las notificaciones que le lleguen al administrador -->
   <div class="notificaciones" id="panel-notificaciones" aria-hidden="true">
-    <!-- Aquí se cargan dinámicamente las notificaciones -->
+    <!-- Aquí se cargan dinámicamente las notificaciones con JavaScript -->
   </div>
 
-  <!-- CONTENIDO PRINCIPAL -->
+  <!-- Contenido principal -->
   <main class="contenedor">
 
-    <!-- BARRA LATERAL -->
+    <!-- Mneú lateral (Filtra los productos por tipo) -->
     <aside class="barra-filtro">
       <h2>Menú</h2>
       <ul>
+        <!-- Todos los botones sirven para mostrar los productos por tipo -->
         <li><button class="filtro-btn activo">Todos</button></li>
         <li><button class="filtro-btn">Desayunos</button></li>
         <li><button class="filtro-btn">Almuerzos</button></li>
@@ -44,28 +63,39 @@
       </ul>
     </aside>
 
-    <!-- ZONA PRINCIPAL -->
+    <!-- Zona principal -->
     <section class="zona-principal">
+
+      <!-- Es la barra de búsqueda para encontrar los productos por nombre -->
       <div class="buscador">
         <input type="text" id="buscador" placeholder="Buscar producto...">
+
+        <!-- Botón con el ícono de lupa -->
         <button><i data-lucide="search"></i></button>
       </div>
 
+      <!-- Se muestran las tarjetas de productos con JavaScript -->
       <div class="productos" id="lista-productos">
-        <!-- Las tarjetas se cargarán aquí desde JS -->
       </div>
     </section>
 
+    <!-- Es el botón para agregar producto "+" -->
     <button id="btn-agregar" class="btn-agregar">+</button>
   </main>
 
-  <!-- MODAL AGREGAR PRODUCTO -->
+  <!-- Modal agregar producto -->
+  <!-- Este cuadro aparece cuando el administrador hace click en el botón "+" -->
   <section class="modal" id="modal-agregar" style="display: none;">
     <div class="modal-contenido">
       <h2>Agregar nuevo producto</h2>
 
+      <!-- Es el formulario para agregar un nuevo producto -->
       <form id="form-producto">
+
+        <!-- Paso 1: Se piden los datos básicos del nuevo producto -->
         <div class="paso" id="paso1">
+
+          <!-- Son los espacios para pedir los datos básicos del nuevo producto a agregar -->
           <label for="nombreProducto">Nombre del producto:</label>
           <input type="text" id="nombreProducto" placeholder="Ej: Arepa con queso">
 
@@ -75,6 +105,7 @@
           <label for="descripcion">Descripción:</label>
           <textarea id="descripcion" placeholder="Descripción del producto..."></textarea>
 
+          <!-- Se selecciona el tipo de menú al que pertenece -->
           <label for="tipo_menu">Tipo de menú:</label>
           <select id="tipo_menu">
             <option value="">Selecciona una opción</option>
@@ -84,25 +115,33 @@
             <option value="Otro">Otro</option>
           </select>
 
+          <!-- Es el campo para poner el precio del producto -->
           <label for="precio">Precio:</label>
           <input type="number" id="precio" placeholder="Ej: 8000">
 
+          <!-- Stock disponible-->
           <label for="stock">Stock inicial:</label>
           <input type="number" id="stock" placeholder="Ej: 10" min="0">
 
+          <!-- Es el campo para subir la imagen del producto -->
           <label for="imagen-producto">Imagen del producto:</label>
           <input type="file" id="imagen-producto" accept="image/*">
 
+          <!-- Botones para cancelar o continuar al siguiente paso -->
           <div class="acciones">
             <button type="button" id="btn-cancelar">Cancelar</button>
             <button type="button" id="btn-siguiente">Siguiente</button>
           </div>
         </div>
 
+        <!-- Paso 2: Se piden los datos del lugar donde se puede encontrar el nuevo producto -->
         <div class="paso" id="paso2" style="display:none;">
+
+          <!-- Aquí se piden los datos del lugar donde se vende el producto -->
           <label for="nombreLugar">Nombre del lugar:</label>
           <input type="text" id="nombreLugar" placeholder="Ej: Restaurante UAM">
 
+          <!-- Es el campo para poner el estado del lugar (si está activo o no) -->
           <div class="campo">
             <label for="estado">Estado del lugar:</label>
             <select id="estado">
@@ -112,6 +151,7 @@
             </select>
           </div>
 
+          <!-- Es el campo para elegir el tipo de lugar (Restaurante, Cafetería, etc.) -->
           <div class="campo">
             <label for="tipo">Tipo de lugar:</label>
             <select id="tipo">
@@ -123,18 +163,23 @@
             </select>
           </div>
 
+          <!-- NIT del establecimiento -->
           <label for="nit">NIT:</label>
           <input type="text" id="nit" placeholder="Ej: 123456789-0">
 
+          <!-- Lugar exacto dentro del campus o zona -->
           <label for="ubicacion">Ubicación:</label>
           <input type="text" id="ubicacion" placeholder="Cafetería principal">
 
+          <!-- Horario de atención -->
           <label for="horario">Horario:</label>
           <input type="text" id="horario" placeholder="7:00 a.m - 11:00 a.m">
 
+          <!-- Días de atención -->
           <label for="dias">Días de atención:</label>
           <input type="text" id="dias" placeholder="Lunes a viernes">
 
+           <!-- Si ofrece servicio a domicilio -->
           <label for="servicioDomicilio">¿Ofrece servicio a domicilio?</label>
           <select id="servicioDomicilio">
             <option value="">Selecciona una opción</option>
@@ -142,9 +187,11 @@
             <option value="No">No</option>
           </select>
 
+          <!-- Número de teléfono para domicilios -->
           <label for="numeroContacto">Número de contacto para domicilio:</label>
           <input type="text" id="numeroContacto" placeholder="Ej: 3101234567">
 
+          <!-- Botones para volver al paso anterior o enviar el formulario -->
           <div class="acciones">
             <button type="button" id="btn-atras">Atrás</button>
             <button type="submit" id="btn-agregar-final">Agregar</button>
@@ -154,8 +201,11 @@
     </div>
   </section>
 
-  <!-- === SCRIPTS === -->
+  <!-- === Scripts === -->
+  <!-- Es el archivo JavaScript donde está toda la lógica (mostrar productos, abrir el modal, etc.) -->
   <script src="js/admin.js"></script>
+
+  <!-- Activa los íconos de Lucide o .css (sin esto no se ven los íconos) -->
   <script>lucide.createIcons();</script>
 </body>
 </html>
