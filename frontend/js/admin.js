@@ -37,22 +37,31 @@ document.addEventListener('DOMContentLoaded', () => {
     formProducto.reset();
   });
 
-  btnSiguiente?.addEventListener('click', () => {
-    const nombre = document.getElementById('nombreProducto')?.value.trim();
-    const codigo = document.getElementById('codigo')?.value.trim();
-    const tipo_menu = document.getElementById('tipo_menu')?.value.trim();
-    const descripcion = document.getElementById('descripcion')?.value.trim();
-    const precio = document.getElementById('precio')?.value.trim();
-    const estado = document.getElementById("estadoProducto")?.value;
-    const archivo = inputImagen?.files?.[0];
+btnSiguiente?.addEventListener('click', () => {
+  const nombre = document.getElementById('nombreProducto')?.value.trim();
+  const codigo = document.getElementById('codigo')?.value.trim();
+  const tipo_menu = document.getElementById('tipo_menu')?.value.trim();
+  const descripcion = document.getElementById('descripcion')?.value.trim();
+  const precioStr = document.getElementById('precio')?.value.trim();
+  const stockStr = document.getElementById('stock')?.value.trim();
+  const archivo = inputImagen?.files?.[0];
 
-    if (!nombre || !codigo || !tipo_menu || !descripcion || !precio || !archivo || !estado) {
-      alert('⚠️ Por favor completa todos los campos antes de continuar.');
-      return;
-    }
-    paso1.style.display = 'none';
-    paso2.style.display = 'block';
-  });
+  // Convertir a número para permitir 0
+  const precio = precioStr !== '' ? Number(precioStr) : null;
+  const stock = stockStr !== '' ? Number(stockStr) : null;
+
+  if (!nombre || !codigo || !tipo_menu || !descripcion || precio === null || stock === null || !archivo) {
+    alert('⚠️ Por favor completa todos los campos antes de continuar.');
+    return;
+  }
+
+  // Estado se calcula automáticamente según stock
+  // const estado = stock > 0 ? 'Disponible' : 'No disponible';
+
+  paso1.style.display = 'none';
+  paso2.style.display = 'block';
+});
+
 
   btnAtras?.addEventListener('click', () => {
     paso2.style.display = 'none';
@@ -158,59 +167,88 @@ document.addEventListener('DOMContentLoaded', () => {
   // ===========================
   // ACTUALIZAR STOCK
   // ===========================
-  document.addEventListener('click', async (e) => {
-    if (!e.target.classList.contains('stock-btn')) return;
+ document.addEventListener('click', async (e) => {
+  if (!e.target.classList.contains('stock-btn')) return;
 
-    const btn = e.target;
-    const codigo = btn.dataset.codigo;
-    const nit = btn.dataset.nit;
-    const accion = btn.dataset.accion;
-    
-    const tarjeta = btn.closest('.tarjeta');
-    const spanCantidad = tarjeta.querySelector('.stock-cantidad');
-    let stockActual = parseInt(spanCantidad.textContent);
+  const btn = e.target;
+  const codigo = btn.dataset.codigo;
+  const nit = btn.dataset.nit;
+  const accion = btn.dataset.accion;
+  
+  const tarjeta = btn.closest('.tarjeta');
+  const spanCantidad = tarjeta.querySelector('.stock-cantidad');
+  let stockActual = parseInt(spanCantidad.textContent);
 
-    // Actualizar valor en frontend
-    stockActual = accion === 'mas' ? stockActual + 1 : Math.max(0, stockActual - 1);
-    spanCantidad.textContent = stockActual;
+  // Actualizar valor en frontend inmediatamente
+  stockActual = accion === 'mas' ? stockActual + 1 : Math.max(0, stockActual - 1);
+  spanCantidad.textContent = stockActual;
 
-    // Actualizar en backend
-    try {
-      const res = await fetch(`${API_URL}/api/productos/stock`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ codigo, nit, stock: stockActual })
-      });
+  // Actualizar el estado dinámicamente
+  const estado = stockActual > 0 ? 'disponible' : 'no disponible';
+  const estadoTexto = estado === 'disponible' ? 'Disponible' : 'No disponible';
+  const colorClase = estado === 'disponible' ? 'estado-disponible' : 'estado-no-disponible';
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al actualizar stock');
-      console.log(`Stock de ${codigo} actualizado a ${stockActual}`);
-    } catch (err) {
-      console.error(err);
-      alert('❌ No se pudo actualizar el stock en el servidor.');
-    }
-  });
+  // Actualizar el estado en la tarjeta
+  const estadoElemento = tarjeta.querySelector('.estado-texto');
+  estadoElemento.textContent = estadoTexto;
+  estadoElemento.classList.remove('estado-disponible', 'estado-no-disponible');
+  estadoElemento.classList.add(colorClase);
 
-  // ===========================
-  // MOSTRAR PRODUCTOS
-  // ===========================
-  function mostrarProductos(lista) {
-    listaProductos.innerHTML = '';
-    if (!lista.length) { listaProductos.innerHTML = '<p>No hay productos disponibles.</p>'; return; }
+  // Actualizar en backend
+  try {
+    const res = await fetch(`${API_URL}/api/productos/stock`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo, nit, stock: stockActual })
+    });
 
-    lista.forEach(producto => {
-      const estado = (producto.estado || '').toLowerCase();
-      let colorClase = estado==='disponible' ? 'estado-disponible' : estado==='no disponible' ? 'estado-no-disponible' : 'estado-desconocido';
-      let estadoTexto = estado==='disponible' ? 'Disponible' : estado==='no disponible' ? 'No disponible' : producto.estado || 'Sin estado';
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al actualizar stock');
+    console.log(`Stock de ${codigo} actualizado a ${stockActual}`);
+  } catch (err) {
+    console.error(err);
+    alert('❌ No se pudo actualizar el stock en el servidor.');
+  }
+});
 
-      const precioFormateado = new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',minimumFractionDigits:0}).format(producto.precio || 0);
-      const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
 
-      const tarjeta = document.createElement('div');
-      tarjeta.classList.add('tarjeta');
-      tarjeta.dataset.producto = JSON.stringify(producto);
+ // ===========================
+// MOSTRAR PRODUCTOS
+// ===========================
+function mostrarProductos(lista) {
+  listaProductos.innerHTML = '';
+  if (!lista.length) {
+    listaProductos.innerHTML = '<p>No hay productos disponibles.</p>';
+    return;
+  }
 
-      tarjeta.innerHTML = `
+  lista.forEach(producto => {
+    // ✅ Stock y estado dependen del lugar
+    const stock = producto.lugar?.stock ?? 0;
+    const estado = stock > 0 ? 'disponible' : 'no disponible';
+
+    const colorClase = estado === 'disponible' ? 'estado-disponible' :
+                       estado === 'no disponible' ? 'estado-no-disponible' :
+                       'estado-desconocido';
+    const estadoTexto = estado === 'disponible' ? 'Disponible' :
+                        estado === 'no disponible' ? 'No disponible' :
+                        'Sin estado';
+
+    // ✅ Precio depende del lugar
+    const precioFormateado = new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0
+    }).format(producto.lugar?.precio ?? 0);
+
+    const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
+
+    // ✅ Crear tarjeta
+    const tarjeta = document.createElement('div');
+    tarjeta.classList.add('tarjeta');
+    tarjeta.dataset.producto = JSON.stringify(producto);
+
+    tarjeta.innerHTML = `
       <img src="${imgSrc}" alt="${producto.nombreProducto}">
       <div class="info">
         <h3>${producto.nombreProducto}</h3>
@@ -219,8 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <p class="estado">Estado: <strong class="estado-texto ${colorClase}">${estadoTexto}</strong></p>
         <p><strong>Stock:</strong>
           <button class="stock-btn" data-codigo="${producto.codigo}" data-nit="${producto.lugar?.NIT}" data-accion="menos">-</button>
-          <span class="stock-cantidad">${producto.lugar?.stock ?? 0}</span>
-
+          <span class="stock-cantidad">${stock}</span>
           <button class="stock-btn" data-codigo="${producto.codigo}" data-nit="${producto.lugar?.NIT}" data-accion="mas">+</button>
         </p>
       </div>
@@ -234,9 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
-
-      listaProductos.appendChild(tarjeta);
-    });
+    listaProductos.appendChild(tarjeta);
+  });
 
     try { lucide.createIcons(); } catch(e){}
 
@@ -273,13 +309,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function mostrarModalVerMas(producto) {
+  // Actualizar el stock y estado dinámicamente
+  const stock = producto.lugar?.stock ?? 0;
+  const estado = stock > 0 ? 'Disponible' : 'No disponible';
+
   const contenido = `
     <h3>🛒 Información del producto</h3>
     <p><strong>Nombre:</strong> ${producto.nombreProducto || ''}</p>
     <p><strong>Descripción:</strong> ${producto.descripcion || ''}</p>
     <p><strong>Tipo:</strong> ${producto.tipo_menu || ''}</p>
-    <p><strong>Precio:</strong> ${producto.precio || ''}</p>
-    <p><strong>Estado:</strong> ${producto.estado || ''}</p>
+    <p><strong>Precio:</strong> ${producto.lugar?.precio ?? ''}</p>
+    <p><strong>Estado:</strong> ${estado}</p>
 
     <hr style="margin:10px 0;">
 
@@ -294,13 +334,14 @@ document.addEventListener('DOMContentLoaded', () => {
   crearModal('Detalles del producto', contenido);
 }
 
+
+
 function mostrarModalActualizar(producto) {
   const contenido = `
     <h3>🛒 Editar producto</h3>
     <label>Nombre</label><input type="text" value="${producto.nombreProducto || ''}">
-    <label>Precio</label><input type="number" value="${producto.precio || ''}">
+    <label>Precio</label><input type="number" value="${producto.lugar?.precio || ''}">
     <label>Tipo</label><input type="text" value="${producto.tipo_menu || ''}">
-    <label>Estado</label><input type="text" value="${producto.estado || ''}">
 
     <hr style="margin:10px 0;">
 
@@ -324,6 +365,7 @@ function mostrarModalActualizar(producto) {
     modal.remove();
   });
 }
+
 
 
   function mostrarModalEliminar(producto) {
