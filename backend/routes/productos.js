@@ -16,29 +16,27 @@ const upload = multer({ dest: path.join(__dirname, "../uploads") });
 // === RUTA GET: obtener productos con su información de lugar ===
 router.get("/", (req, res) => {
   const sql = `
-SELECT
-  p.codigo,
-  p.nombre AS nombreProducto,
-  p.descripcion,
-  p.tipo_menu,
-  pl.precio,
-  pl.stock, 
-  pl.estado,
-  p.imagen,
-  l.NIT,
-  l.nombre AS nombreLugar,
-  l.tipo,
-  l.horario_atencion,
-  l.estado AS estadoLugar,
-  l.servicio_domicilio,
-  l.numero_contacto_domicilio,
-  l.ubicacion,
-  l.dias
-FROM productos p
-LEFT JOIN productos_lugares pl ON p.codigo = pl.pro_cod
-LEFT JOIN lugares l ON pl.lug_nit = l.NIT
-
-
+  SELECT
+    p.codigo,
+    p.nombre AS nombreProducto,
+    p.descripcion,
+    p.tipo_menu,
+    pl.precio,
+    pl.stock,
+    pl.estado,
+    p.imagen,
+    l.NIT,
+    l.nombre AS nombreLugar,
+    l.tipo,
+    l.horario_atencion,
+    l.estado AS estadoLugar,
+    l.servicio_domicilio,
+    l.numero_contacto_domicilio,
+    l.ubicacion,
+    l.dias
+  FROM productos p
+  LEFT JOIN productos_lugares pl ON p.codigo = pl.pro_cod
+  LEFT JOIN lugares l ON pl.lug_nit = l.NIT;
   `;
 
   db.query(sql, (err, results) => {
@@ -47,7 +45,6 @@ LEFT JOIN lugares l ON pl.lug_nit = l.NIT
       return res.status(500).json({ error: "Error al obtener productos" });
     }
 
-    // 🧩 Reformatear cada fila para separar producto y lugar
     const productos = results.map(row => ({
       codigo: row.codigo,
       nombreProducto: row.nombreProducto,
@@ -66,17 +63,16 @@ LEFT JOIN lugares l ON pl.lug_nit = l.NIT
         ubicacion: row.ubicacion,
         dias: row.dias,
         stock: row.stock,
-        precio: row.precio 
+        precio: row.precio
       }
     }));
 
-
     res.json(productos);
   });
-});
+}); 
 
 
-// === RUTA POST: registrar producto y relación con lugar ===
+// === RUTA POST: registrar producto y relación con lugar (Creación) ===
 router.post("/", upload.single("imagen"), (req, res) => {
   const {
     codigo,
@@ -96,128 +92,132 @@ router.post("/", upload.single("imagen"), (req, res) => {
     return res.status(400).json({ error: "Faltan datos obligatorios" });
   }
 
-  // === 1️⃣ Verificar si el producto ya existe solo por código ===
-  const sqlVerificar = "SELECT * FROM productos WHERE codigo = ?";
-  db.query(sqlVerificar, [codigo], (err, resultados) => {
+  // === 1️⃣ Verificar si la relación producto-lugar YA existe ===
+  const sqlVerificarRelacion = `
+    SELECT * FROM productos_lugares 
+    WHERE pro_cod = ? AND lug_nit = ?
+  `;
+
+  db.query(sqlVerificarRelacion, [codigo, NIT], (err, resultadoRelacion) => {
     if (err) {
-      console.error("❌ Error al verificar producto:", err);
-      return res.status(500).json({ error: "Error al verificar producto" });
+      console.error("❌ Error al verificar relación producto-lugar:", err);
+      return res.status(500).json({ error: "Error al verificar relación producto-lugar" });
     }
 
-    if (resultados.length > 0) {
-      console.log("❌ Error: ya existe un producto con ese código");
+    if (resultadoRelacion.length > 0) {
+      // 🚫 Ya existe ese producto en ese lugar
+      console.log(`⚠️ El producto ${codigo} ya existe en el lugar ${NIT}.`);
       return res.status(400).json({
-        error: "Ya existe un producto con ese código. No se puede volver a registrar."
+        mensaje: "El producto ya existe en este lugar. Actualice el stock manualmente."
       });
     }
 
-    // === 2️⃣ Insertar producto (solo si no existe) ===
-    const sqlInsertarProducto = `
-      INSERT INTO productos (codigo, nombre, descripcion, tipo_menu, imagen)
-      VALUES (?, ?, ?, ?, ?)
-    `;
-    const valuesProducto = [codigo, nombreProducto, descripcion, tipo_menu, imagen];
-
-    db.query(sqlInsertarProducto, valuesProducto, (err) => {
+    // === 2️⃣ Verificar si el producto existe en la tabla 'productos' ===
+    const sqlVerificarProducto = "SELECT * FROM productos WHERE codigo = ?";
+    db.query(sqlVerificarProducto, [codigo], (err, resultadosProducto) => {
       if (err) {
-        console.error("❌ Error al insertar producto:", err);
-        return res.status(500).json({ error: "Error al insertar producto" });
+        console.error("❌ Error al verificar producto:", err);
+        return res.status(500).json({ error: "Error al verificar producto" });
       }
 
-      console.log("✅ Producto insertado correctamente");
-
-      // === 3️⃣ Insertar o actualizar relación producto-lugar ===
-      const sqlRelacion = `
-        INSERT INTO productos_lugares (lug_nit, pro_cod, estado, precio, stock)
-        VALUES (?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-          estado = VALUES(estado),
-          precio = VALUES(precio),
-          stock = VALUES(stock)
-      `;
-
-      // Asegurarnos de que el stock esté en formato entero
       const stockInicial = parseInt(stock) || 0;
-      const valuesRelacion = [NIT, codigo, estado || "Disponible", precio, stockInicial];
 
-      db.query(sqlRelacion, valuesRelacion, (err) => {
-        if (err) {
-          console.error("❌ Error al insertar relación producto-lugar:", err);
-          return res.status(500).json({ error: "Error al insertar relación producto-lugar" });
-        }
+      if (resultadosProducto.length === 0) {
+        // 🆕 Producto NO existe → insertarlo en la tabla 'productos'
+        const sqlInsertarProducto = `
+          INSERT INTO productos (codigo, nombre, descripcion, tipo_menu, imagen)
+          VALUES (?, ?, ?, ?, ?)
+        `;
+        const valuesProducto = [codigo, nombreProducto, descripcion, tipo_menu, imagen];
 
-        console.log("✅ Relación producto-lugar creada correctamente");
-        res.json({
-          mensaje: "Producto y relación insertados correctamente"
+        db.query(sqlInsertarProducto, valuesProducto, (err) => {
+          if (err) {
+            console.error("❌ Error al insertar producto:", err);
+            return res.status(500).json({ error: "Error al insertar producto" });
+          }
+
+          console.log("✅ Producto insertado correctamente");
+
+          // Luego crear la relación producto-lugar
+          const sqlRelacion = `
+            INSERT INTO productos_lugares (lug_nit, pro_cod, estado, precio, stock)
+            VALUES (?, ?, ?, ?, ?)
+          `;
+          const valuesRelacion = [NIT, codigo, estado || "Disponible", precio, stockInicial];
+
+          db.query(sqlRelacion, valuesRelacion, (err) => {
+            if (err) {
+              console.error("❌ Error al insertar relación producto-lugar:", err);
+              return res.status(500).json({ error: "Error al insertar relación producto-lugar" });
+            }
+
+            console.log("✅ Relación producto-lugar creada correctamente");
+            res.json({
+              mensaje: "Producto y relación insertados correctamente"
+            });
+          });
         });
-      });
+      } else {
+        // ✅ Producto ya existe en la tabla productos → solo crear relación
+        const sqlRelacion = `
+          INSERT INTO productos_lugares (lug_nit, pro_cod, estado, precio, stock)
+          VALUES (?, ?, ?, ?, ?)
+        `;
+        const valuesRelacion = [NIT, codigo, estado || "Disponible", precio, stockInicial];
+
+        db.query(sqlRelacion, valuesRelacion, (err) => {
+          if (err) {
+            console.error("❌ Error al insertar relación producto-lugar:", err);
+            return res.status(500).json({ error: "Error al insertar relación producto-lugar" });
+          }
+
+          console.log("✅ Relación producto-lugar creada correctamente");
+          res.json({
+            mensaje: "Relación producto-lugar creada correctamente"
+          });
+        });
+      }
     });
   });
 });
 
 
-// === RUTA PATCH: actualizar stock de un producto específico ===
-router.post("/", upload.single("imagen"), (req, res) => {
-  const { codigo, nombreProducto, descripcion, tipo_menu, precio, NIT, stock } = req.body;
-  const imagen = req.file ? req.file.filename : null;
 
-  if (!codigo || !nombreProducto || !precio || !NIT || stock === undefined) {
-    return res.status(400).json({ error: "Faltan datos obligatorios" });
+// === RUTA PATCH: Actualizar stock de un producto específico (CORRECCIÓN) ===
+// Esta ruta coincide con la solicitud PATCH /api/productos/stock del frontend.
+router.patch("/stock", (req, res) => {
+  // Nota: No se utiliza multer aquí ya que solo se actualizan datos JSON.
+  const { codigo, nit, stock } = req.body;
+
+  // 1. Validar datos
+  if (!codigo || !nit || stock === undefined || stock === null) {
+    return res.status(400).json({ error: "Faltan datos obligatorios (código, nit, o stock)" });
   }
 
   const stockInt = parseInt(stock) || 0;
-  const estado = stockInt > 0 ? "Disponible" : "No disponible";
+  // Determinar el estado basado en el stock (si stock > 0, Disponible; si stock <= 0, No disponible)
+  const nuevoEstado = stockInt > 0 ? 'Disponible' : 'No disponible';
 
-  // Verificar si el producto existe
-  const sqlVerificarProducto = "SELECT * FROM productos WHERE codigo = ?";
-  db.query(sqlVerificarProducto, [codigo], (err, resultados) => {
-    if (err) return res.status(500).json({ error: "Error al verificar producto" });
-
-    const productoExiste = resultados.length > 0;
-
-    if (!productoExiste) {
-      // Insertar producto primero
-      const sqlInsertarProducto = `
-        INSERT INTO productos (codigo, nombre, descripcion, tipo_menu, imagen)
-        VALUES (?, ?, ?, ?, ?)
-      `;
-      db.query(sqlInsertarProducto, [codigo, nombreProducto, descripcion, tipo_menu, imagen], (err) => {
-        if (err) return res.status(500).json({ error: "Error al insertar producto" });
-
-        // Insertar relación
-        const sqlRelacion = `
-          INSERT INTO productos_lugares (lug_nit, pro_cod, estado, precio, stock)
-          VALUES (?, ?, ?, ?, ?)
-        `;
-        db.query(sqlRelacion, [NIT, codigo, estado, precio, stockInt], (err) => {
-          if (err) return res.status(500).json({ error: "Error al insertar relación producto-lugar" });
-          res.json({ mensaje: "Producto y relación insertados correctamente" });
-        });
-      });
-    } else {
-      // Revisar si ya existe la relación producto-lugar
-      const sqlVerificarRelacion = "SELECT * FROM productos_lugares WHERE pro_cod = ? AND lug_nit = ?";
-      db.query(sqlVerificarRelacion, [codigo, NIT], (err, rel) => {
-        if (err) return res.status(500).json({ error: "Error al verificar relación producto-lugar" });
-
-        if (rel.length > 0) {
-          // Producto y lugar ya existen → sugerir actualizar stock
-          return res.status(400).json({
-            error: "Este producto ya existe en este lugar. Por favor actualiza el stock desde la sección correspondiente."
-          });
-        } else {
-          // Insertar nueva relación
-          const sqlRelacion = `
-            INSERT INTO productos_lugares (lug_nit, pro_cod, estado, precio, stock)
-            VALUES (?, ?, ?, ?, ?)
-          `;
-          db.query(sqlRelacion, [NIT, codigo, estado, precio, stockInt], (err) => {
-            if (err) return res.status(500).json({ error: "Error al insertar relación producto-lugar" });
-            res.json({ mensaje: "Producto agregado a este lugar correctamente" });
-          });
-        }
-      });
+  // 2. Consulta SQL para actualizar 'stock' y 'estado' en productos_lugares
+  const sql = `
+    UPDATE productos_lugares 
+    SET stock = ?, estado = ? 
+    WHERE pro_cod = ? AND lug_nit = ?
+  `;
+  
+  db.query(sql, [stockInt, nuevoEstado, codigo, nit], (err, result) => {
+    if (err) {
+      console.error("❌ Error al actualizar el stock:", err);
+      return res.status(500).json({ error: "Error en la base de datos al actualizar el stock" });
     }
+
+    if (result.affectedRows === 0) {
+      // Esto sucede si la relación pro_cod y lug_nit no existe
+      return res.status(404).json({ error: "No se encontró la relación Producto-Lugar para actualizar." });
+    }
+
+    console.log(`✅ Stock de producto ${codigo} en lugar ${nit} actualizado a: ${stockInt}`);
+    res.json({ mensaje: "Stock actualizado correctamente", nuevoStock: stockInt, nuevoEstado });
   });
 });
 
