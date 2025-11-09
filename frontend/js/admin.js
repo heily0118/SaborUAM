@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const stockStr = document.getElementById('stock')?.value.trim();
         const archivo = inputImagen?.files?.[0];
 
+        // Convertir a número para permitir 0
         const precio = precioStr !== '' ? Number(precioStr) : null;
         const stock = stockStr !== '' ? Number(stockStr) : null;
 
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nit = document.getElementById('nit')?.value.trim();
         const ubicacion = document.getElementById('ubicacion')?.value.trim();
         const horario = document.getElementById('horario')?.value.trim();
-        const dias = document.getElementById('dias')?.value.trim();
+        const dias = document.getElementById('dias')?.value.trim(); // <-- capturar días
         const servicioDomicilio = document.getElementById('servicioDomicilio')?.value.trim();
         const numeroContacto = document.getElementById('numeroContacto')?.value.trim();
         const estadoLugar = document.getElementById('estado')?.value.trim();
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 servicioDomicilio,
                 numeroContacto,
                 ubicacion,
-                dias
+                dias // <-- agregar aquí
             };
 
             const resLugar = await fetch(`${API_URL}/api/lugares/registro`, {
@@ -153,18 +154,63 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrarProductos(productosGlobal);
         } catch (err) {
             console.warn('[admin.js] No se pudo cargar productos, simulando datos');
-            // Datos simulados deben reflejar la estructura de la API
             productosGlobal = [
-                { codigo: 'DES001', nombreProducto: 'Desayuno UAM', descripcion: 'Huevos, café, pan', tipo_menu: 'Desayunos', precio: 12000, estado: 'Disponible', imagen: null, lugar: { nombre: 'Cafetería UAM', NIT: '900123456', stock: 15, tipo: 'Cafetería', horario_atencion: '7:00-16:00', dias: 'Lun-Vie', ubicacion: 'Bloque A', precio: 12000 } },
+                { nombreProducto: 'Desayuno', descripcion: 'Huevos, café', tipo_menu: 'desayuno', precio: 12000, estado: 'Disponible', imagen: null, lugar: { nombre: 'Cafetería UAM', NIT: '900123456', tipo: 'Cafetería', horario_atencion: '7:00-16:00', dias: 'Lun-Vie', ubicacion: 'Bloque A', stock: 10, precio: 12000 } },
             ];
             mostrarProductos(productosGlobal);
         }
     }
 
-    // [El resto de las funciones (Actualizar Stock, Mostrar Productos, Modales, Notificaciones, Buscador) se mantienen sin cambios mayores, ya que son propias del ADMIN.]
+    // ===========================
+    // ACTUALIZAR STOCK
+    // ===========================
+    document.addEventListener('click', async (e) => {
+        if (!e.target.classList.contains('stock-btn')) return;
+
+        const btn = e.target;
+        const codigo = btn.dataset.codigo;
+        const nit = btn.dataset.nit;
+        const accion = btn.dataset.accion;
+
+        const tarjeta = btn.closest('.tarjeta');
+        const spanCantidad = tarjeta.querySelector('.stock-cantidad');
+        let stockActual = parseInt(spanCantidad.textContent);
+
+        // Actualizar valor en frontend inmediatamente
+        stockActual = accion === 'mas' ? stockActual + 1 : Math.max(0, stockActual - 1);
+        spanCantidad.textContent = stockActual;
+
+        // Actualizar el estado dinámicamente
+        const estado = stockActual > 0 ? 'disponible' : 'no disponible';
+        const estadoTexto = estado === 'disponible' ? 'Disponible' : 'No disponible';
+        const colorClase = estado === 'disponible' ? 'estado-disponible' : 'estado-no-disponible';
+
+        // Actualizar el estado en la tarjeta
+        const estadoElemento = tarjeta.querySelector('.estado-texto');
+        estadoElemento.textContent = estadoTexto;
+        estadoElemento.classList.remove('estado-disponible', 'estado-no-disponible');
+        estadoElemento.classList.add(colorClase);
+
+        // Actualizar en backend
+        try {
+            const res = await fetch(`${API_URL}/api/productos/stock`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo, nit, stock: stockActual })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error al actualizar stock');
+            console.log(`Stock de ${codigo} actualizado a ${stockActual}`);
+        } catch (err) {
+            console.error(err);
+            alert('❌ No se pudo actualizar el stock en el servidor.');
+        }
+    });
+
 
     // ===========================
-    // MOSTRAR PRODUCTOS (ADMIN)
+    // MOSTRAR PRODUCTOS
     // ===========================
     function mostrarProductos(lista) {
         listaProductos.innerHTML = '';
@@ -174,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         lista.forEach(producto => {
+            // ✅ Stock y estado dependen del lugar
             const stock = producto.lugar?.stock ?? 0;
             const estado = stock > 0 ? 'disponible' : 'no disponible';
 
@@ -184,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 estado === 'no disponible' ? 'No disponible' :
                 'Sin estado';
 
+            // ✅ Precio depende del lugar
             const precioFormateado = new Intl.NumberFormat('es-CO', {
                 style: 'currency',
                 currency: 'COP',
@@ -192,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
 
+            // ✅ Crear tarjeta
             const tarjeta = document.createElement('div');
             tarjeta.classList.add('tarjeta');
             tarjeta.dataset.producto = JSON.stringify(producto);
@@ -223,13 +272,156 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         try { lucide.createIcons(); } catch (e) {}
-        // ...listeners para modales y menú...
+
+        // Asignar listeners a botones de tarjeta
+        document.querySelectorAll('.tarjeta').forEach(t => {
+            const menuBtn = t.querySelector('.menu-btn');
+            const menu = t.querySelector('.menu-opciones');
+            const prod = t.dataset.producto ? JSON.parse(t.dataset.producto) : null;
+
+            menuBtn?.addEventListener('click', e => {
+                e.stopPropagation();
+                document.querySelectorAll('.menu-opciones').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+                menu?.classList.toggle('show');
+            });
+
+            t.querySelector('.ver-btn')?.addEventListener('click', e => { e.stopPropagation(); mostrarModalVerMas(prod); menu?.classList.remove('show'); });
+            t.querySelector('.editar-btn')?.addEventListener('click', e => { e.stopPropagation(); mostrarModalActualizar(prod); menu?.classList.remove('show'); });
+            t.querySelector('.eliminar-btn')?.addEventListener('click', e => { e.stopPropagation(); mostrarModalEliminar(prod); menu?.classList.remove('show'); });
+        });
+
+        document.addEventListener('click', () => document.querySelectorAll('.menu-opciones').forEach(m => m.classList.remove('show')));
     }
-    
-    // ... Código para Actualizar Stock, Modales, Notificaciones, Buscador (Mantienen su lógica)...
-    
+
     // ===========================
-    // BUSCADOR (ADMIN)
+    // MODALES VER MAS / ACTUALIZAR / ELIMINAR
+    // ===========================
+    function crearModal(titulo, contenidoHTML, hasClose = true) {
+        const m = document.createElement('div');
+        m.classList.add('modal', 'activo');
+        m.innerHTML = `<div class="modal-contenido"><h2>${titulo}</h2><div class="contenido-modal">${contenidoHTML}</div>${hasClose?`<div class="acciones"><button class="btn-cerrar-modal">Cerrar</button></div>`:''}</div>`;
+        document.body.appendChild(m);
+        hasClose && m.querySelector('.btn-cerrar-modal')?.addEventListener('click', () => m.remove());
+        return m;
+    }
+
+    function mostrarModalVerMas(producto) {
+        // Actualizar el stock y estado dinámicamente
+        const stock = producto.lugar?.stock ?? 0;
+        const estado = stock > 0 ? 'Disponible' : 'No disponible';
+
+        const contenido = `
+            <h3>🛒 Información del producto</h3>
+            <p><strong>Nombre:</strong> ${producto.nombreProducto || ''}</p>
+            <p><strong>Descripción:</strong> ${producto.descripcion || ''}</p>
+            <p><strong>Tipo:</strong> ${producto.tipo_menu || ''}</p>
+            <p><strong>Precio:</strong> ${producto.lugar?.precio ?? ''}</p>
+            <p><strong>Estado:</strong> ${estado}</p>
+
+            <hr style="margin:10px 0;">
+
+            <h3> Información del lugar</h3>
+            <p><strong>NIT:</strong> ${producto.lugar?.NIT || ''}</p>
+            <p><strong>Nombre:</strong> ${producto.lugar?.nombre || ''}</p>
+            <p><strong>Tipo:</strong> ${producto.lugar?.tipo || ''}</p>
+            <p><strong>Horario:</strong> ${producto.lugar?.horario_atencion || ''}</p>
+            <p><strong>Días:</strong> ${producto.lugar?.dias || ''}</p>
+            <p><strong>Ubicación:</strong> ${producto.lugar?.ubicacion || ''}</p>
+        `;
+        crearModal('Detalles del producto', contenido);
+    }
+
+
+
+    function mostrarModalActualizar(producto) {
+        const contenido = `
+            <h3>🛒 Editar producto</h3>
+            <label>Nombre</label><input type="text" value="${producto.nombreProducto || ''}">
+            <label>Precio</label><input type="number" value="${producto.lugar?.precio || ''}">
+            <label>Tipo</label><input type="text" value="${producto.tipo_menu || ''}">
+
+            <hr style="margin:10px 0;">
+
+            <h3>🏪 Información del lugar</h3>
+            <label>NIT</label><input type="text" value="${producto.lugar?.NIT || ''}">
+            <label>Nombre</label><input type="text" value="${producto.lugar?.nombre || ''}">
+            <label>Horario</label><input type="text" value="${producto.lugar?.horario_atencion || ''}">
+            <label>Ubicación</label><input type="text" value="${producto.lugar?.ubicacion || ''}">
+
+            <div class="acciones" style="margin-top:12px;">
+                <button class="btn-simular-actualizar" style="background:#005c99;color:white;">Actualizar</button>
+                <button class="btn-cancelar-actualizar" style="background:#d4af37;color:#333;margin-left:8px;">Cancelar</button>
+            </div>
+        `;
+
+        const modal = crearModal('Editar producto ', contenido, false);
+
+        modal.querySelector('.btn-cancelar-actualizar').addEventListener('click', () => modal.remove());
+        modal.querySelector('.btn-simular-actualizar').addEventListener('click', () => {
+            alert('Simulación: cambios aplicados (no se guardan realmente).');
+            modal.remove();
+        });
+    }
+
+
+
+    function mostrarModalEliminar(producto) {
+        const contenido = `
+            <p>¿Deseas eliminar el producto <strong>${producto.nombreProducto || ''}</strong>?</p>
+            <div class="acciones" style="margin-top:12px;">
+                <button class="btn-confirmar-eliminar" style="background:#c0392b;color:white;">Sí</button>
+                <button class="btn-cancelar-eliminar" style="background:#d4af37;color:#333;margin-left:8px;">No</button>
+            </div>
+        `;
+        const modal = crearModal('Confirmar eliminación', contenido, false);
+
+        modal.querySelector('.btn-cancelar-eliminar').addEventListener('click', () => modal.remove());
+        modal.querySelector('.btn-confirmar-eliminar').addEventListener('click', () => {
+            alert('Simulación: el producto se eliminaría (no se elimina realmente).');
+            modal.remove();
+        });
+    }
+    // ===========================
+    // NOTIFICACIONES
+    // ===========================
+    function generarContenidoNotificaciones() {
+        const notificacionesSimuladas = [
+            { tipo: 'pedido', mensaje: '🍔 Nuevo pedido en Cafetería Principal' },
+            { tipo: 'producto', mensaje: '📦 Producto "Empanada" marcado como No disponible' }
+        ];
+        let html = '<h3>🎉 Notificaciones</h3>';
+        if (!notificacionesSimuladas.length) html += '<ul><li>No hay notificaciones nuevas.</li></ul>';
+        else {
+            html += '<ul>';
+            notificacionesSimuladas.forEach(n => html += `<li>${n.mensaje}</li>`);
+            html += '</ul>';
+        }
+        return html;
+    }
+
+    function abrirPanelNotificaciones() {
+        panelNotificaciones.innerHTML = generarContenidoNotificaciones();
+        panelNotificaciones.classList.add('mostrar');
+    }
+
+    function cerrarPanelNotificaciones() {
+        panelNotificaciones.classList.remove('mostrar');
+    }
+
+    campanaContainer?.addEventListener('click', e => {
+        e.stopPropagation();
+        if (panelNotificaciones?.classList.contains('mostrar')) cerrarPanelNotificaciones();
+        else abrirPanelNotificaciones();
+    });
+
+    document.addEventListener('click', e => {
+        if (panelNotificaciones && !panelNotificaciones.contains(e.target) && (!campanaContainer || !campanaContainer.contains(e.target))) {
+            cerrarPanelNotificaciones();
+        }
+    });
+
+    // ===========================
+    // BUSCADOR (Administrador)
     // ===========================
     inputBuscador?.addEventListener('keyup', () => {
         const texto = inputBuscador.value.toLowerCase().trim();
@@ -241,4 +433,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // CARGA INICIAL
     // ===========================
     cargarProductos();
+
 });
