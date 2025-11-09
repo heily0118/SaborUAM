@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Guardar producto
     const formData = new FormData();
     formData.append("nombreProducto", nombreProducto);
+    const stock = document.getElementById('stock')?.value.trim();
     formData.append("codigo", codigo);
     formData.append("descripcion", descripcion);
     formData.append("tipo_menu", tipo_menu);
@@ -115,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.append("estado", estadoProducto);
     formData.append("imagen", inputImagen.files[0]);
     formData.append("NIT", nit);
+    formData.append('stock', stock);
 
     const resProducto = await fetch(`${API_URL}/api/productos`, { method: 'POST', body: formData });
     const dataProducto = await resProducto.json();
@@ -154,6 +156,42 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ===========================
+  // ACTUALIZAR STOCK
+  // ===========================
+  document.addEventListener('click', async (e) => {
+    if (!e.target.classList.contains('stock-btn')) return;
+
+    const btn = e.target;
+    const codigo = btn.dataset.codigo;
+    const nit = btn.dataset.nit;
+    const accion = btn.dataset.accion;
+    
+    const tarjeta = btn.closest('.tarjeta');
+    const spanCantidad = tarjeta.querySelector('.stock-cantidad');
+    let stockActual = parseInt(spanCantidad.textContent);
+
+    // Actualizar valor en frontend
+    stockActual = accion === 'mas' ? stockActual + 1 : Math.max(0, stockActual - 1);
+    spanCantidad.textContent = stockActual;
+
+    // Actualizar en backend
+    try {
+      const res = await fetch(`${API_URL}/api/productos/stock`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codigo, nit, stock: stockActual })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al actualizar stock');
+      console.log(`Stock de ${codigo} actualizado a ${stockActual}`);
+    } catch (err) {
+      console.error(err);
+      alert('❌ No se pudo actualizar el stock en el servidor.');
+    }
+  });
+
+  // ===========================
   // MOSTRAR PRODUCTOS
   // ===========================
   function mostrarProductos(lista) {
@@ -173,22 +211,29 @@ document.addEventListener('DOMContentLoaded', () => {
       tarjeta.dataset.producto = JSON.stringify(producto);
 
       tarjeta.innerHTML = `
-        <img src="${imgSrc}" alt="${producto.nombreProducto}">
-        <div class="info">
-          <h3>${producto.nombreProducto}</h3>
-          <p class="precio">${precioFormateado}</p>
-          <p class="lugar">${producto.lugar?.nombre || 'Sin lugar'}</p>
-          <p class="estado">Estado: <strong class="estado-texto ${colorClase}">${estadoTexto}</strong></p>
+      <img src="${imgSrc}" alt="${producto.nombreProducto}">
+      <div class="info">
+        <h3>${producto.nombreProducto}</h3>
+        <p class="precio">${precioFormateado}</p>
+        <p class="lugar">${producto.lugar?.nombre || 'Sin lugar'}</p>
+        <p class="estado">Estado: <strong class="estado-texto ${colorClase}">${estadoTexto}</strong></p>
+        <p><strong>Stock:</strong>
+          <button class="stock-btn" data-codigo="${producto.codigo}" data-nit="${producto.lugar?.NIT}" data-accion="menos">-</button>
+          <span class="stock-cantidad">${producto.lugar?.stock ?? 0}</span>
+
+          <button class="stock-btn" data-codigo="${producto.codigo}" data-nit="${producto.lugar?.NIT}" data-accion="mas">+</button>
+        </p>
+      </div>
+      <div class="acciones-tarjeta">
+        <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
+        <div class="menu-opciones">
+          <button class="ver-btn">Ver más</button>
+          <button class="editar-btn">Actualizar</button>
+          <button class="eliminar-btn">Eliminar</button>
         </div>
-        <div class="acciones-tarjeta">
-          <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
-          <div class="menu-opciones">
-            <button class="ver-btn">Ver más</button>
-            <button class="editar-btn">Actualizar</button>
-            <button class="eliminar-btn">Eliminar</button>
-          </div>
-        </div>
-      `;
+      </div>
+    `;
+
 
       listaProductos.appendChild(tarjeta);
     });
@@ -227,9 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return m;
   }
 
-function mostrarModalVerMas(producto) {
-  console.log("Producto recibido:", producto); // <-- depuración
-
+  function mostrarModalVerMas(producto) {
   const contenido = `
     <h3>🛒 Información del producto</h3>
     <p><strong>Nombre:</strong> ${producto.nombreProducto || ''}</p>
@@ -245,12 +288,11 @@ function mostrarModalVerMas(producto) {
     <p><strong>Nombre:</strong> ${producto.lugar?.nombre || ''}</p>
     <p><strong>Tipo:</strong> ${producto.lugar?.tipo || ''}</p>
     <p><strong>Horario:</strong> ${producto.lugar?.horario_atencion || ''}</p>
-    <p><strong>Días:</strong> ${producto.lugar?.dias || ''}</p>  <!-- ahora sí se muestra -->
+    <p><strong>Días:</strong> ${producto.lugar?.dias || ''}</p>
     <p><strong>Ubicación:</strong> ${producto.lugar?.ubicacion || ''}</p>
   `;
   crearModal('Detalles del producto', contenido);
 }
-
 
 function mostrarModalActualizar(producto) {
   const contenido = `
@@ -265,12 +307,8 @@ function mostrarModalActualizar(producto) {
     <h3>🏪 Información del lugar</h3>
     <label>NIT</label><input type="text" value="${producto.lugar?.NIT || ''}">
     <label>Nombre</label><input type="text" value="${producto.lugar?.nombre || ''}">
-    <label>Tipo</label><input type="text" value="${producto.lugar?.tipo || ''}">
     <label>Horario</label><input type="text" value="${producto.lugar?.horario_atencion || ''}">
-    <label>Días de atención</label><input type="text" value="${producto.lugar?.dias || ''}">
     <label>Ubicación</label><input type="text" value="${producto.lugar?.ubicacion || ''}">
-    <label>Servicio a domicilio</label>
-    <input type="text" value="${producto.lugar?.servicio_domicilio ? 'Sí' : 'No'}">
 
     <div class="acciones" style="margin-top:12px;">
       <button class="btn-simular-actualizar" style="background:#005c99;color:white;">Actualizar</button>
@@ -278,7 +316,7 @@ function mostrarModalActualizar(producto) {
     </div>
   `;
 
-  const modal = crearModal('Editar producto', contenido, false);
+  const modal = crearModal('Editar producto ', contenido, false);
 
   modal.querySelector('.btn-cancelar-actualizar').addEventListener('click', () => modal.remove());
   modal.querySelector('.btn-simular-actualizar').addEventListener('click', () => {
@@ -286,8 +324,6 @@ function mostrarModalActualizar(producto) {
     modal.remove();
   });
 }
-
-
 
 
   function mostrarModalEliminar(producto) {
@@ -306,7 +342,6 @@ function mostrarModalActualizar(producto) {
       modal.remove();
     });
   }
-
   // ===========================
   // NOTIFICACIONES
   // ===========================

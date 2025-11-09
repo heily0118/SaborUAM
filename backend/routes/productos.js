@@ -22,6 +22,7 @@ SELECT
   p.descripcion,
   p.tipo_menu,
   pl.precio,
+  pl.stock, 
   pl.estado,
   p.imagen,
   l.NIT,
@@ -64,7 +65,8 @@ LEFT JOIN lugares l ON pl.lug_nit = l.NIT
         servicio_domicilio: row.servicio_domicilio,
         numero_contacto_domicilio: row.numero_contacto_domicilio,
         ubicacion: row.ubicacion,
-        dias: row.dias
+        dias: row.dias,
+        stock: row.stock 
       }
     }));
 
@@ -83,7 +85,8 @@ router.post("/", upload.single("imagen"), (req, res) => {
     tipo_menu,
     precio,
     NIT,
-    estado
+    estado,
+    stock // Ahora recibimos el stock también
   } = req.body;
 
   const imagen = req.file ? req.file.filename : null;
@@ -92,7 +95,7 @@ router.post("/", upload.single("imagen"), (req, res) => {
   console.log("🖼 Imagen recibida:", req.file);
 
   // Validar campos obligatorios
-  if (!codigo || !nombreProducto || !precio || !NIT) {
+  if (!codigo || !nombreProducto || !precio || !NIT || stock === undefined) {
     return res.status(400).json({ error: "Faltan datos obligatorios" });
   }
 
@@ -134,13 +137,18 @@ router.post("/", upload.single("imagen"), (req, res) => {
 
       // === 3️⃣ Insertar o actualizar relación producto-lugar ===
       const sqlRelacion = `
-        INSERT INTO productos_lugares (lug_nit, pro_cod, estado, precio)
-        VALUES (?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-          estado = VALUES(estado),
-          precio = VALUES(precio)
-      `;
-      const valuesRelacion = [NIT, codigo, estado || "Disponible", precio];
+      INSERT INTO productos_lugares (lug_nit, pro_cod, estado, precio, stock)
+      VALUES (?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        estado = VALUES(estado),
+        precio = VALUES(precio),
+        stock = VALUES(stock)
+    `;
+
+      // Asegurarnos de que el stock esté en formato entero
+      const stockInicial = parseInt(stock) || 0;
+
+      const valuesRelacion = [NIT, codigo, estado || "Disponible", precio, stockInicial];
 
       db.query(sqlRelacion, valuesRelacion, (err) => {
         if (err) {
@@ -156,6 +164,35 @@ router.post("/", upload.single("imagen"), (req, res) => {
         });
       });
     });
+  });
+});
+
+// === RUTA PATCH: actualizar stock de un producto específico ===
+router.patch("/stock", (req, res) => {
+  const { codigo, nit, stock } = req.body;
+
+  if (!codigo || !nit || stock === undefined) {
+    return res.status(400).json({ error: "Faltan datos (codigo, nit o stock)" });
+  }
+
+  const sql = `
+    UPDATE productos_lugares
+    SET stock = ?
+    WHERE pro_cod = ? AND lug_nit = ?
+  `;
+
+  db.query(sql, [stock, codigo, nit], (err, result) => {
+    if (err) {
+      console.error("❌ Error al actualizar stock:", err);
+      return res.status(500).json({ error: "Error al actualizar stock" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "No se encontró el producto o lugar" });
+    }
+
+    console.log(`✅ Stock actualizado: ${codigo} → ${stock}`);
+    res.json({ mensaje: "Stock actualizado correctamente", stock });
   });
 });
 
