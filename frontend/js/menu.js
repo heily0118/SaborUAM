@@ -158,3 +158,87 @@ if (btnCerrar) {
 
 // 4. CARGAR PRODUCTOS AL INICIO
 window.addEventListener('DOMContentLoaded', cargarDatosIniciales);
+// ===============================================
+// === FUNCIONALIDAD DE NOTIFICACIONES (DATOS FIJOS SOLICITADOS) ===
+// ===============================================
+document.addEventListener('DOMContentLoaded', () => {
+    // === SELECCIÓN DE ELEMENTOS DE NOTIFICACIÓN ===
+    const btnNotificaciones = document.getElementById('btn-notificaciones');
+    const listaNotificaciones = document.getElementById('lista-notificaciones');
+    const contadorNotificaciones = document.getElementById('contador-notificaciones');
+
+    // 1. Datos Fijos SOLICITADOS (Basados en la imagen)
+    const promocionesFijas = [
+        {
+            titulo: "Nuevo pedido en Cafetería Principal",
+            descripcion: "Pendiente de confirmación.",
+            detalle: "Ahora"
+        },
+        {
+            titulo: "Producto 'Empanada' no disponible",
+            descripcion: "El artículo ha sido marcado como no disponible.",
+            detalle: "Cafetería Principal"
+        }
+    ];
+
+    // 2. Función para cargar los datos quemados con estilo de título
+    function cargarPromocionesQuemadas() {
+        if (!listaNotificaciones) return;
+
+        // Inserta el título "Notificaciones"
+        listaNotificaciones.innerHTML = `<h3>Notificaciones</h3>`; 
+
+        promocionesFijas.forEach(promo => {
+            const item = document.createElement('div');
+            item.className = 'notificacion-item';
+            // Estructura para mostrar el punto y el texto
+            item.innerHTML = `
+                <span class="punto-notificacion"></span> 
+                <strong>${promo.titulo}</strong>
+                <p>${promo.descripcion}</p>
+                <small>${promo.detalle}</small>
+            `;
+            listaNotificaciones.appendChild(item);
+        });
+        
+        // Inicializa el contador (será 2)
+        if (contadorNotificaciones) {
+            contadorNotificaciones.textContent = promocionesFijas.length; 
+            contadorNotificaciones.style.display = 'block';
+        }
+    }
+    
+    // 3. Manjeador del Clic en la Campana
+    if (btnNotificaciones && listaNotificaciones) {
+        // Cargar los datos al inicio
+        cargarPromocionesQuemadas();
+
+        btnNotificaciones.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            // Mostrar/ocultar el panel
+            listaNotificaciones.classList.toggle('activo');
+
+            // Ocultar el contador al abrir
+            if (listaNotificaciones.classList.contains('activo')) {
+                 if (contadorNotificaciones) {
+                     contadorNotificaciones.style.display = 'none';
+                 }
+            } else {
+                 // Mostrar el contador al cerrar
+                 if (contadorNotificaciones && parseInt(contadorNotificaciones.textContent) > 0) {
+                      contadorNotificaciones.style.display = 'block';
+                 }
+            }
+        });
+
+        // 4. Cerrar el panel al hacer clic fuera
+        window.addEventListener('click', (e) => {
+            if (listaNotificaciones.classList.contains('activo') && 
+                !listaNotificaciones.contains(e.target) && 
+                !btnNotificaciones.contains(e.target)) {
+                
+                listaNotificaciones.classList.remove('activo');
+            }
+        });
+    }
+});
