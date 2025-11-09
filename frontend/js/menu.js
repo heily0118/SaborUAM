@@ -32,6 +32,9 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         const tarjeta = document.createElement('div');
         tarjeta.classList.add('tarjeta');
         
+        // Objeto de producto limpio para pasar al modal
+        const productoData = JSON.stringify(producto);
+
         // Asumiendo que el campo 'precio' y 'imagen' existen en el objeto producto
         const precioFormateado = new Intl.NumberFormat('es-CO', {
             style: 'currency',
@@ -50,7 +53,10 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
                 <p class="lugar">Tipo: ${producto.tipo_menu || 'N/A'}</p> 
             </div>
             <div class="acciones-tarjeta">
-                <i data-lucide="more-vertical"></i>
+                <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
+                <div class="menu-opciones">
+                    <button class="detalles-btn" data-producto='${productoData}'>Más Información</button>
+                </div>
             </div>
         `;
         
@@ -61,6 +67,96 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
     });
 
     try { lucide.createIcons(); } catch(e) {}
+    
+    // ==================================================
+    // NUEVA LÓGICA: EVENTOS DE BOTONES DE TARJETA Y MODAL
+    // ==================================================
+    document.querySelectorAll('.tarjeta').forEach(t => {
+        const menuBtn = t.querySelector('.menu-btn');
+        const menu = t.querySelector('.menu-opciones');
+        
+        // 1. Mostrar/Ocultar Menú (puntos verticales)
+        menuBtn?.addEventListener('click', e => {
+            e.stopPropagation();
+            // Cierra otros menús abiertos
+            document.querySelectorAll('.menu-opciones').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+            menu?.classList.toggle('show');
+        });
+
+        // 2. Listener para "Más Información"
+        t.querySelector('.detalles-btn')?.addEventListener('click', e => { 
+            e.stopPropagation(); 
+            const productoData = JSON.parse(e.target.dataset.producto);
+            mostrarModalVerMas(productoData); // Llama a la función del modal
+            menu?.classList.remove('show'); // Oculta el menú después del clic
+        });
+    });
+
+    // 3. Cerrar cualquier menú al hacer clic en cualquier parte de la ventana
+    document.addEventListener('click', () => document.querySelectorAll('.menu-opciones').forEach(m => m.classList.remove('show')));
+}
+
+/**
+ * Crea la estructura básica del modal (similar a admin.js).
+ */
+function crearModal(titulo, contenidoHTML, hasClose = true) {
+    const m = document.createElement('div');
+    m.classList.add('modal', 'activo');
+    // El botón 'Cerrar' se reemplaza por el botón 'Cerrar' amarillo en la imagen
+    m.innerHTML = `<div class="modal-contenido"><h2>${titulo}</h2><div class="contenido-modal">${contenidoHTML}</div><button class="btn-cerrar-modal">Cerrar</button></div>`;
+    document.body.appendChild(m);
+    m.querySelector('.btn-cerrar-modal')?.addEventListener('click', () => m.remove());
+    return m;
+}
+
+/**
+ * Muestra el modal con los detalles completos del producto y lugar.
+ * @param {Object} producto - El objeto de datos completo del producto.
+ */
+function mostrarModalVerMas(producto) {
+    // Replicamos la estructura de datos del admin.js para asegurar compatibilidad
+    const productoDetalles = {
+        nombreProducto: producto.nombreProducto || 'N/A',
+        descripcion: producto.descripcion || 'Sin descripción',
+        tipo_menu: producto.tipo_menu || 'N/A',
+        precio: producto.precio ?? 'N/A',
+        estado: producto.estado || 'Disponible', // Asumimos disponible si no hay estado
+        lugar: {
+            NIT: producto.NIT || 'N/A',
+            nombre: producto.NOMBRE_LUGAR || 'Lugar Desconocido',
+            tipo: producto.tipo || 'N/A',
+            horario_atencion: producto.horario || 'N/A',
+            dias: producto.dias || 'N/A',
+            ubicacion: producto.ubicacion || 'N/A',
+        }
+    };
+    
+    const precioFormateado = new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0
+    }).format(productoDetalles.precio ?? 0);
+    
+    const contenido = `
+        <h3>📜 Información del producto</h3>
+        <p><strong>Nombre:</strong> ${productoDetalles.nombreProducto}</p>
+        <p><strong>Descripción:</strong> ${productoDetalles.descripcion}</p>
+        <p><strong>Tipo:</strong> ${productoDetalles.tipo_menu}</p>
+        <p><strong>Precio:</strong> ${precioFormateado}</p>
+        <p><strong>Estado:</strong> ${productoDetalles.estado}</p>
+
+        <hr style="margin:10px 0;">
+
+        <h3>📍 Información del lugar</h3>
+        <p><strong>NIT:</strong> ${productoDetalles.lugar.NIT}</p>
+        <p><strong>Nombre:</strong> ${productoDetalles.lugar.nombre}</p>
+        <p><strong>Tipo:</strong> ${productoDetalles.lugar.tipo}</p>
+        <p><strong>Horario:</strong> ${productoDetalles.lugar.horario_atencion}</p>
+        <p><strong>Días:</strong> ${productoDetalles.lugar.dias}</p>
+        <p><strong>Ubicación:</strong> ${productoDetalles.lugar.ubicacion}</p>
+    `;
+    
+    crearModal('Detalles del producto', contenido);
 }
 
 /**
@@ -83,7 +179,6 @@ function aplicarFiltros() {
             const tipoProducto = (producto.tipo_menu || '').toLowerCase();
             
             // Lógica de coincidencia parcial/inclusiva:
-            // Desayunos coincide con 'desayuno' o 'desayunos'
             if (tipoDeseado === 'desayunos' && tipoProducto.includes('desayuno')) return true;
             if (tipoDeseado === 'almuerzos' && tipoProducto.includes('almuerzo')) return true;
             if (tipoDeseado === 'bebidas' && tipoProducto.includes('bebida')) return true;
@@ -158,8 +253,9 @@ if (btnCerrar) {
 
 // 4. CARGAR PRODUCTOS AL INICIO
 window.addEventListener('DOMContentLoaded', cargarDatosIniciales);
+
 // ===============================================
-// === FUNCIONALIDAD DE NOTIFICACIONES (DATOS FIJOS SOLICITADOS) ===
+// === FUNCIONALIDAD DE NOTIFICACIONES (MANTENIDA) ===
 // ===============================================
 document.addEventListener('DOMContentLoaded', () => {
     // === SELECCIÓN DE ELEMENTOS DE NOTIFICACIÓN ===
@@ -220,14 +316,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Ocultar el contador al abrir
             if (listaNotificaciones.classList.contains('activo')) {
-                 if (contadorNotificaciones) {
-                     contadorNotificaciones.style.display = 'none';
-                 }
+                   if (contadorNotificaciones) {
+                       contadorNotificaciones.style.display = 'none';
+                   }
             } else {
-                 // Mostrar el contador al cerrar
-                 if (contadorNotificaciones && parseInt(contadorNotificaciones.textContent) > 0) {
-                      contadorNotificaciones.style.display = 'block';
-                 }
+                // Mostrar el contador al cerrar
+                   if (contadorNotificaciones && parseInt(contadorNotificaciones.textContent) > 0) {
+                        contadorNotificaciones.style.display = 'block';
+                   }
             }
         });
 
