@@ -77,7 +77,7 @@ function crearModal(titulo, contenidoHTML) {
 
 /**
  * Muestra el modal con los detalles completos del producto y lugar.
- * CORRECCIÓN: Utiliza la estructura anidada (producto.lugar) para la información.
+ * Utiliza la estructura anidada (producto.lugar) para la información.
  */
 function mostrarModalVerMas(producto) {
     // Asume la estructura anidada: producto.lugar
@@ -117,7 +117,7 @@ function mostrarModalVerMas(producto) {
 
 /**
  * Función para pintar las tarjetas de productos en el HTML.
- * CORRECCIÓN: Utiliza la estructura anidada (producto.lugar) para precio y nombre del lugar.
+ * Utiliza la estructura anidada (producto.lugar) para precio y nombre del lugar.
  */
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
     listaProductos.innerHTML = ""; 
@@ -261,6 +261,7 @@ async function cargarProductos() {
 
 /**
  * Aplica los filtros (Menú y Búsqueda) y llama al renderizado.
+ * ✅ CORRECCIÓN: Se ajusta la lógica de 'includes' para manejar plurales/singulares.
  */
 function aplicarFiltros() {
     const filtroActivoBtn = document.querySelector('.filtro-btn.activo');
@@ -271,12 +272,15 @@ function aplicarFiltros() {
     
     // Filtrado por tipo de menú
     if (filtroMenu.toLowerCase() !== 'todos' && filtroMenu.toLowerCase() !== 'menú') {
-        const tipoDeseado = filtroMenu.toLowerCase().replace('s', ''); // Elimina 's' para singularizar (ej: desayunos -> desayuno)
+        
+        const tipoDeseado = filtroMenu.toLowerCase(); 
         
         productosFiltrados = productosFiltrados.filter(producto => {
-            // Usa el tipo_menu del producto.
+            
             const tipoProducto = (producto.tipo_menu || '').toLowerCase();
-            return tipoProducto.includes(tipoDeseado);
+            
+            // Lógica corregida: Si el texto del producto ('desayuno') está incluido en el botón ('desayunos'), o viceversa.
+            return tipoProducto.includes(tipoDeseado) || tipoDeseado.includes(tipoProducto);
         });
     }
     
@@ -285,7 +289,7 @@ function aplicarFiltros() {
         productosFiltrados = productosFiltrados.filter(p => 
             (p.nombreProducto || '').toLowerCase().includes(textoBusqueda) || 
             (p.descripcion || '').toLowerCase().includes(textoBusqueda) ||
-            (p.lugar?.nombre || '').toLowerCase().includes(textoBusqueda) // Incluye el nombre del lugar
+            (p.lugar?.nombre || '').toLowerCase().includes(textoBusqueda) 
         );
     }
     
