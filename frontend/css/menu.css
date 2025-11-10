@@ -376,9 +376,10 @@ body {
     background-color: #f0f0f0;
 }
 
-/* Estilos para el MODAL (Ventana Emergente de Detalles) - MANTENER */
+/* ============================================= */
+/* === ESTILOS PARA EL MODAL (Ventana Emergente) */
+/* ============================================= */
 .modal {
-    /* ... (todos los estilos del modal deben ir aquí) ... */
     position: fixed;
     top: 0;
     left: 0;
@@ -392,10 +393,33 @@ body {
 }
 
 .modal-contenido {
-    /* ... (estilos de la caja del modal) ... */
     background-color: white;
     padding: 30px;
     border-radius: 12px;
     width: 90%;
     max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex; /* Añadir flex para mejor control del contenido */
+    flex-direction: column;
+}
+
+/* Estilo para el botón de cerrar del modal (Ajuste para color azul) */
+.btn-cerrar-modal {
+    /* Estilo del botón */
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 20px; /* Separación del contenido */
+    align-self: flex-end; /* Alinea el botón a la derecha */
+    
+    /* Colores solicitados */
+    background-color: #005c99; /* Azul principal */
+    color: white; /* Texto blanco */
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-cerrar-modal:hover {
+    background-color: #004a7a; /* Un azul ligeramente más oscuro al pasar el ratón */
 }
