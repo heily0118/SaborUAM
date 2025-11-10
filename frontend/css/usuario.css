@@ -73,11 +73,11 @@ body {
     gap: 25px;
 }
 
+/* BASE para INICIAR SESIÓN: Mantiene su padding de 10px */
 .btn {
     font-size: 16px;
     font-weight: bold;
     border: none;
-    /* CAMBIO CLAVE 1: Reducimos el padding vertical a 10px */
     padding: 10px 25px; 
     border-radius: 8px;
     cursor: pointer;
@@ -87,7 +87,7 @@ body {
 .btn-login {
     background-color: white;
     color: #004aad;
-    /* CAMBIO CLAVE 2: Mantenemos el border, pero ahora el padding hace que la altura coincida con .btn-registrar */
+    /* Este borde de 2px es lo que agranda el botón */
     border: 2px solid #004aad;
 }
 
@@ -151,13 +151,17 @@ body {
     margin-top: 5px;
 }
 
-/* El padding de .btn-registrar ya era 10px 25px */
+/* BOTÓN REGISTRARSE: Aumentamos el padding vertical a 12px para igualar la altura de .btn-login */
 .btn-registrar {
     background: #d4af37;
     color: white;
-    font-weight: 600;
-    border: none;
-    padding: 10px 25px; 
+    font-weight: bold;
+    /* CAMBIO CLAVE: Aumentado de 10px a 12px para igualar la altura del otro botón. */
+    padding: 12px 25px; 
+    font-size: 16px; 
+    
+    border: none; /* No necesita borde, el padding aumentado compensa */
+    
     border-radius: 8px;
     cursor: pointer;
     margin-top: 20px; 
