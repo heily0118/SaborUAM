@@ -1,14 +1,15 @@
+//menu.js frontend
 // === CONFIGURACIÓN BASE ===
 const API_URL = "http://localhost:3000";
 
 // === VARIABLES GLOBALES DE DATOS (NO DE DOM) ===
 let todosLosProductos = []; 
-let notificaciones = []; // 🔔 Global para las notificaciones
+let notificaciones = []; //  Global para las notificaciones
 
 
-// =======================================================
+
 // === FUNCIONES DE UTILIDAD ===
-// =======================================================
+
 
 // Convierte un producto plano a formato anidado con "lugar"
 function mapearProductoParaMenu(producto) {
@@ -29,9 +30,9 @@ function mapearProductoParaMenu(producto) {
 }
 
 
-// =======================================================
+
 // === MODALES ===
-// =======================================================
+
 function crearModal(titulo, contenidoHTML) {
   document.querySelector('.modal')?.remove();
   const modal = document.createElement('div');
@@ -56,14 +57,14 @@ function mostrarModalVerMas(producto) {
     .format(lugar.precio ?? producto.precio ?? 0);
 
   const contenido = `
-    <h3>Producto</h3>
+    <h3>🛒 Producto</h3>
     <p><strong>Nombre:</strong> ${producto.nombreProducto || 'N/A'}</p>
     <p><strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}</p>
     <p><strong>Tipo:</strong> ${producto.tipo_menu || 'N/A'}</p>
     <p><strong>Precio:</strong> ${precio}</p>
     <p><strong>Estado:</strong> ${estado}</p>
     <hr>
-    <h3>Lugar</h3>
+    <h3>🏪 Lugar</h3>
     <p><strong>Nombre:</strong> ${lugar.nombre || 'Lugar Desconocido'}</p>
     <p><strong>Tipo:</strong> ${lugar.tipo || 'N/A'}</p>
     <p><strong>Horario:</strong> ${lugar.horario_atencion || 'N/A'}</p>
@@ -74,9 +75,9 @@ function mostrarModalVerMas(producto) {
 }
 
 
-// =======================================================
+
 // === RENDERIZADO DE PRODUCTOS ===
-// =======================================================
+
 function renderizarProductos(productos, listaProductosElement, filtroAplicado = 'Menú') {
   if (!listaProductosElement) return;
 
@@ -141,9 +142,9 @@ function renderizarProductos(productos, listaProductosElement, filtroAplicado = 
 }
 
 
-// =======================================================
+
 // === CARGA DE PRODUCTOS ===
-// =======================================================
+
 async function cargarProductos(listaProductosElement, inputBuscadorElement) {
   try {
     const res = await fetch(`${API_URL}/api/productos`, { cache: "no-store" });
@@ -161,9 +162,9 @@ async function cargarProductos(listaProductosElement, inputBuscadorElement) {
 }
 
 
-// =======================================================
+
 // === FILTROS ===
-// =======================================================
+
 function aplicarFiltros(listaProductosElement, inputBuscadorElement) {
   if (!inputBuscadorElement) return;
 
@@ -193,9 +194,9 @@ function aplicarFiltros(listaProductosElement, inputBuscadorElement) {
 }
 
 
-// =======================================================
-// === SISTEMA DE NOTIFICACIONES ===
-// =======================================================
+
+// === SISTEMA DE NOTIFICACIONES ==
+
 function agregarNotificacion(mensaje, tipo = "info") {
   const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   notificaciones.unshift({ mensaje, tipo, hora });
