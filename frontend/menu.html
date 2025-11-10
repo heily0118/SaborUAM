@@ -86,11 +86,17 @@
   </main>
 
   <!-- === SCRIPTS === -->
-  <!-- Archivo con la lógica de la página (mostrar productos, filtrar, buscar, etc.) -->
+  <!-- Librería Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tu archivo JS -->
   <script src="js/menu.js"></script>
 
-  <!-- Activa los íconos de Lucide (sin esto, los íconos no se muestran) -->
-  <script>lucide.createIcons();</script>
+  <!-- Activar íconos cuando el DOM esté listo -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+    });
+  </script>
 </body>
 </html>
-
