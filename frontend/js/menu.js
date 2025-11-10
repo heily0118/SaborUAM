@@ -15,10 +15,10 @@ const contadorNotificaciones = document.getElementById('contador-notificaciones'
 // Almacenará la lista completa de la API
 let todosLosProductos = [];
 
-// --- FUNCIONES DE RENDERIZADO Y LÓGICA ---
+// --- FUNCIONES DE MODAL Y DETALLE ---
 
 /**
- * Crea la estructura básica del modal para la vista del cliente.
+ * Crea la estructura básica del modal (VENTANA EMERGENTE).
  */
 function crearModal(titulo, contenidoHTML) {
     // Eliminar cualquier modal existente antes de crear uno nuevo
@@ -27,6 +27,7 @@ function crearModal(titulo, contenidoHTML) {
     const m = document.createElement('div');
     m.classList.add('modal', 'activo');
     
+    // Usamos la estructura visual del modal de administrador
     m.innerHTML = `
         <div class="modal-contenido">
             <h2>${titulo}</h2>
@@ -36,10 +37,8 @@ function crearModal(titulo, contenidoHTML) {
     
     document.body.appendChild(m);
     
-    // Listener para cerrar el modal con el botón
+    // Listener para cerrar el modal
     m.querySelector('.btn-cerrar-modal')?.addEventListener('click', () => m.remove());
-    
-    // Listener para cerrar el modal al hacer clic fuera
     m.addEventListener('click', (e) => {
         if (e.target === m) {
             m.remove();
@@ -49,17 +48,19 @@ function crearModal(titulo, contenidoHTML) {
 }
 
 /**
- * Muestra el modal con los detalles completos del producto y lugar.
- * (Esta función se mantiene con los detalles completos para el modal de "Más Información")
+ * Muestra el modal con los detalles completos del producto y lugar, tal como en el administrador.
  * @param {Object} producto - El objeto de datos completo del producto.
  */
 function mostrarModalVerMas(producto) {
     const productoDetalles = {
+        // Información del Producto
         nombreProducto: producto.nombreProducto || 'N/A',
         descripcion: producto.descripcion || 'Sin descripción',
         tipo_menu: producto.tipo_menu || 'N/A',
         precio: producto.precio ?? 'N/A',
         estado: producto.estado || 'Disponible',
+        
+        // Información del Lugar (asumiendo que vienen anidados o con prefijo)
         lugar: {
             NIT: producto.NIT || 'N/A',
             nombre: producto.NOMBRE_LUGAR || 'Lugar Desconocido',
@@ -98,12 +99,13 @@ function mostrarModalVerMas(producto) {
     crearModal('Detalles del producto', contenido);
 }
 
+// --- FUNCIONES DE RENDERIZADO Y LÓGICA ---
 
 /**
- * Función para pintar las tarjetas de productos en el HTML. (AJUSTADA)
+ * Función para pintar las tarjetas de productos en el HTML (Estilo minimalista).
  */
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
-    listaProductos.innerHTML = ""; // Limpiar antes de pintar
+    listaProductos.innerHTML = ""; 
 
     if (productos.length === 0) {
         listaProductos.innerHTML = `<p class="sin-resultados">No se encontraron resultados para: <strong>${filtroAplicado}</strong>.</p>`;
@@ -125,7 +127,7 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         
         const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
 
-        // ESTE ES EL HTML AJUSTADO PARA SER MINIMALISTA
+        // HTML minimalista para la tarjeta (como en image_eb4702.png)
         tarjeta.innerHTML = `
             <img src="${imgSrc}" alt="${producto.nombreProducto}">
             <div class="info">
@@ -141,32 +143,34 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
             </div>
         `;
         
-        // Lógica para registrar consulta al hacer clic (Mantenida)
-        tarjeta.addEventListener('click', async () => { /* ... tu lógica de registro ... */ });
-        
         listaProductos.appendChild(tarjeta);
     });
 
     try { lucide.createIcons(); } catch(e) {}
     
-    // LÓGICA: EVENTOS DE BOTONES DE TARJETA Y MODAL (MANTENIDA)
+    // ==================================================
+    // LÓGICA: EVENTOS DE BOTONES DE TARJETA (3 PUNTOS y Más Información)
+    // ==================================================
     document.querySelectorAll('.tarjeta').forEach(t => {
         const menuBtn = t.querySelector('.menu-btn');
         const menu = t.querySelector('.menu-opciones');
         
-        // 1. Mostrar/Ocultar Menú (puntos verticales)
+        // 1. Mostrar/Ocultar Menú (al hacer clic en los 3 puntos)
         menuBtn?.addEventListener('click', e => {
             e.stopPropagation();
-            document.querySelectorAll('.menu-opciones').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+            // Cierra otros menús abiertos para que solo uno esté visible
+            document.querySelectorAll('.menu-opciones').forEach(m => { 
+                if (m !== menu) m.classList.remove('show'); 
+            });
             menu?.classList.toggle('show');
         });
 
-        // 2. Listener para "Más Información"
+        // 2. Listener para el botón "Más Información"
         t.querySelector('.detalles-btn')?.addEventListener('click', e => { 
             e.stopPropagation(); 
             const productoData = JSON.parse(e.target.dataset.producto);
             mostrarModalVerMas(productoData); 
-            menu?.classList.remove('show');
+            menu?.classList.remove('show'); // Oculta el menú después de abrir el modal
         });
     });
 
@@ -178,12 +182,10 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
  * Aplica los filtros (Menú y Búsqueda) y llama al renderizado.
  */
 function aplicarFiltros() {
-    // 1. Obtener filtros activos
     const filtroActivoBtn = document.querySelector('.filtro-btn.activo');
     const filtroMenu = filtroActivoBtn ? filtroActivoBtn.textContent.trim() : 'Todos';
     const textoBusqueda = inputBuscador.value.trim().toLowerCase();
     
-    // 2. Filtrar por menú (categoría)
     let productosFiltrados = todosLosProductos;
     
     if (filtroMenu.toLowerCase() !== 'todos') {
@@ -201,7 +203,6 @@ function aplicarFiltros() {
         });
     }
     
-    // 3. Filtrar por búsqueda de texto
     if (textoBusqueda) {
         productosFiltrados = productosFiltrados.filter(producto => {
             const nombre = producto.nombreProducto ? producto.nombreProducto.toLowerCase() : '';
@@ -262,7 +263,6 @@ window.addEventListener('DOMContentLoaded', cargarDatosIniciales);
 // === FUNCIONALIDAD DE NOTIFICACIONES ===
 // ===============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Datos Fijos (simulados)
     const promocionesFijas = [
         {
             titulo: "Nuevo pedido en Cafetería Principal",
@@ -276,7 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    // 2. Función para cargar los datos quemados
     function cargarPromocionesQuemadas() {
         if (!listaNotificaciones) return;
 
@@ -300,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // 3. Manjeador del Clic en la Campana
     if (btnNotificaciones && listaNotificaciones) {
         cargarPromocionesQuemadas();
 
@@ -319,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 4. Cerrar el panel al hacer clic fuera
         window.addEventListener('click', (e) => {
             if (listaNotificaciones.classList.contains('activo') && 
                 !listaNotificaciones.contains(e.target) && 
