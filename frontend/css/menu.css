@@ -1,4 +1,5 @@
 /* ======= GENERAL ======= */
+/* Estilos básicos del cuerpo de la página */
 body {
   font-family: 'Poppins', sans-serif;
   background-color: #f8f9fa;
@@ -10,6 +11,7 @@ body {
 }
 
 /* ======= ENCABEZADO ======= */
+/* Parte superior con el título y botones */
 .header {
   background-color: #005c99;
   border-bottom: 6px solid #d4af37;
@@ -20,18 +22,21 @@ body {
   padding: 15px 30px;
 }
 
+/* Título principal */
 .titulo h1 {
   font-size: 1.8em;
   margin: 0;
   font-weight: 700;
 }
 
+/* Contenedor de los íconos y botón del encabezado */
 .acciones-header {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
+/* Iconos del encabezado */
 .icono {
   width: 26px;
   height: 26px;
@@ -39,6 +44,7 @@ body {
   cursor: pointer;
 }
 
+/* Botón de cerrar sesión */
 .btn-cerrar {
   background-color: white;
   color: #005c99;
@@ -56,12 +62,14 @@ body {
 }
 
 /* ======= CONTENEDOR PRINCIPAL ======= */
+/* Estructura general: barra lateral + contenido principal */
 .contenedor {
   display: flex;
   flex: 1;
 }
 
 /* ======= BARRA LATERAL ======= */
+/* Panel lateral con filtros */
 .barra-filtro {
   width: 220px;
   background-color: white;
@@ -69,6 +77,7 @@ body {
   padding: 20px;
 }
 
+/* Título de la barra lateral */
 .barra-filtro h2 {
   text-align: center;
   color: #005c99;
@@ -76,16 +85,19 @@ body {
   padding-bottom: 10px;
 }
 
+/* Lista de botones de filtro */
 .barra-filtro ul {
   list-style: none;
   padding: 0;
   margin: 20px 0 0;
 }
 
+/* Cada opción de filtro */
 .barra-filtro li {
   margin: 15px 0;
 }
 
+/* Botones de filtro */
 .filtro-btn {
   width: 100%;
   background: none;
@@ -98,6 +110,7 @@ body {
   transition: 0.3s;
 }
 
+/* Efecto al pasar el mouse o cuando está activo */
 .filtro-btn:hover,
 .filtro-btn.activo {
   background-color: #005c99;
@@ -106,12 +119,14 @@ body {
 }
 
 /* ======= ZONA PRINCIPAL ======= */
+/* Contenedor principal donde se muestran los productos */
 .zona-principal {
   flex: 1;
   padding: 30px;
 }
 
 /* ======= BUSCADOR ======= */
+/* Barra de búsqueda superior */
 .buscador {
   display: flex;
   justify-content: center;
@@ -119,6 +134,7 @@ body {
   margin: 40px auto;
 }
 
+/* Campo de texto del buscador */
 .buscador input {
   padding: 10px 15px;
   width: 300px;
@@ -127,6 +143,7 @@ body {
   font-size: 1em;
 }
 
+/* Botón de buscar */
 .buscador button {
   padding: 10px 15px;
   border: none;
@@ -139,17 +156,20 @@ body {
   justify-content: center;
 }
 
+/* Efecto hover del botón */
 .buscador button:hover {
   background-color: #004b80;
 }
 
 /* ======= TARJETAS ======= */
+/* Contenedor de las tarjetas */
 .productos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
 }
 
+/* Estilo general de cada tarjeta */
 .tarjeta {
   background: white;
   border: 2px solid #d4af37;
@@ -160,16 +180,19 @@ body {
   transition: transform 0.2s ease;
 }
 
+/* Movimiento al pasar el mouse */
 .tarjeta:hover {
   transform: translateY(-5px);
 }
 
+/* Imagen dentro de la tarjeta */
 .tarjeta img {
   width: 100%;
   height: 150px;
   object-fit: cover;
 }
 
+/* Información del producto */
 .info {
   padding: 10px;
   text-align: left;
@@ -181,16 +204,19 @@ body {
   color: #005c99;
 }
 
+/* Precio del producto */
 .precio {
   font-weight: bold;
   color: #005c99;
 }
 
-.lugar {
+/* Lugar o descripción adicional */
+.lugar{
   color: #666;
   font-size: 0.9em;
 }
 
+/* Icono de menú en las tarjetas */
 .acciones-tarjeta {
   position: absolute;
   top: 170px; 
@@ -200,6 +226,7 @@ body {
 }
 
 /* ======= BOTÓN FLOTANTE ======= */
+/* Botón para agregar nuevos elementos */
 .btn-agregar {
   position: fixed;
   bottom: 30px;
@@ -222,6 +249,7 @@ body {
 }
 
 /* ======= MODAL ======= */
+/* Fondo oscuro del modal */
 .modal {
   display: none;
   position: fixed;
@@ -233,6 +261,7 @@ body {
   z-index: 1000;
 }
 
+/* Caja blanca del modal */
 .modal-contenido {
   background: white;
   padding: 25px;
@@ -244,12 +273,14 @@ body {
   scroll-behavior: smooth;
 }
 
+/* Título del modal */
 .modal h2 {
   margin-bottom: 15px;
   color: #005c99;
   text-align: center;
 }
 
+/* Campos de entrada y texto */
 .modal label {
   display: block;
   margin-top: 10px;
@@ -266,12 +297,14 @@ body {
   margin-top: 5px;
 }
 
+/* Contenedor de los botones del modal */
 .acciones {
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
 }
 
+/* Botones dentro del modal */
 .acciones button {
   padding: 10px 20px;
   border: none;
@@ -280,21 +313,25 @@ body {
   font-weight: 600;
 }
 
+/* Botón principal */
 .acciones button:first-child {
   background-color: #005c99;
   color: white;
 }
 
+/* Botón secundario */
 .acciones button:last-child {
   background-color: #ccc;
   color: #333;
 }
 
+/* Mostrar modal activo */
 .modal.activo {
   display: flex;
 }
 
 /* ======= MENÚ DE OPCIONES EN TARJETAS ======= */
+/* Contenedor que agrupa el nombre y el menú de 3 puntos */
 .nombre-y-accion {
   display: flex;
   justify-content: space-between;
@@ -310,6 +347,7 @@ body {
   font-size: 1.1em;
 }
 
+/* Botón de los 3 puntos */
 .menu-btn {
   background: none;
   border: none;
@@ -318,6 +356,7 @@ body {
   color: #005c99; 
 }
 
+/* Menú desplegable oculto */
 .menu-opciones {
   position: absolute;
   top: 100%;
@@ -326,16 +365,18 @@ body {
   background-color: white;
   border: 1px solid #d4af37;
   border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: none; 
   z-index: 20; 
   padding: 5px 0;
 }
 
+/* Mostrar el menú */
 .menu-opciones.show {
   display: block;
 }
 
+/* Botón dentro del menú desplegable */
 .detalles-btn {
   width: 100%;
   padding: 8px 10px;
@@ -351,6 +392,7 @@ body {
   background-color: #f0f0f0;
 }
 
+/* ======= BOTÓN CERRAR MODAL ======= */
 .btn-cerrar-modal {
   padding: 10px 20px;
   border: none;
@@ -369,6 +411,7 @@ body {
 }
 
 /* ======= DISPONIBILIDAD ======= */
+/* Texto de disponibilidad del producto */
 .disponibilidad {
   font-weight: bold;
   font-size: 0.9em;
@@ -379,100 +422,12 @@ body {
   background-color: transparent; 
 }
 
+/* Color para “Disponible” */
 .estado-disponible {
   color: #ffc107; 
 }
 
+/* Color para “No disponible” */
 .estado-no-disponible {
   color: #6c757d; 
-}
-
-/* ======= NOTIFICACIONES ======= */
-.notificaciones {
-  position: relative;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.icono-notificacion {
-  width: 28px;
-  height: 28px;
-  color: white;
-  transition: transform 0.2s ease;
-}
-
-.icono-notificacion:hover {
-  transform: scale(1.1);
-}
-
-.contador-notificacion {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: red;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-/* Panel de notificaciones */
-.panel-notificaciones {
-  position: absolute;
-  top: 45px;
-  right: 0;
-  width: 280px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 2000;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.panel-notificaciones.visible {
-  display: flex;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.panel-notificaciones h4 {
-  margin: 0;
-  background-color: #005c99;
-  color: white;
-  padding: 10px;
-  text-align: center;
-  border-bottom: 2px solid #d4af37;
-}
-
-#listaNotificaciones {
-  list-style: none;
-  margin: 0;
-  padding: 10px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-#listaNotificaciones li {
-  padding: 8px 10px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-}
-
-#listaNotificaciones li.info {
-  color: #005c99;
-}
-
-#listaNotificaciones li.exito {
-  color: #28a745;
-}
-
-#listaNotificaciones li.error {
-  color: #dc3545;
 }
