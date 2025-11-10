@@ -300,102 +300,9 @@ body {
   display: flex;
 }
 
-<<<<<<< HEAD
-/* ======= NOTIFICACIONES ======= */
-.notificaciones {
-  position: relative;
-  display: inline-block;
-}
-
-.icono-notificacion {
-  position: relative;
-  cursor: pointer;
-  font-size: 24px;
-  color: white;
-  transition: transform 0.2s ease;
-}
-
-.icono-notificacion:hover {
-  transform: scale(1.1);
-}
-
-/* Contador rojo sobre la campana */
-.contador-notificacion {
-  position: absolute;
-  top: -5px;
-  right: -8px;
-  background: red;
-  color: white;
-  font-size: 0.7em;
-  font-weight: bold;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  display: none; /* solo aparece si hay notificaciones */
-  align-items: center;
-  justify-content: center;
-}
-
-/* Panel desplegable */
-.panel-notificaciones {
-  display: none;
-  position: absolute;
-  top: 40px;
-  right: 0;
-  width: 250px;
-  background: white;
-  color: #333;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  z-index: 200;
-  overflow: hidden;
-}
-
-.panel-notificaciones.activo {
-  display: block;
-  animation: fadeIn 0.3s ease;
-}
-
-.panel-notificaciones h4 {
-  margin: 0;
-  background: #005c99;
-  color: white;
-  padding: 10px;
-  font-size: 1em;
-}
-
-.panel-notificaciones ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.panel-notificaciones li {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  font-size: 0.9em;
-}
-
-.panel-notificaciones li:last-child {
-  border-bottom: none;
-}
-
-.panel-notificaciones li:hover {
-  background-color: #f8f9fc;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-=======
 /* ==================================================== */
 /* === ESTILOS ESPECÍFICOS PARA LA TARJETA DEL MENÚ === */
 /* ==================================================== */
->>>>>>> 05d428526d1af14fa072a151f51880e2416af733
 
 /* Contenedor que alinea el nombre (h3) y el menú de 3 puntos (acciones-tarjeta) */
 .nombre-y-accion {
@@ -417,7 +324,6 @@ body {
 /* Contenedor de los 3 puntos, lo posicionamos relativo al .nombre-y-accion */
 .acciones-tarjeta {
     position: static; /* Volver al flujo normal, ya que el flexbox lo posiciona */
-    /* Asegura que no tenga márgenes/padding extraños si ya tenías estilos */
     top: auto; 
     right: auto;
     z-index: 10;
@@ -492,11 +398,11 @@ body {
     width: 90%;
     max-width: 500px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    display: flex; /* Añadir flex para mejor control del contenido */
+    display: flex;
     flex-direction: column;
 }
 
-/* Estilo para el botón de cerrar del modal (Ajuste para color azul) */
+/* Estilo para el botón de cerrar del modal (Ajuste para alinearlo a la izquierda) */
 .btn-cerrar-modal {
     /* Estilo del botón */
     padding: 10px 20px;
@@ -504,15 +410,17 @@ body {
     border-radius: 6px;
     cursor: pointer;
     margin-top: 20px; /* Separación del contenido */
-    align-self: flex-end; /* Alinea el botón a la derecha */
     
-    /* Colores solicitados */
-    background-color: #005c99; /* Azul principal */
-    color: white; /* Texto blanco */
+/* 🔑 CAMBIO CLAVE: Alinea el botón a la izquierda dentro del contenedor flex */
+    align-self: flex-start; 
+
+    /* Colores */
+    background-color: #005c99; 
+    color: white;
     font-weight: bold;
     transition: background-color 0.2s;
 }
 
 .btn-cerrar-modal:hover {
-    background-color: #004a7a; /* Un azul ligeramente más oscuro al pasar el ratón */
+    background-color: #004a7a; 
 }

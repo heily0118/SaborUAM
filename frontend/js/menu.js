@@ -77,13 +77,16 @@ function crearModal(titulo, contenidoHTML) {
 
 /**
  * Muestra el modal con los detalles completos del producto y lugar.
- * Utiliza la estructura anidada (producto.lugar) para la información.
+ * ✅ CORRECCIÓN: Ahora muestra el estado de disponibilidad basado en el stock.
  */
 function mostrarModalVerMas(producto) {
     // Asume la estructura anidada: producto.lugar
     const lugarDetalles = producto.lugar || {}; 
     const precioParaMostrar = lugarDetalles.precio ?? producto.precio ?? 0;
-    const estado = (lugarDetalles.stock ?? 0) > 0 ? 'Disponible' : 'No disponible';
+    
+    // Obtener stock y determinar estado
+    const stockActual = lugarDetalles.stock ?? 0;
+    const estado = stockActual > 0 ? 'Disponible' : 'No disponible';
     
     const precioFormateado = new Intl.NumberFormat('es-CO', {
         style: 'currency',
@@ -117,7 +120,7 @@ function mostrarModalVerMas(producto) {
 
 /**
  * Función para pintar las tarjetas de productos en el HTML.
- * Utiliza la estructura anidada (producto.lugar) para precio y nombre del lugar.
+ * ✅ CORRECCIÓN: Se añade el indicador de disponibilidad (texto y clase de color).
  */
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
     listaProductos.innerHTML = ""; 
@@ -131,11 +134,15 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         // Usa la estructura anidada producto.lugar
         const nombreLugar = producto.lugar?.nombre || 'Lugar Desconocido';
         const precioDelLugar = producto.lugar?.precio ?? producto.precio ?? 0;
+
+        // Determinar estado basado en el stock
+        const stockActual = producto.lugar?.stock ?? 0;
+        const estado = stockActual > 0 ? 'Disponible' : 'No disponible';
+        const estadoClase = stockActual > 0 ? 'estado-disponible' : 'estado-no-disponible';
         
         const tarjeta = document.createElement('div');
         tarjeta.classList.add('tarjeta');
         
-        // Se almacena el objeto completo con la estructura anidada para el modal.
         const productoData = JSON.stringify(producto);
 
         const precioFormateado = new Intl.NumberFormat('es-CO', {
@@ -162,7 +169,7 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
                 
                 <p class="precio">${precioFormateado}</p>
                 <p class="lugar">${nombreLugar}</p> 
-            </div>
+                <p class="disponibilidad ${estadoClase}">${estado}</p> </div>
         `;
         
         listaProductos.appendChild(tarjeta);
@@ -175,17 +182,14 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         const menuBtn = t.querySelector('.menu-btn');
         const menu = t.querySelector('.menu-opciones');
         
-        // 1. Mostrar/Ocultar Menú (al hacer clic en los 3 puntos)
         menuBtn?.addEventListener('click', e => {
             e.stopPropagation();
-            // Cierra otros menús antes de abrir el actual
             document.querySelectorAll('.menu-opciones').forEach(m => { 
                 if (m !== menu) m.classList.remove('show'); 
             });
             menu?.classList.toggle('show');
         });
 
-        // 2. Listener para el botón "Más Información"
         t.querySelector('.detalles-btn')?.addEventListener('click', e => { 
             e.stopPropagation(); 
             const productoData = JSON.parse(e.target.dataset.producto);
@@ -194,7 +198,6 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         });
     });
 
-    // 3. Cerrar cualquier menú al hacer clic en cualquier parte de la ventana
     document.addEventListener('click', () => document.querySelectorAll('.menu-opciones').forEach(m => m.classList.remove('show')));
 }
 
@@ -216,7 +219,7 @@ async function cargarProductos() {
     } catch (err) {
         console.error('❌ Error cargando productos, usando datos simulados:', err);
         
-        // SIMULACIÓN DE DATOS con la estructura anidada esperada (similar a admin.js)
+        // SIMULACIÓN DE DATOS con la estructura anidada esperada 
         todosLosProductos = [
             { 
                 nombreProducto: 'Desayuno UAM', 
@@ -232,8 +235,26 @@ async function cargarProductos() {
                     horario_atencion: '7:00-16:00', 
                     dias: 'Lun-Vie', 
                     ubicacion: 'Bloque A', 
-                    stock: 10, 
+                    stock: 10, // Stock disponible
                     precio: 12000 
+                } 
+            },
+            { 
+                nombreProducto: 'Sandwich de Queso', 
+                descripcion: 'Ideal para la tarde.', 
+                tipo_menu: 'onces', 
+                codigo: 'ONC003',
+                estado: 'Agotado', 
+                imagen: null, 
+                lugar: { 
+                    nombre: 'Snack Rápido', 
+                    NIT: '900777888', 
+                    tipo: 'Snack', 
+                    horario_atencion: '8:00-18:00', 
+                    dias: 'Lun-Sab', 
+                    ubicacion: 'Cerca a la Biblioteca', 
+                    stock: 0, // Stock agotado
+                    precio: 5000 
                 } 
             },
             { 
@@ -261,7 +282,6 @@ async function cargarProductos() {
 
 /**
  * Aplica los filtros (Menú y Búsqueda) y llama al renderizado.
- * ✅ CORRECCIÓN: Se ajusta la lógica de 'includes' para manejar plurales/singulares.
  */
 function aplicarFiltros() {
     const filtroActivoBtn = document.querySelector('.filtro-btn.activo');
@@ -270,7 +290,7 @@ function aplicarFiltros() {
     
     let productosFiltrados = todosLosProductos;
     
-    // Filtrado por tipo de menú
+    // Filtrado por tipo de menú (manejo de plurales/singulares)
     if (filtroMenu.toLowerCase() !== 'todos' && filtroMenu.toLowerCase() !== 'menú') {
         
         const tipoDeseado = filtroMenu.toLowerCase(); 
@@ -279,7 +299,6 @@ function aplicarFiltros() {
             
             const tipoProducto = (producto.tipo_menu || '').toLowerCase();
             
-            // Lógica corregida: Si el texto del producto ('desayuno') está incluido en el botón ('desayunos'), o viceversa.
             return tipoProducto.includes(tipoDeseado) || tipoDeseado.includes(tipoProducto);
         });
     }
@@ -312,69 +331,6 @@ botonesFiltro.forEach(btn => {
 inputBuscador?.addEventListener('keyup', aplicarFiltros);
 
 
-<<<<<<< HEAD
-
-
-
-// === INICIO DE LA APLICACIÓN ===
-document.addEventListener('DOMContentLoaded', () => {
-  // Cargar productos
-  cargarDatosIniciales();
-
-  // === NOTIFICACIONES ===
-  // === Notificaciones ===
-
-// Referencias a elementos
-const iconoNotificacion = document.getElementById("iconoNotificacion");
-const panelNotificaciones = document.getElementById("panelNotificaciones");
-const contadorNotificaciones = document.getElementById("contadorNotificaciones");
-const listaNotificaciones = document.getElementById("listaNotificaciones");
-
-// Ejemplo de lista de notificaciones
-let notificaciones = [
-  "Nuevo producto disponible: Empanada de pollo",
-  "Promoción: Café gratis con tu desayuno",
-  "Recordatorio: Tu pedido está listo para recoger"
-];
-
-// Muestra las notificaciones y actualiza el contador
-function cargarNotificaciones() {
-  listaNotificaciones.innerHTML = "";
-
-  if (notificaciones.length > 0) {
-    contadorNotificaciones.style.display = "flex";
-    contadorNotificaciones.textContent = notificaciones.length;
-
-    notificaciones.forEach(msg => {
-      const li = document.createElement("li");
-      li.textContent = msg;
-      listaNotificaciones.appendChild(li);
-    });
-  } else {
-    contadorNotificaciones.style.display = "none";
-    const li = document.createElement("li");
-    li.textContent = "No hay notificaciones nuevas.";
-    listaNotificaciones.appendChild(li);
-  }
-}
-
-// Mostrar / ocultar panel al hacer clic en la campana
-iconoNotificacion.addEventListener("click", () => {
-  panelNotificaciones.classList.toggle("activo");
-});
-
-// Ocultar el panel si haces clic fuera de él
-document.addEventListener("click", (event) => {
-  if (!event.target.closest(".notificaciones")) {
-    panelNotificaciones.classList.remove("activo");
-  }
-});
-
-// Cargar notificaciones al inicio
-cargarNotificaciones();
-
-});
-=======
 // Carga inicial al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     console.info('[menu.js] DOM listo');
@@ -383,7 +339,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Lógica para cerrar la sesión (si existe un botón de cerrar)
     btnCerrar?.addEventListener('click', () => {
         alert('Simulación: Cerrando sesión...');
-        // Aquí iría el código real para cerrar la sesión (ej: limpiar tokens, redirigir)
     });
 });
->>>>>>> 05d428526d1af14fa072a151f51880e2416af733
