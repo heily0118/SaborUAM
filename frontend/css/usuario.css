@@ -47,7 +47,7 @@ body {
     font-size: 15px;
 }
 
-
+/* ======== SECCIÓN DE BIENVENIDA ======== */
 .bienvenida {
     margin-top: 50px;
     padding: 0 20px;
@@ -65,7 +65,7 @@ body {
     margin: 10px auto 0 auto;
 }
 
-
+/* ======== BOTONES ======== */
 .acciones {
     margin-top: 40px;
     display: flex;
@@ -73,30 +73,48 @@ body {
     gap: 25px;
 }
 
-/* BASE para INICIAR SESIÓN: Mantiene su padding de 10px */
+/* === ESTILO BASE UNIFICADO PARA LOS BOTONES === */
 .btn {
+    font-family: 'Poppins', sans-serif;
     font-size: 16px;
-    font-weight: bold;
-    border: none;
-    padding: 10px 25px; 
-    border-radius: 8px;
+    font-weight: 600;
+    border-radius: 12px; /* Bordes redondeados iguales */
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
+    padding: 12px 35px;
+    min-width: 160px;
+    box-sizing: border-box;
+    display: inline-block;
+    text-align: center;
 }
 
+/* === BOTÓN INICIAR SESIÓN === */
 .btn-login {
     background-color: white;
     color: #004aad;
-    /* Este borde de 2px es lo que agranda el botón */
     border: 2px solid #004aad;
 }
 
 .btn-login:hover {
     background-color: #004aad;
     color: white;
+    box-shadow: 0 4px 10px rgba(0, 74, 173, 0.3);
 }
 
+/* === BOTÓN REGISTRARSE === */
+.btn-registrar {
+    background-color: #d4af37;
+    color: white;
+    border: 2px solid #d4af37;
+}
 
+.btn-registrar:hover {
+    background-color: #b38f2d;
+    border-color: #b38f2d;
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+}
+
+/* ======== MODAL GENERAL ======== */
 .modal {
     display: none;
     position: fixed;
@@ -120,7 +138,6 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     position: relative;
     animation: aparecer 0.3s ease;
-    
     display: flex; 
     flex-direction: column;
 }
@@ -151,26 +168,26 @@ body {
     margin-top: 5px;
 }
 
-/* BOTÓN REGISTRARSE: Aumentamos el padding vertical a 12px para igualar la altura de .btn-login */
-.btn-registrar {
-    background: #d4af37;
-    color: white;
+/* === BOTÓN 'ENTRAR' DEL MODAL === */
+.btn-entrar {
+    background-color: #004aad !important; 
+    color: white !important; 
     font-weight: bold;
-    /* CAMBIO CLAVE: Aumentado de 10px a 12px para igualar la altura del otro botón. */
-    padding: 12px 25px; 
-    font-size: 16px; 
-    
-    border: none; /* No necesita borde, el padding aumentado compensa */
-    
-    border-radius: 8px;
+    border: none;
+    padding: 5px 10px; /* 🔹 Más pequeño: antes era 10px 30px */
+    border-radius: 5px;
     cursor: pointer;
-    margin-top: 20px; 
+    transition: all 0.3s ease;
+    display: inline-block;
+    font-size: 15px; /* 🔹 Un poco más compacto */
 }
 
-.btn-registrar:hover {
-    background: #b38f2d;
+.btn-entrar:hover {
+    background-color: #005c99 !important; 
+    transform: scale(1.03); /* 🔹 Efecto sutil al pasar el mouse */
 }
 
+/* === BOTÓN CERRAR (X) DEL MODAL === */
 .btn-cerrar {
     position: absolute;
     top: 10px;
@@ -187,25 +204,25 @@ body {
     color: #d4af37;
 }
 
-/* === ESTILO PARA EL BOTÓN 'ENTRAR' EN EL MODAL DE LOGIN (AZUL - Mantenido) === */
-.btn-entrar {
-    width: auto; 
-    background-color: #004aad !important; 
-    color: white !important; 
-    font-weight: bold;
+/* === BOTÓN CERRAR DEL MODAL DE DETALLES === */
+.btn-cerrar-modal {
+    padding: 10px 20px;
     border: none;
-    padding: 10px 30px;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: inline-block;
-}
-
-.btn-entrar:hover {
+    margin-top: 20px; 
+    align-self: flex-start !important; 
     background-color: #005c99 !important; 
+    color: white !important;
+    font-weight: bold;
+    transition: background-color 0.2s;
 }
 
+.btn-cerrar-modal:hover {
+    background-color: #004a7a !important; 
+}
 
+/* === RESPONSIVE === */
 @media (max-width: 600px) {
     .texto-header h1 {
         font-size: 28px;
@@ -221,7 +238,7 @@ body {
     }
 }
 
-
+/* === FORMULARIO Y ERRORES === */
 .form-control {
     margin-bottom: 20px;
 }
@@ -235,14 +252,15 @@ body {
     display: block;
     text-align: left;
 }
+
 .form-control.error input {
     border-color: #dc3545; 
     box-shadow: 0 0 5px rgba(220, 53, 69, 0.4);
 }
+
 .form-control.error .error-text {
     visibility: visible;
 }
-
 
 /* ==================================================== */
 /* === ESTILOS ESPECÍFICOS PARA LA TARJETA DEL MENÚ === */
@@ -312,35 +330,9 @@ body {
     background-color: #f0f0f0;
 }
 
-
 /* ================================================= */
 /* === ESTILOS PARA EL MODAL DE DETALLES PRODUCTO === */
 /* ================================================= */
-
-/* Estilo para el botón de cerrar del modal de DETALLES (Azul y a la izquierda - Mantenido) */
-.btn-cerrar-modal {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 20px; 
-    
-    align-self: flex-start !important; 
-
-    background-color: #005c99 !important; 
-    color: white !important;
-    font-weight: bold;
-    transition: background-color 0.2s;
-}
-
-.btn-cerrar-modal:hover {
-    background-color: #004a7a !important; 
-}
-
-
-/* ============================================= */
-/* === ESTILOS PARA LA DISPONIBILIDAD (STOCK) === */
-/* ============================================= */
 
 .disponibilidad {
     font-weight: bold;
@@ -352,12 +344,12 @@ body {
     background-color: transparent; 
 }
 
-/* Estilo para "Disponible" (Amarillo - Mantenido) */
+/* Estilo para "Disponible" */
 .estado-disponible {
     color: #ffc107; 
 }
 
-/* Estilo para "No disponible" (Gris - Mantenido) */
+/* Estilo para "No disponible" */
 .estado-no-disponible {
     color: #6c757d; 
 }
