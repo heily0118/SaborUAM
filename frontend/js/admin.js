@@ -445,8 +445,8 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function generarContenidoNotificaciones() {
         const notificacionesSimuladas = [
-            { tipo: 'pedido', mensaje: '🍔 Nuevo pedido en Cafetería Principal' },
-            { tipo: 'producto', mensaje: '📦 Producto "Empanada" marcado como No disponible' }
+            { tipo: 'pedido', mensaje: 'No quedan más Hamburguesas en el stock' },
+            { tipo: 'producto', mensaje: 'El producto vence el 10/11/2025' }
         ];
         let html = '<h3>🎉 Notificaciones</h3>';
         if (!notificacionesSimuladas.length) html += '<ul><li>No hay notificaciones nuevas.</li></ul>';
