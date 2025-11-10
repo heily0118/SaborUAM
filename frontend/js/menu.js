@@ -1,7 +1,7 @@
 // === CONFIGURACIÓN BASE ===
 const API_URL = "http://localhost:3000";
 
-// === SELECCIÓN DE ELEMENTOS ===
+// Selección de elementos del DOM
 const listaProductos = document.getElementById('lista-productos');
 const botonesFiltro = document.querySelectorAll('.filtro-btn');
 const btnCerrar = document.getElementById('btn-cerrar');
@@ -13,7 +13,7 @@ const panelNotificaciones = document.getElementById('panelNotificaciones');
 const listaNotificaciones = document.getElementById('listaNotificaciones');
 const contadorNotificaciones = document.getElementById('contadorNotificaciones');
 
-let todosLosProductos = [];
+let todosLosProductos = []; // Variable global para almacenar los productos cargados
 
 // === FUNCIONES DE UTILIDAD ===
 function mapearProductoParaMenu(productoPlano) {
@@ -158,8 +158,6 @@ async function cargarProductos() {
     const productos = await res.json();
     todosLosProductos = productos.map(p => mapearProductoParaMenu(p));
     aplicarFiltros();
-    agregarNotificacion("Promoción de PonyMalta 2x1 en la tienda los paisitas");
-    agregarNotificacion("Descuento en fruta");
   } catch {
     todosLosProductos = [
       {
@@ -167,18 +165,17 @@ async function cargarProductos() {
         descripcion: 'Huevos, café y pan.',
         tipo_menu: 'desayuno',
         codigo: 'DES001',
-        lugar: { nombre: 'Cafetería UAM', NIT: '900123456', tipo: 'Cafetería', horario_atencion: '7:00-16:00', dias: 'Lun-Vie', ubicacion: 'Bloque A', stock: 10, precio: 12000 }
+        lugar: { nombre: 'Cafetería UAM', stock: 10, precio: 12000 }
       },
       {
         nombreProducto: 'Sandwich de Queso',
         descripcion: 'Ideal para la tarde.',
         tipo_menu: 'onces',
         codigo: 'ONC003',
-        lugar: { nombre: 'Snack Rápido', NIT: '900777888', tipo: 'Snack', horario_atencion: '8:00-18:00', dias: 'Lun-Sab', ubicacion: 'Cerca a la Biblioteca', stock: 0, precio: 5000 }
+        lugar: { nombre: 'Snack Rápido', stock: 0, precio: 5000 }
       }
     ];
     aplicarFiltros();
-    agregarNotificacion("Se cargaron productos de prueba ⚠️", "info");
   }
 }
 
@@ -190,24 +187,18 @@ function aplicarFiltros() {
 
   let productosFiltrados = todosLosProductos;
 
-  // === 1. Filtrar por menú (categoría) ===
   if (filtroMenu.toLowerCase() !== 'todos') {
     const tipoDeseado = filtroMenu.toLowerCase();
-
     productosFiltrados = productosFiltrados.filter(producto => {
       const tipoProducto = (producto.tipo_menu || '').toLowerCase();
-
-      // Coincidencias parciales
       if (tipoDeseado === 'desayunos' && tipoProducto.includes('desayuno')) return true;
       if (tipoDeseado === 'almuerzos' && tipoProducto.includes('almuerzo')) return true;
       if (tipoDeseado === 'bebidas' && tipoProducto.includes('bebida')) return true;
       if (tipoDeseado === 'otros' && tipoProducto.includes('otro')) return true;
-
       return false;
     });
   }
 
-  // === 2. Filtrar por texto (búsqueda) ===
   if (textoBusqueda) {
     productosFiltrados = productosFiltrados.filter(p =>
       (p.nombreProducto || '').toLowerCase().includes(textoBusqueda) ||
@@ -216,11 +207,10 @@ function aplicarFiltros() {
     );
   }
 
-  // === 3. Mostrar los productos resultantes ===
   renderizarProductos(productosFiltrados, filtroActivoBtn?.textContent.trim() || 'Resultados');
 }
 
-// === LÓGICA DE NOTIFICACIONES (Arreglo: delegación para que funcione con Lucide) ===
+// === NOTIFICACIONES ===
 let notificaciones = [];
 
 function agregarNotificacion(mensaje, tipo = "info") {
@@ -229,38 +219,54 @@ function agregarNotificacion(mensaje, tipo = "info") {
 }
 
 function actualizarNotificaciones() {
-  // si los elementos no existen en el DOM, salimos
   if (!listaNotificaciones || !contadorNotificaciones) return;
   listaNotificaciones.innerHTML = "";
-
-  notificaciones.forEach((n) => {
+  notificaciones.forEach(n => {
     const li = document.createElement("li");
     li.classList.add("notificacion", n.tipo);
     li.textContent = `${n.mensaje} (${n.fecha})`;
     listaNotificaciones.appendChild(li);
   });
-
   contadorNotificaciones.textContent = String(notificaciones.length);
 }
 
-// --- Abrir / cerrar panel de notificaciones usando el contenedor .notificaciones ---
-// buscamos el contenedor que envuelve la campana (este no lo reemplaza Lucide)
+// === PANEL DE NOTIFICACIONES ===
 const contenedorNotificaciones = document.querySelector('.notificaciones');
-
 if (contenedorNotificaciones && panelNotificaciones) {
-  // delegamos el click al contenedor (así funciona aunque Lucide reemplace el <i>)
   contenedorNotificaciones.addEventListener('click', function (e) {
     e.stopPropagation();
     panelNotificaciones.classList.toggle('visible');
   });
 
-  // cerrar panel si se hace click fuera
   document.addEventListener('click', (e) => {
     if (!panelNotificaciones.contains(e.target) && !contenedorNotificaciones.contains(e.target)) {
       panelNotificaciones.classList.remove('visible');
     }
   });
 }
+
+// === MENÚ 3 PUNTOS EN TARJETAS ===
+document.addEventListener('click', () =>
+  document.querySelectorAll('.menu-opciones').forEach(m => m.classList.remove('show'))
+);
+
+document.querySelectorAll('.tarjeta').forEach(t => {
+  const menuBtn = t.querySelector('.menu-btn');
+  const menu = t.querySelector('.menu-opciones');
+
+  menuBtn?.addEventListener('click', e => {
+    e.stopPropagation();
+    document.querySelectorAll('.menu-opciones').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+    menu?.classList.toggle('show');
+  });
+
+  t.querySelector('.detalles-btn')?.addEventListener('click', e => {
+    e.stopPropagation();
+    const productoData = JSON.parse(e.target.dataset.producto);
+    mostrarModalVerMas(productoData);
+    menu?.classList.remove('show');
+  });
+});
 
 
 // === EVENTOS GLOBALES ===
@@ -275,5 +281,4 @@ botonesFiltro.forEach(btn => {
 inputBuscador?.addEventListener('input', aplicarFiltros);
 btnCerrar?.addEventListener('click', () => window.location.href = "inicio.html");
 
-// === INICIALIZACIÓN ===
 document.addEventListener('DOMContentLoaded', cargarProductos);

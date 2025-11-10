@@ -1,5 +1,3 @@
-/*Menu.css*/
-
 /* ======= GENERAL ======= */
 body {
   font-family: 'Poppins', sans-serif;
@@ -112,17 +110,18 @@ body {
   flex: 1;
   padding: 30px;
 }
+
 /* ======= BUSCADOR ======= */
 .buscador {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 40px auto; /* más espacio arriba y abajo */
+  margin: 40px auto;
 }
 
 .buscador input {
   padding: 10px 15px;
-  width: 300px; /* un poco más angosto para verse más centrado */
+  width: 300px;
   border-radius: 10px 0 0 10px;
   border: 1px solid #ccc;
   font-size: 1em;
@@ -187,7 +186,7 @@ body {
   color: #005c99;
 }
 
-.lugar{
+.lugar {
   color: #666;
   font-size: 0.9em;
 }
@@ -199,8 +198,6 @@ body {
   color: #333;
   cursor: pointer;
 }
-
-
 
 /* ======= BOTÓN FLOTANTE ======= */
 .btn-agregar {
@@ -242,12 +239,9 @@ body {
   border-radius: 15px;
   width: 400px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  max-height: 85vh;         /* limita la altura para que quepa mejor */
-  overflow-y: auto;          /* activa el scroll vertical */
-  scroll-behavior: smooth;   /* movimiento suave */
-  scroll-padding-top: 0;     /* sin espacio extra arriba */
-  margin-top: 0;             /* elimina espacio superior */
-  padding-top: 0;            /* quita relleno superior */
+  max-height: 85vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .modal h2 {
@@ -295,176 +289,116 @@ body {
   background-color: #ccc;
   color: #333;
 }
-/* Cuando el modal está activo (visible) */
+
 .modal.activo {
   display: flex;
 }
 
-/* ==================================================== */
-/* === ESTILOS ESPECÍFICOS PARA LA TARJETA DEL MENÚ === */
-/* ==================================================== */
-
-/* Contenedor que alinea el nombre (h3) y el menú de 3 puntos (acciones-tarjeta) */
+/* ======= MENÚ DE OPCIONES EN TARJETAS ======= */
 .nombre-y-accion {
-    display: flex;
-    justify-content: space-between; /* Empuja el nombre a la izquierda y la acción a la derecha */
-    align-items: center; /* Centra verticalmente */
-    margin-bottom: 5px;
-    position: relative; /* Importante para el posicionamiento del menú */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  position: relative;
 }
 
 .nombre-y-accion h3 {
-    margin: 0;
-    /* Evita que el texto sea muy largo y empuje el botón */
-    flex-grow: 1; 
-    padding-right: 10px; 
-    font-size: 1.1em;
+  margin: 0;
+  flex-grow: 1; 
+  padding-right: 10px; 
+  font-size: 1.1em;
 }
 
-/* Contenedor de los 3 puntos, lo posicionamos relativo al .nombre-y-accion */
-.acciones-tarjeta {
-    position: static; /* Volver al flujo normal, ya que el flexbox lo posiciona */
-    top: auto; 
-    right: auto;
-    z-index: 10;
-}
-
-/* Botón de los 3 puntos */
 .menu-btn {
-    background: none;
-    border: none;
-    padding: 5px;
-    cursor: pointer;
-    color: #005c99; 
-    line-height: 1; /* Para centrar bien el icono */
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: #005c99; 
 }
 
-/* Contenedor del menú desplegable */
 .menu-opciones {
-    position: absolute;
-    top: 100%; /* Justo debajo de la línea del nombre (dentro de .nombre-y-accion) */
-    right: 0;
-    width: 150px;
-    background-color: white;
-    border: 1px solid #d4af37;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: none; 
-    z-index: 20; 
-    padding: 5px 0;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 150px;
+  background-color: white;
+  border: 1px solid #d4af37;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none; 
+  z-index: 20; 
+  padding: 5px 0;
 }
 
-/* Clase para mostrar el menú */
 .menu-opciones.show {
-    display: block;
+  display: block;
 }
 
-/* Botón "Más Información" dentro del menú */
 .detalles-btn {
-    width: 100%;
-    padding: 8px 10px;
-    background: none;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    color: #005c99;
-    font-size: 14px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: #005c99;
+  font-size: 14px;
 }
 
 .detalles-btn:hover {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
-/* ============================================= */
-/* === ESTILOS PARA EL MODAL (Ventana Emergente) */
-/* ============================================= */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-contenido {
-    background-color: white;
-    padding: 30px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-}
-
-/* Estilo para el botón de cerrar del modal (Ajuste para alinearlo a la izquierda) */
 .btn-cerrar-modal {
-    /* Estilo del botón */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 20px; /* Separación del contenido */
-    
-/* 🔑 CAMBIO CLAVE: Alinea el botón a la izquierda dentro del contenedor flex */
-    align-self: flex-start; 
-
-    /* Colores */
-    background-color: #005c99; 
-    color: white;
-    font-weight: bold;
-    transition: background-color 0.2s;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 20px;
+  align-self: flex-start;
+  background-color: #005c99; 
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
 }
 
 .btn-cerrar-modal:hover {
-    background-color: #004a7a; 
+  background-color: #004a7a; 
 }
 
-/* ============================================= */
-/* === ESTILOS PARA LA DISPONIBILIDAD (STOCK) === */
-/* ============================================= */
-
-/* Contenedor general del texto de disponibilidad en la tarjeta */
+/* ======= DISPONIBILIDAD ======= */
 .disponibilidad {
-    font-weight: bold;
-    font-size: 0.9em;
-    padding: 3px 6px;
-    border-radius: 4px;
-    display: inline-block;
-    margin-top: 5px;
-    /* Quitar el fondo para solo mostrar el color del texto, como en tu imagen */
-    background-color: transparent; 
+  font-weight: bold;
+  font-size: 0.9em;
+  padding: 3px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 5px;
+  background-color: transparent; 
 }
 
-/* Estilo para "Disponible" (Amarillo) */
 .estado-disponible {
-    /* Color amarillo/dorado similar al de la imagen */
-    color: #ffc107; 
+  color: #ffc107; 
 }
 
-/* Estilo para "No disponible" (Gris) */
 .estado-no-disponible {
-    /* Color gris oscuro */
-    color: #6c757d; 
+  color: #6c757d; 
 }
-/* ======= NOTIFICACIONES ======= */
 
+/* ======= NOTIFICACIONES ======= */
 .notificaciones {
   position: relative;
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .icono-notificacion {
   width: 28px;
   height: 28px;
   color: white;
-  cursor: pointer;
   transition: transform 0.2s ease;
 }
 
@@ -542,5 +476,3 @@ body {
 #listaNotificaciones li.error {
   color: #dc3545;
 }
-
-
