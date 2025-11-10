@@ -14,6 +14,37 @@ const contadorNotificaciones = document.getElementById('contador-notificaciones'
 
 let todosLosProductos = [];
 
+// --- FUNCIONES DE UTILIDAD DE DATOS ---
+
+/**
+ * Mapea los productos si vienen en formato 'plano' (sin la propiedad 'lugar') 
+ * al formato anidado (con la propiedad 'lugar'), esperado por ambos scripts.
+ */
+function mapearProductoParaMenu(productoPlano) {
+    // Si ya tiene la estructura anidada, la devuelve.
+    if (productoPlano.lugar && productoPlano.lugar.nombre) {
+        return productoPlano; 
+    }
+
+    // Si viene plano, crea la estructura anidada 'lugar'
+    const lugar = {
+        NIT: productoPlano.NIT || '',
+        nombre: productoPlano.NOMBRE_LUGAR || productoPlano.nombreLugar || 'Lugar Desconocido',
+        tipo: productoPlano.tipo || '',
+        horario_atencion: productoPlano.horario || '', 
+        dias: productoPlano.dias || '',
+        ubicacion: productoPlano.ubicacion || '',
+        stock: productoPlano.stock ?? 0,
+        precio: productoPlano.precio ?? 0 
+    };
+    
+    // Retorna el producto con la información anidada
+    return {
+        ...productoPlano,
+        lugar: lugar,
+    };
+}
+
 // --- FUNCIONES DE MODAL Y DETALLE ---
 
 /**
@@ -46,60 +77,47 @@ function crearModal(titulo, contenidoHTML) {
 
 /**
  * Muestra el modal con los detalles completos del producto y lugar.
- * Utiliza los nombres de campos que vienen directamente del API (ej: NOMBRE_LUGAR, horario).
+ * CORRECCIÓN: Utiliza la estructura anidada (producto.lugar) para la información.
  */
 function mostrarModalVerMas(producto) {
-    const productoDetalles = {
-        // Información del Producto
-        nombreProducto: producto.nombreProducto || 'N/A',
-        descripcion: producto.descripcion || 'Sin descripción',
-        tipo_menu: producto.tipo_menu || 'N/A',
-        precio: producto.precio ?? 'N/A',
-        estado: producto.estado || 'Disponible',
-        
-        // Información del Lugar (Usando los nombres exactos del API)
-        lugar: {
-            NIT: producto.NIT || 'N/A',
-            nombre: producto.NOMBRE_LUGAR || 'Lugar Desconocido', // <--- CORREGIDO (usa NOMBRE_LUGAR)
-            tipo: producto.tipo || 'N/A',
-            horario_atencion: producto.horario || 'N/A', // <--- CORREGIDO (usa horario)
-            dias: producto.dias || 'N/A',
-            ubicacion: producto.ubicacion || 'N/A',
-        }
-    };
+    // Asume la estructura anidada: producto.lugar
+    const lugarDetalles = producto.lugar || {}; 
+    const precioParaMostrar = lugarDetalles.precio ?? producto.precio ?? 0;
+    const estado = (lugarDetalles.stock ?? 0) > 0 ? 'Disponible' : 'No disponible';
     
     const precioFormateado = new Intl.NumberFormat('es-CO', {
         style: 'currency',
         currency: 'COP',
         minimumFractionDigits: 0
-    }).format(productoDetalles.precio ?? 0);
+    }).format(precioParaMostrar);
     
     const contenido = `
         <h3>📜 Información del producto</h3>
-        <p><strong>Nombre:</strong> ${productoDetalles.nombreProducto}</p>
-        <p><strong>Descripción:</strong> ${productoDetalles.descripcion}</p>
-        <p><strong>Tipo:</strong> ${productoDetalles.tipo_menu}</p>
+        <p><strong>Nombre:</strong> ${producto.nombreProducto || 'N/A'}</p>
+        <p><strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}</p>
+        <p><strong>Tipo:</strong> ${producto.tipo_menu || 'N/A'}</p>
         <p><strong>Precio:</strong> ${precioFormateado}</p>
-        <p><strong>Estado:</strong> ${productoDetalles.estado}</p>
+        <p><strong>Estado:</strong> ${estado}</p>
 
         <hr style="margin:10px 0;">
 
         <h3>📍 Información del lugar</h3>
-        <p><strong>NIT:</strong> ${productoDetalles.lugar.NIT}</p>
-        <p><strong>Nombre:</strong> ${productoDetalles.lugar.nombre}</p>
-        <p><strong>Tipo:</strong> ${productoDetalles.lugar.tipo}</p>
-        <p><strong>Horario:</strong> ${productoDetalles.lugar.horario_atencion}</p>
-        <p><strong>Días:</strong> ${productoDetalles.lugar.dias}</p>
-        <p><strong>Ubicación:</strong> ${productoDetalles.lugar.ubicacion}</p>
+        <p><strong>NIT:</strong> ${lugarDetalles.NIT || 'N/A'}</p>
+        <p><strong>Nombre:</strong> ${lugarDetalles.nombre || 'Lugar Desconocido'}</p>
+        <p><strong>Tipo:</strong> ${lugarDetalles.tipo || 'N/A'}</p>
+        <p><strong>Horario:</strong> ${lugarDetalles.horario_atencion || lugarDetalles.horario || 'N/A'}</p>
+        <p><strong>Días:</strong> ${lugarDetalles.dias || 'N/A'}</p>
+        <p><strong>Ubicación:</strong> ${lugarDetalles.ubicacion || 'N/A'}</p>
     `;
     
     crearModal('Detalles del producto', contenido);
 }
 
-// --- FUNCIONES DE RENDERIZADO Y LÓGICA ---
+// --- FUNCIONES DE RENDERIZADO, LÓGICA Y CARGA ---
 
 /**
- * Función para pintar las tarjetas de productos en el HTML (Estilo minimalista con menú interno).
+ * Función para pintar las tarjetas de productos en el HTML.
+ * CORRECCIÓN: Utiliza la estructura anidada (producto.lugar) para precio y nombre del lugar.
  */
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
     listaProductos.innerHTML = ""; 
@@ -110,18 +128,21 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
     }
 
     productos.forEach(producto => {
-        // CORREGIDO: Usar NOMBRE_LUGAR que viene del API
-        const nombreLugar = producto.NOMBRE_LUGAR || 'Lugar Desconocido';
+        // Usa la estructura anidada producto.lugar
+        const nombreLugar = producto.lugar?.nombre || 'Lugar Desconocido';
+        const precioDelLugar = producto.lugar?.precio ?? producto.precio ?? 0;
+        
         const tarjeta = document.createElement('div');
         tarjeta.classList.add('tarjeta');
         
+        // Se almacena el objeto completo con la estructura anidada para el modal.
         const productoData = JSON.stringify(producto);
 
         const precioFormateado = new Intl.NumberFormat('es-CO', {
             style: 'currency',
             currency: 'COP',
             minimumFractionDigits: 0
-        }).format(producto.precio ?? 0);
+        }).format(precioDelLugar);
         
         const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
 
@@ -129,10 +150,8 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
             <img src="${imgSrc}" alt="${producto.nombreProducto}" onerror="this.onerror=null;this.src='https://via.placeholder.com/220x150'">
             
             <div class="info">
-                <!-- Seccion que contiene el nombre y el botón de acción a la derecha -->
                 <div class="nombre-y-accion">
                     <h3>${producto.nombreProducto}</h3>
-                    <!-- Botón de los 3 puntos con su menú desplegable -->
                     <div class="acciones-tarjeta">
                         <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
                         <div class="menu-opciones">
@@ -145,9 +164,6 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
                 <p class="lugar">${nombreLugar}</p> 
             </div>
         `;
-        
-        // Nota: Se elimina el listener de 'click' de la tarjeta para evitar conflictos con los botones internos.
-        // Si necesitas un registro, debe estar aquí o en el botón específico.
         
         listaProductos.appendChild(tarjeta);
     });
@@ -183,6 +199,67 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
 }
 
 /**
+ * Carga los productos desde el servidor y aplica el mapeo.
+ */
+async function cargarProductos() {
+    try {
+        const res = await fetch(`${API_URL}/api/productos`, { cache: "no-store" });
+        if (!res.ok) throw new Error('Error al cargar productos');
+        
+        const productos = await res.json();
+        if (!Array.isArray(productos)) throw new Error('Formato de datos incorrecto');
+        
+        // APLICA EL MAPEO: Transforma los datos al formato anidado si es necesario.
+        todosLosProductos = productos.map(p => mapearProductoParaMenu(p));
+        
+        aplicarFiltros(); // Renderiza la vista inicial con todos los productos
+    } catch (err) {
+        console.error('❌ Error cargando productos, usando datos simulados:', err);
+        
+        // SIMULACIÓN DE DATOS con la estructura anidada esperada (similar a admin.js)
+        todosLosProductos = [
+            { 
+                nombreProducto: 'Desayuno UAM', 
+                descripcion: 'Huevos, café y pan.', 
+                tipo_menu: 'desayuno', 
+                codigo: 'DES001',
+                estado: 'Disponible', 
+                imagen: null, 
+                lugar: { 
+                    nombre: 'Cafetería UAM', 
+                    NIT: '900123456', 
+                    tipo: 'Cafetería', 
+                    horario_atencion: '7:00-16:00', 
+                    dias: 'Lun-Vie', 
+                    ubicacion: 'Bloque A', 
+                    stock: 10, 
+                    precio: 12000 
+                } 
+            },
+            { 
+                nombreProducto: 'Almuerzo Ejecutivo', 
+                descripcion: 'Sopa, seco y jugo.', 
+                tipo_menu: 'almuerzo', 
+                codigo: 'ALM002',
+                estado: 'Disponible', 
+                imagen: null, 
+                lugar: { 
+                    nombre: 'Restaurante Central', 
+                    NIT: '900654321', 
+                    tipo: 'Restaurante', 
+                    horario_atencion: '12:00-14:00', 
+                    dias: 'Lun-Vie', 
+                    ubicacion: 'Bloque C', 
+                    stock: 50, 
+                    precio: 15000 
+                } 
+            }
+        ];
+        aplicarFiltros(); 
+    }
+}
+
+/**
  * Aplica los filtros (Menú y Búsqueda) y llama al renderizado.
  */
 function aplicarFiltros() {
@@ -192,152 +269,53 @@ function aplicarFiltros() {
     
     let productosFiltrados = todosLosProductos;
     
-    if (filtroMenu.toLowerCase() !== 'todos') {
-        const tipoDeseado = filtroMenu.toLowerCase();
+    // Filtrado por tipo de menú
+    if (filtroMenu.toLowerCase() !== 'todos' && filtroMenu.toLowerCase() !== 'menú') {
+        const tipoDeseado = filtroMenu.toLowerCase().replace('s', ''); // Elimina 's' para singularizar (ej: desayunos -> desayuno)
         
         productosFiltrados = productosFiltrados.filter(producto => {
+            // Usa el tipo_menu del producto.
             const tipoProducto = (producto.tipo_menu || '').toLowerCase();
-            
-            if (tipoDeseado === 'desayunos' && tipoProducto.includes('desayuno')) return true;
-            if (tipoDeseado === 'almuerzos' && tipoProducto.includes('almuerzo')) return true;
-            if (tipoDeseado === 'bebidas' && tipoProducto.includes('bebida')) return true;
-            
-            // Asume que si no es ninguno de los anteriores, y no coincide exactamente, puede ir en 'Otros'
-            if (tipoDeseado === 'otros' && 
-                !tipoProducto.includes('desayuno') &&
-                !tipoProducto.includes('almuerzo') &&
-                !tipoProducto.includes('bebida')) return true;
-
-            // Filtro por coincidencia exacta si no cayó en las categorías amplias de arriba
-            return tipoProducto === tipoDeseado; 
+            return tipoProducto.includes(tipoDeseado);
         });
     }
     
+    // Filtrado por búsqueda de texto
     if (textoBusqueda) {
-        productosFiltrados = productosFiltrados.filter(producto => {
-            const nombre = producto.nombreProducto ? producto.nombreProducto.toLowerCase() : '';
-            const descripcion = producto.descripcion ? producto.descripcion.toLowerCase() : '';
-            const lugar = producto.NOMBRE_LUGAR ? producto.NOMBRE_LUGAR.toLowerCase() : ''; // Buscar también por lugar
-            return nombre.includes(textoBusqueda) || descripcion.includes(textoBusqueda) || lugar.includes(textoBusqueda);
-        });
+        productosFiltrados = productosFiltrados.filter(p => 
+            (p.nombreProducto || '').toLowerCase().includes(textoBusqueda) || 
+            (p.descripcion || '').toLowerCase().includes(textoBusqueda) ||
+            (p.lugar?.nombre || '').toLowerCase().includes(textoBusqueda) // Incluye el nombre del lugar
+        );
     }
-
-    const filtroMostrado = textoBusqueda ? `"${textoBusqueda}"` : filtroMenu;
-    renderizarProductos(productosFiltrados, filtroMostrado);
+    
+    // Renderiza los productos que cumplen ambos filtros
+    renderizarProductos(productosFiltrados, filtroActivoBtn?.textContent.trim() || 'resultados');
 }
-
-
-// === FUNCIÓN PRINCIPAL: CARGAR PRODUCTOS INICIALMENTE ===
-async function cargarDatosIniciales() {
-    try {
-        listaProductos.innerHTML = '<p class="cargando">Cargando productos...</p>';
-        
-        const res = await fetch(`${API_URL}/api/productos`);
-        if (!res.ok) {
-            throw new Error(`Error HTTP: ${res.status}`);
-        }
-        todosLosProductos = await res.json();
-        
-        aplicarFiltros(); 
-        
-    } catch (error) {
-        console.error('❌ Error al cargar productos iniciales:', error);
-        listaProductos.innerHTML = "<p>Hubo un problema al cargar los productos. Por favor, verifica el estado del servidor API.</p>";
-    }
-}
-
 
 // --- EVENT LISTENERS ---
 
-// 1. EVENTO DE FILTRO POR TIPO DE MENÚ
-botonesFiltro.forEach(boton => {
-    boton.addEventListener('click', () => {
+// Filtros de menú
+botonesFiltro.forEach(btn => {
+    btn.addEventListener('click', () => {
         botonesFiltro.forEach(b => b.classList.remove('activo'));
-        boton.classList.add('activo');
+        btn.classList.add('activo');
         aplicarFiltros();
     });
 });
 
-// 2. EVENTO DE BÚSQUEDA
+// Buscador
 inputBuscador?.addEventListener('keyup', aplicarFiltros);
-inputBuscador?.addEventListener('change', aplicarFiltros);
 
-// 3. CERRAR SESIÓN (Mantiene la funcionalidad de autenticación local)
-if (btnCerrar) {
-    btnCerrar.addEventListener('click', () => {
-        localStorage.removeItem('usuario_num');
-        window.location.href = 'usuario.html';
-    });
-}
 
-// 4. CARGAR PRODUCTOS AL INICIO
-window.addEventListener('DOMContentLoaded', cargarDatosIniciales);
-
-// ===============================================
-// === FUNCIONALIDAD DE NOTIFICACIONES ===
-// ===============================================
+// Carga inicial al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
-    const promocionesFijas = [
-        {
-            titulo: "Nuevo pedido en Cafetería Principal",
-            descripcion: "Pendiente de confirmación.",
-            detalle: "Ahora"
-        },
-        {
-            titulo: "Producto 'Empanada' no disponible",
-            descripcion: "El artículo ha sido marcado como no disponible.",
-            detalle: "Cafetería Principal"
-        }
-    ];
-
-    function cargarPromocionesQuemadas() {
-        if (!listaNotificaciones) return;
-
-        listaNotificaciones.innerHTML = `<h3>Notificaciones</h3>`; 
-
-        promocionesFijas.forEach(promo => {
-            const item = document.createElement('div');
-            item.className = 'notificacion-item';
-            item.innerHTML = `
-                <span class="punto-notificacion"></span> 
-                <strong>${promo.titulo}</strong>
-                <p>${promo.descripcion}</p>
-                <small>${promo.detalle}</small>
-            `;
-            listaNotificaciones.appendChild(item);
-        });
-        
-        if (contadorNotificaciones) {
-            contadorNotificaciones.textContent = promocionesFijas.length; 
-            contadorNotificaciones.style.display = 'block';
-        }
-    }
+    console.info('[menu.js] DOM listo');
+    cargarProductos();
     
-    if (btnNotificaciones && listaNotificaciones) {
-        cargarPromocionesQuemadas();
-
-        btnNotificaciones.addEventListener('click', (e) => {
-            e.stopPropagation(); 
-            listaNotificaciones.classList.toggle('activo');
-
-            if (listaNotificaciones.classList.contains('activo')) {
-                   if (contadorNotificaciones) {
-                       contadorNotificaciones.style.display = 'none';
-                   }
-            } else {
-                   if (contadorNotificaciones && parseInt(contadorNotificaciones.textContent) > 0) {
-                        contadorNotificaciones.style.display = 'block';
-                   }
-            }
-        });
-
-        window.addEventListener('click', (e) => {
-            if (listaNotificaciones.classList.contains('activo') && 
-                !listaNotificaciones.contains(e.target) && 
-                !btnNotificaciones.contains(e.target)) {
-                
-                listaNotificaciones.classList.remove('activo');
-            }
-        });
-    }
+    // Lógica para cerrar la sesión (si existe un botón de cerrar)
+    btnCerrar?.addEventListener('click', () => {
+        alert('Simulación: Cerrando sesión...');
+        // Aquí iría el código real para cerrar la sesión (ej: limpiar tokens, redirigir)
+    });
 });
