@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu - SaborUAM</title>
+  <title>Menú - SaborUAM</title>
   <link rel="stylesheet" href="css/menu.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -11,17 +11,9 @@
 
   <!-- ENCABEZADO -->
   <header class="header">
-    <div class="acciones-header">
-      <div class="notificacion-container">
-        <button id="btn-notificaciones" class="btn-campana">
-          <i data-lucide="bell" class="icono"></i>
-          <span id="contador-notificaciones" class="contador-notificaciones">2</span> 
-        </button>
-        <div id="lista-notificaciones" class="lista-notificaciones">
-                  </div>
-      </div>
-      <button id="btn-cerrar" class="btn-cerrar">Cerrar sesión</button>
-    </div>
+    <div class="titulo-header">
+      <h1>SaborUAM</h1>
+    </div>
 
     <div class="acciones-header">
       <i data-lucide="bell" class="icono"></i>
@@ -32,11 +24,10 @@
   <!-- CONTENIDO PRINCIPAL -->
   <main class="contenedor">
 
-    <!-- Mneú lateral (Filtra los productos por tipo) -->
+    <!-- Menú lateral (Filtra los productos por tipo) -->
     <aside class="barra-filtro">
       <h2>Menú</h2>
       <ul>
-        <!-- Todos los botones sirven para mostrar los productos por tipo -->
         <li><button class="filtro-btn activo">Todos</button></li>
         <li><button class="filtro-btn">Desayunos</button></li>
         <li><button class="filtro-btn">Almuerzos</button></li>
@@ -54,8 +45,8 @@
 
       <!-- TARJETAS DE PRODUCTOS -->
       <div class="productos" id="lista-productos"></div>
-
     </section>
+
   </main>
 
   <script src="js/menu.js"></script>
