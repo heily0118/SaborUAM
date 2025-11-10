@@ -25,7 +25,7 @@ function crearModal(titulo, contenidoHTML) {
     const m = document.createElement('div');
     m.classList.add('modal', 'activo');
     
-    // Estructura del modal de detalles completo (similar a la vista de Administrador)
+    // Estructura del modal de detalles completo
     m.innerHTML = `
         <div class="modal-contenido">
             <h2>${titulo}</h2>
@@ -46,6 +46,7 @@ function crearModal(titulo, contenidoHTML) {
 
 /**
  * Muestra el modal con los detalles completos del producto y lugar.
+ * Utiliza los nombres de campos que vienen directamente del API (ej: NOMBRE_LUGAR, horario).
  */
 function mostrarModalVerMas(producto) {
     const productoDetalles = {
@@ -56,12 +57,12 @@ function mostrarModalVerMas(producto) {
         precio: producto.precio ?? 'N/A',
         estado: producto.estado || 'Disponible',
         
-        // Información del Lugar 
+        // Información del Lugar (Usando los nombres exactos del API)
         lugar: {
             NIT: producto.NIT || 'N/A',
-            nombre: producto.NOMBRE_LUGAR || 'Lugar Desconocido',
+            nombre: producto.NOMBRE_LUGAR || 'Lugar Desconocido', // <--- CORREGIDO (usa NOMBRE_LUGAR)
             tipo: producto.tipo || 'N/A',
-            horario_atencion: producto.horario || 'N/A',
+            horario_atencion: producto.horario || 'N/A', // <--- CORREGIDO (usa horario)
             dias: producto.dias || 'N/A',
             ubicacion: producto.ubicacion || 'N/A',
         }
@@ -109,6 +110,7 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
     }
 
     productos.forEach(producto => {
+        // CORREGIDO: Usar NOMBRE_LUGAR que viene del API
         const nombreLugar = producto.NOMBRE_LUGAR || 'Lugar Desconocido';
         const tarjeta = document.createElement('div');
         tarjeta.classList.add('tarjeta');
@@ -124,11 +126,13 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
 
         tarjeta.innerHTML = `
-            <img src="${imgSrc}" alt="${producto.nombreProducto}">
+            <img src="${imgSrc}" alt="${producto.nombreProducto}" onerror="this.onerror=null;this.src='https://via.placeholder.com/220x150'">
             
             <div class="info">
+                <!-- Seccion que contiene el nombre y el botón de acción a la derecha -->
                 <div class="nombre-y-accion">
                     <h3>${producto.nombreProducto}</h3>
+                    <!-- Botón de los 3 puntos con su menú desplegable -->
                     <div class="acciones-tarjeta">
                         <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
                         <div class="menu-opciones">
@@ -142,7 +146,8 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
             </div>
         `;
         
-        tarjeta.addEventListener('click', async () => { /* ... tu lógica de registro ... */ });
+        // Nota: Se elimina el listener de 'click' de la tarjeta para evitar conflictos con los botones internos.
+        // Si necesitas un registro, debe estar aquí o en el botón específico.
         
         listaProductos.appendChild(tarjeta);
     });
@@ -157,6 +162,7 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         // 1. Mostrar/Ocultar Menú (al hacer clic en los 3 puntos)
         menuBtn?.addEventListener('click', e => {
             e.stopPropagation();
+            // Cierra otros menús antes de abrir el actual
             document.querySelectorAll('.menu-opciones').forEach(m => { 
                 if (m !== menu) m.classList.remove('show'); 
             });
@@ -175,8 +181,6 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
     // 3. Cerrar cualquier menú al hacer clic en cualquier parte de la ventana
     document.addEventListener('click', () => document.querySelectorAll('.menu-opciones').forEach(m => m.classList.remove('show')));
 }
-
-// ... (El resto de funciones: aplicarFiltros, cargarDatosIniciales, y notificaciones se mantienen igual) ...
 
 /**
  * Aplica los filtros (Menú y Búsqueda) y llama al renderizado.
@@ -197,8 +201,14 @@ function aplicarFiltros() {
             if (tipoDeseado === 'desayunos' && tipoProducto.includes('desayuno')) return true;
             if (tipoDeseado === 'almuerzos' && tipoProducto.includes('almuerzo')) return true;
             if (tipoDeseado === 'bebidas' && tipoProducto.includes('bebida')) return true;
-            if (tipoDeseado === 'otros' && (tipoProducto.includes('otro') || tipoProducto.includes('varios') || tipoProducto === '')) return true;
             
+            // Asume que si no es ninguno de los anteriores, y no coincide exactamente, puede ir en 'Otros'
+            if (tipoDeseado === 'otros' && 
+                !tipoProducto.includes('desayuno') &&
+                !tipoProducto.includes('almuerzo') &&
+                !tipoProducto.includes('bebida')) return true;
+
+            // Filtro por coincidencia exacta si no cayó en las categorías amplias de arriba
             return tipoProducto === tipoDeseado; 
         });
     }
@@ -207,7 +217,8 @@ function aplicarFiltros() {
         productosFiltrados = productosFiltrados.filter(producto => {
             const nombre = producto.nombreProducto ? producto.nombreProducto.toLowerCase() : '';
             const descripcion = producto.descripcion ? producto.descripcion.toLowerCase() : '';
-            return nombre.includes(textoBusqueda) || descripcion.includes(textoBusqueda);
+            const lugar = producto.NOMBRE_LUGAR ? producto.NOMBRE_LUGAR.toLowerCase() : ''; // Buscar también por lugar
+            return nombre.includes(textoBusqueda) || descripcion.includes(textoBusqueda) || lugar.includes(textoBusqueda);
         });
     }
 
@@ -222,13 +233,16 @@ async function cargarDatosIniciales() {
         listaProductos.innerHTML = '<p class="cargando">Cargando productos...</p>';
         
         const res = await fetch(`${API_URL}/api/productos`);
+        if (!res.ok) {
+            throw new Error(`Error HTTP: ${res.status}`);
+        }
         todosLosProductos = await res.json();
         
         aplicarFiltros(); 
         
     } catch (error) {
         console.error('❌ Error al cargar productos iniciales:', error);
-        listaProductos.innerHTML = "<p>Hubo un problema al cargar los productos. Por favor, verifica tu conexión.</p>";
+        listaProductos.innerHTML = "<p>Hubo un problema al cargar los productos. Por favor, verifica el estado del servidor API.</p>";
     }
 }
 
@@ -248,7 +262,7 @@ botonesFiltro.forEach(boton => {
 inputBuscador?.addEventListener('keyup', aplicarFiltros);
 inputBuscador?.addEventListener('change', aplicarFiltros);
 
-// 3. CERRAR SESIÓN
+// 3. CERRAR SESIÓN (Mantiene la funcionalidad de autenticación local)
 if (btnCerrar) {
     btnCerrar.addEventListener('click', () => {
         localStorage.removeItem('usuario_num');
