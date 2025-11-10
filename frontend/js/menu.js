@@ -4,9 +4,17 @@ const API_URL = "http://localhost:3000";
 // === SELECCIÓN DE ELEMENTOS ===
 const listaProductos = document.getElementById('lista-productos');
 const botonesFiltro = document.querySelectorAll('.filtro-btn');
+<<<<<<< HEAD
 const btnCerrar = document.querySelector('.btn-cerrar'); // Corregido el selector (es una clase)
 const inputBuscador = document.querySelector('.buscador input[type="text"]');
 // No necesitamos seleccionar el botón de búsqueda si usamos el evento 'keyup' en el input
+=======
+const btnCerrar = document.getElementById('btn-cerrar');
+const inputBuscador = document.querySelector('.buscador input[type="text"]');
+const btnNotificaciones = document.getElementById('btn-notificaciones');
+const listaNotificaciones = document.getElementById('lista-notificaciones');
+const contadorNotificaciones = document.getElementById('contador-notificaciones');
+>>>>>>> 40c6d38413096433a274940800496808027d8704
 
 // Almacenará la lista completa de la API, cargada solo una vez
 let todosLosProductos = []; 
@@ -14,10 +22,9 @@ let todosLosProductos = [];
 // --- FUNCIONES DE RENDERIZADO Y LÓGICA ---
 
 /**
- * Función para pintar las tarjetas de productos en el HTML.
- * @param {Array} productos - La lista de productos a mostrar.
- * @param {string} filtroAplicado - El filtro (categoría o texto de búsqueda) aplicado.
+ * Crea la estructura básica del modal para la vista del cliente.
  */
+<<<<<<< HEAD
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
     listaProductos.innerHTML = ""; // Limpiar antes de pintar
 
@@ -72,6 +79,160 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
     });
 
     lucide.createIcons();
+=======
+function crearModal(titulo, contenidoHTML) {
+    // Eliminar cualquier modal existente antes de crear uno nuevo
+    document.querySelector('.modal')?.remove(); 
+    
+    const m = document.createElement('div');
+    m.classList.add('modal', 'activo');
+    
+    m.innerHTML = `
+        <div class="modal-contenido">
+            <h2>${titulo}</h2>
+            <div class="contenido-modal">${contenidoHTML}</div>
+            <button class="btn-cerrar-modal">Cerrar</button>
+        </div>`;
+    
+    document.body.appendChild(m);
+    
+    // Listener para cerrar el modal con el botón
+    m.querySelector('.btn-cerrar-modal')?.addEventListener('click', () => m.remove());
+    
+    // Listener para cerrar el modal al hacer clic fuera
+    m.addEventListener('click', (e) => {
+        if (e.target === m) {
+            m.remove();
+        }
+    });
+    return m;
+}
+
+/**
+ * Muestra el modal con los detalles completos del producto y lugar.
+ * (Esta función se mantiene con los detalles completos para el modal de "Más Información")
+ * @param {Object} producto - El objeto de datos completo del producto.
+ */
+function mostrarModalVerMas(producto) {
+    const productoDetalles = {
+        nombreProducto: producto.nombreProducto || 'N/A',
+        descripcion: producto.descripcion || 'Sin descripción',
+        tipo_menu: producto.tipo_menu || 'N/A',
+        precio: producto.precio ?? 'N/A',
+        estado: producto.estado || 'Disponible',
+        lugar: {
+            NIT: producto.NIT || 'N/A',
+            nombre: producto.NOMBRE_LUGAR || 'Lugar Desconocido',
+            tipo: producto.tipo || 'N/A',
+            horario_atencion: producto.horario || 'N/A',
+            dias: producto.dias || 'N/A',
+            ubicacion: producto.ubicacion || 'N/A',
+        }
+    };
+    
+    const precioFormateado = new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0
+    }).format(productoDetalles.precio ?? 0);
+    
+    const contenido = `
+        <h3>📜 Información del producto</h3>
+        <p><strong>Nombre:</strong> ${productoDetalles.nombreProducto}</p>
+        <p><strong>Descripción:</strong> ${productoDetalles.descripcion}</p>
+        <p><strong>Tipo:</strong> ${productoDetalles.tipo_menu}</p>
+        <p><strong>Precio:</strong> ${precioFormateado}</p>
+        <p><strong>Estado:</strong> ${productoDetalles.estado}</p>
+
+        <hr style="margin:10px 0;">
+
+        <h3>📍 Información del lugar</h3>
+        <p><strong>NIT:</strong> ${productoDetalles.lugar.NIT}</p>
+        <p><strong>Nombre:</strong> ${productoDetalles.lugar.nombre}</p>
+        <p><strong>Tipo:</strong> ${productoDetalles.lugar.tipo}</p>
+        <p><strong>Horario:</strong> ${productoDetalles.lugar.horario_atencion}</p>
+        <p><strong>Días:</strong> ${productoDetalles.lugar.dias}</p>
+        <p><strong>Ubicación:</strong> ${productoDetalles.lugar.ubicacion}</p>
+    `;
+    
+    crearModal('Detalles del producto', contenido);
+>>>>>>> 40c6d38413096433a274940800496808027d8704
+}
+
+
+/**
+ * Función para pintar las tarjetas de productos en el HTML. (AJUSTADA)
+ */
+function renderizarProductos(productos, filtroAplicado = 'Menú') {
+    listaProductos.innerHTML = ""; // Limpiar antes de pintar
+
+    if (productos.length === 0) {
+        listaProductos.innerHTML = `<p class="sin-resultados">No se encontraron resultados para: <strong>${filtroAplicado}</strong>.</p>`;
+        return;
+    }
+
+    productos.forEach(producto => {
+        const nombreLugar = producto.NOMBRE_LUGAR || 'Lugar Desconocido';
+        const tarjeta = document.createElement('div');
+        tarjeta.classList.add('tarjeta');
+        
+        const productoData = JSON.stringify(producto);
+
+        const precioFormateado = new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0
+        }).format(producto.precio ?? 0);
+        
+        const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
+
+        // ESTE ES EL HTML AJUSTADO PARA SER MINIMALISTA
+        tarjeta.innerHTML = `
+            <img src="${imgSrc}" alt="${producto.nombreProducto}">
+            <div class="info">
+                <h3>${producto.nombreProducto}</h3>
+                <p class="precio">${precioFormateado}</p>
+                <p class="lugar">${nombreLugar}</p> 
+            </div>
+            <div class="acciones-tarjeta">
+                <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
+                <div class="menu-opciones">
+                    <button class="detalles-btn" data-producto='${productoData}'>Más Información</button>
+                </div>
+            </div>
+        `;
+        
+        // Lógica para registrar consulta al hacer clic (Mantenida)
+        tarjeta.addEventListener('click', async () => { /* ... tu lógica de registro ... */ });
+        
+        listaProductos.appendChild(tarjeta);
+    });
+
+    try { lucide.createIcons(); } catch(e) {}
+    
+    // LÓGICA: EVENTOS DE BOTONES DE TARJETA Y MODAL (MANTENIDA)
+    document.querySelectorAll('.tarjeta').forEach(t => {
+        const menuBtn = t.querySelector('.menu-btn');
+        const menu = t.querySelector('.menu-opciones');
+        
+        // 1. Mostrar/Ocultar Menú (puntos verticales)
+        menuBtn?.addEventListener('click', e => {
+            e.stopPropagation();
+            document.querySelectorAll('.menu-opciones').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+            menu?.classList.toggle('show');
+        });
+
+        // 2. Listener para "Más Información"
+        t.querySelector('.detalles-btn')?.addEventListener('click', e => { 
+            e.stopPropagation(); 
+            const productoData = JSON.parse(e.target.dataset.producto);
+            mostrarModalVerMas(productoData); 
+            menu?.classList.remove('show');
+        });
+    });
+
+    // 3. Cerrar cualquier menú al hacer clic en cualquier parte de la ventana
+    document.addEventListener('click', () => document.querySelectorAll('.menu-opciones').forEach(m => m.classList.remove('show')));
 }
 
 /**
@@ -80,15 +241,36 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
 function aplicarFiltros() {
     // 1. Obtener filtros activos
     const filtroActivoBtn = document.querySelector('.filtro-btn.activo');
+<<<<<<< HEAD
     const filtroMenu = filtroActivoBtn ? filtroActivoBtn.textContent : 'Todos';
+=======
+    const filtroMenu = filtroActivoBtn ? filtroActivoBtn.textContent.trim() : 'Todos';
+>>>>>>> 40c6d38413096433a274940800496808027d8704
     const textoBusqueda = inputBuscador.value.trim().toLowerCase();
     
     // 2. Filtrar por menú (categoría)
     let productosFiltrados = todosLosProductos;
+<<<<<<< HEAD
     if (filtroMenu !== 'Todos') {
         productosFiltrados = productosFiltrados.filter(
             producto => producto.tipo_menu === filtroMenu
         );
+=======
+    
+    if (filtroMenu.toLowerCase() !== 'todos') {
+        const tipoDeseado = filtroMenu.toLowerCase();
+        
+        productosFiltrados = productosFiltrados.filter(producto => {
+            const tipoProducto = (producto.tipo_menu || '').toLowerCase();
+            
+            if (tipoDeseado === 'desayunos' && tipoProducto.includes('desayuno')) return true;
+            if (tipoDeseado === 'almuerzos' && tipoProducto.includes('almuerzo')) return true;
+            if (tipoDeseado === 'bebidas' && tipoProducto.includes('bebida')) return true;
+            if (tipoDeseado === 'otros' && (tipoProducto.includes('otro') || tipoProducto.includes('varios') || tipoProducto === '')) return true;
+            
+            return tipoProducto === tipoDeseado; 
+        });
+>>>>>>> 40c6d38413096433a274940800496808027d8704
     }
     
     // 3. Filtrar por búsqueda de texto
@@ -102,10 +284,11 @@ function aplicarFiltros() {
         });
     }
 
+<<<<<<< HEAD
     // 4. Determinar qué texto mostrar en caso de no haber resultados
+=======
+>>>>>>> 40c6d38413096433a274940800496808027d8704
     const filtroMostrado = textoBusqueda ? `"${textoBusqueda}"` : filtroMenu;
-
-    // 5. Renderizar los resultados
     renderizarProductos(productosFiltrados, filtroMostrado);
 }
 
@@ -119,7 +302,10 @@ async function cargarDatosIniciales() {
         const res = await fetch(`${API_URL}/api/productos`);
         todosLosProductos = await res.json();
         
+<<<<<<< HEAD
         // Llama a aplicarFiltros para mostrar los datos iniciales ('Todos')
+=======
+>>>>>>> 40c6d38413096433a274940800496808027d8704
         aplicarFiltros(); 
         
     } catch (error) {
@@ -131,6 +317,7 @@ async function cargarDatosIniciales() {
 
 // --- EVENT LISTENERS ---
 
+<<<<<<< HEAD
 // 1. EVENTOS DE FILTRO DE MENÚ (Barra lateral)
 botonesFiltro.forEach(btn => {
     btn.addEventListener('click', e => {
@@ -140,6 +327,14 @@ botonesFiltro.forEach(btn => {
         
         // Volver a aplicar filtros (esto incluye la búsqueda actual)
         aplicarFiltros(); 
+=======
+// 1. EVENTO DE FILTRO POR TIPO DE MENÚ
+botonesFiltro.forEach(boton => {
+    boton.addEventListener('click', () => {
+        botonesFiltro.forEach(b => b.classList.remove('activo'));
+        boton.classList.add('activo');
+        aplicarFiltros();
+>>>>>>> 40c6d38413096433a274940800496808027d8704
     });
 });
 
@@ -156,4 +351,81 @@ if (btnCerrar) {
 }
 
 // 4. CARGAR PRODUCTOS AL INICIO
+<<<<<<< HEAD
 window.addEventListener('DOMContentLoaded', cargarDatosIniciales)
+=======
+window.addEventListener('DOMContentLoaded', cargarDatosIniciales);
+
+// ===============================================
+// === FUNCIONALIDAD DE NOTIFICACIONES ===
+// ===============================================
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Datos Fijos (simulados)
+    const promocionesFijas = [
+        {
+            titulo: "Nuevo pedido en Cafetería Principal",
+            descripcion: "Pendiente de confirmación.",
+            detalle: "Ahora"
+        },
+        {
+            titulo: "Producto 'Empanada' no disponible",
+            descripcion: "El artículo ha sido marcado como no disponible.",
+            detalle: "Cafetería Principal"
+        }
+    ];
+
+    // 2. Función para cargar los datos quemados
+    function cargarPromocionesQuemadas() {
+        if (!listaNotificaciones) return;
+
+        listaNotificaciones.innerHTML = `<h3>Notificaciones</h3>`; 
+
+        promocionesFijas.forEach(promo => {
+            const item = document.createElement('div');
+            item.className = 'notificacion-item';
+            item.innerHTML = `
+                <span class="punto-notificacion"></span> 
+                <strong>${promo.titulo}</strong>
+                <p>${promo.descripcion}</p>
+                <small>${promo.detalle}</small>
+            `;
+            listaNotificaciones.appendChild(item);
+        });
+        
+        if (contadorNotificaciones) {
+            contadorNotificaciones.textContent = promocionesFijas.length; 
+            contadorNotificaciones.style.display = 'block';
+        }
+    }
+    
+    // 3. Manjeador del Clic en la Campana
+    if (btnNotificaciones && listaNotificaciones) {
+        cargarPromocionesQuemadas();
+
+        btnNotificaciones.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            listaNotificaciones.classList.toggle('activo');
+
+            if (listaNotificaciones.classList.contains('activo')) {
+                   if (contadorNotificaciones) {
+                       contadorNotificaciones.style.display = 'none';
+                   }
+            } else {
+                   if (contadorNotificaciones && parseInt(contadorNotificaciones.textContent) > 0) {
+                        contadorNotificaciones.style.display = 'block';
+                   }
+            }
+        });
+
+        // 4. Cerrar el panel al hacer clic fuera
+        window.addEventListener('click', (e) => {
+            if (listaNotificaciones.classList.contains('activo') && 
+                !listaNotificaciones.contains(e.target) && 
+                !btnNotificaciones.contains(e.target)) {
+                
+                listaNotificaciones.classList.remove('activo');
+            }
+        });
+    }
+});
+>>>>>>> 40c6d38413096433a274940800496808027d8704

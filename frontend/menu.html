@@ -1,55 +1,57 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menú - SaborUAM</title>
-  <link rel="stylesheet" href="css/menu.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - SaborUAM</title>
+    <link rel="stylesheet" href="css/menu.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-  <!-- ENCABEZADO -->
-  <header class="header">
-    <div class="titulo-header">
-      <h1>SaborUAM</h1>
-    </div>
+    <header class="header">
+        <div class="titulo-header">
+            <h1>SaborUAM</h1>
+        </div>
 
-    <div class="acciones-header">
-      <i data-lucide="bell" class="icono"></i>
-      <button id="btn-cerrar" class="btn-cerrar">Cerrar sesión</button>
-    </div>
-  </header>
+        <div class="acciones-header">
+            <div id="btn-notificaciones" class="campana-container">
+                <i data-lucide="bell" class="icono"></i>
+                <span id="contador-notificaciones" class="contador-notificaciones" style="display:none;"></span>
+                <div id="lista-notificaciones" class="panel-notificaciones">
+                    </div>
+            </div>
+            
+            <button id="btn-cerrar" class="btn-cerrar">Cerrar sesión</button>
+        </div>
+    </header>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="contenedor">
 
-    <!-- Menú lateral (Filtra los productos por tipo) -->
-    <aside class="barra-filtro">
-      <h2>Menú</h2>
-      <ul>
-        <li><button class="filtro-btn activo">Todos</button></li>
-        <li><button class="filtro-btn">Desayunos</button></li>
-        <li><button class="filtro-btn">Almuerzos</button></li>
-        <li><button class="filtro-btn">Bebidas</button></li>
-        <li><button class="filtro-btn">Otros</button></li>
-      </ul>
-    </aside>
+    <main class="contenedor">
 
-    <!-- ZONA PRINCIPAL -->
-    <section class="zona-principal">
-      <div class="buscador">
-        <input type="text" placeholder="Buscar producto...">
-        <button><i data-lucide="search"></i></button>
-      </div>
+        <aside class="barra-filtro">
+            <h2 class="menu-titulo">Menú</h2>
+            <ul>
+                <li><button class="filtro-btn activo" data-tipo="Todos">Todos</button></li>
+                <li><button class="filtro-btn" data-tipo="Desayunos">Desayunos</button></li>
+                <li><button class="filtro-btn" data-tipo="Almuerzos">Almuerzos</button></li>
+                <li><button class="filtro-btn" data-tipo="Bebidas">Bebidas</button></li>
+                <li><button class="filtro-btn" data-tipo="Otros">Otros</button></li>
+            </ul>
+        </aside>
 
-      <!-- TARJETAS DE PRODUCTOS -->
-      <div class="productos" id="lista-productos"></div>
-    </section>
+        <section class="zona-principal">
+            <div class="buscador">
+                <input type="text" class="buscador-input" placeholder="Buscar producto...">
+                <button><i data-lucide="search"></i></button>
+            </div>
 
-  </main>
+            <div class="productos" id="lista-productos"></div>
 
-  <script src="js/menu.js"></script>
-  <script>lucide.createIcons();</script>
+        </section>
+    </main>
+
+    <script src="js/menu.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
