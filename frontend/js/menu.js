@@ -255,78 +255,64 @@ if (btnCerrar) {
     });
 }
 
-// 4. CARGAR PRODUCTOS AL INICIO
-window.addEventListener('DOMContentLoaded', cargarDatosIniciales);
 
-// ===============================================
-// === FUNCIONALIDAD DE NOTIFICACIONES ===
-// ===============================================
+
+
+// === INICIO DE LA APLICACIÓN ===
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Datos Fijos (simulados)
-    const promocionesFijas = [
-        {
-            titulo: "Nuevo pedido en Cafetería Principal",
-            descripcion: "Pendiente de confirmación.",
-            detalle: "Ahora"
-        },
-        {
-            titulo: "Producto 'Empanada' no disponible",
-            descripcion: "El artículo ha sido marcado como no disponible.",
-            detalle: "Cafetería Principal"
-        }
-    ];
+  // Cargar productos
+  cargarDatosIniciales();
 
-    // 2. Función para cargar los datos quemados
-    function cargarPromocionesQuemadas() {
-        if (!listaNotificaciones) return;
+  // === NOTIFICACIONES ===
+  // === Notificaciones ===
 
-        listaNotificaciones.innerHTML = `<h3>Notificaciones</h3>`; 
+// Referencias a elementos
+const iconoNotificacion = document.getElementById("iconoNotificacion");
+const panelNotificaciones = document.getElementById("panelNotificaciones");
+const contadorNotificaciones = document.getElementById("contadorNotificaciones");
+const listaNotificaciones = document.getElementById("listaNotificaciones");
 
-        promocionesFijas.forEach(promo => {
-            const item = document.createElement('div');
-            item.className = 'notificacion-item';
-            item.innerHTML = `
-                <span class="punto-notificacion"></span> 
-                <strong>${promo.titulo}</strong>
-                <p>${promo.descripcion}</p>
-                <small>${promo.detalle}</small>
-            `;
-            listaNotificaciones.appendChild(item);
-        });
-        
-        if (contadorNotificaciones) {
-            contadorNotificaciones.textContent = promocionesFijas.length; 
-            contadorNotificaciones.style.display = 'block';
-        }
-    }
-    
-    // 3. Manjeador del Clic en la Campana
-    if (btnNotificaciones && listaNotificaciones) {
-        cargarPromocionesQuemadas();
+// Ejemplo de lista de notificaciones
+let notificaciones = [
+  "Nuevo producto disponible: Empanada de pollo",
+  "Promoción: Café gratis con tu desayuno",
+  "Recordatorio: Tu pedido está listo para recoger"
+];
 
-        btnNotificaciones.addEventListener('click', (e) => {
-            e.stopPropagation(); 
-            listaNotificaciones.classList.toggle('activo');
+// Muestra las notificaciones y actualiza el contador
+function cargarNotificaciones() {
+  listaNotificaciones.innerHTML = "";
 
-            if (listaNotificaciones.classList.contains('activo')) {
-                   if (contadorNotificaciones) {
-                       contadorNotificaciones.style.display = 'none';
-                   }
-            } else {
-                   if (contadorNotificaciones && parseInt(contadorNotificaciones.textContent) > 0) {
-                        contadorNotificaciones.style.display = 'block';
-                   }
-            }
-        });
+  if (notificaciones.length > 0) {
+    contadorNotificaciones.style.display = "flex";
+    contadorNotificaciones.textContent = notificaciones.length;
 
-        // 4. Cerrar el panel al hacer clic fuera
-        window.addEventListener('click', (e) => {
-            if (listaNotificaciones.classList.contains('activo') && 
-                !listaNotificaciones.contains(e.target) && 
-                !btnNotificaciones.contains(e.target)) {
-                
-                listaNotificaciones.classList.remove('activo');
-            }
-        });
-    }
+    notificaciones.forEach(msg => {
+      const li = document.createElement("li");
+      li.textContent = msg;
+      listaNotificaciones.appendChild(li);
+    });
+  } else {
+    contadorNotificaciones.style.display = "none";
+    const li = document.createElement("li");
+    li.textContent = "No hay notificaciones nuevas.";
+    listaNotificaciones.appendChild(li);
+  }
+}
+
+// Mostrar / ocultar panel al hacer clic en la campana
+iconoNotificacion.addEventListener("click", () => {
+  panelNotificaciones.classList.toggle("activo");
+});
+
+// Ocultar el panel si haces clic fuera de él
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".notificaciones")) {
+    panelNotificaciones.classList.remove("activo");
+  }
+});
+
+// Cargar notificaciones al inicio
+cargarNotificaciones();
+
 });

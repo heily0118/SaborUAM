@@ -300,4 +300,94 @@ body {
   display: flex;
 }
 
+/* ======= NOTIFICACIONES ======= */
+.notificaciones {
+  position: relative;
+  display: inline-block;
+}
+
+.icono-notificacion {
+  position: relative;
+  cursor: pointer;
+  font-size: 24px;
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.icono-notificacion:hover {
+  transform: scale(1.1);
+}
+
+/* Contador rojo sobre la campana */
+.contador-notificacion {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: red;
+  color: white;
+  font-size: 0.7em;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: none; /* solo aparece si hay notificaciones */
+  align-items: center;
+  justify-content: center;
+}
+
+/* Panel desplegable */
+.panel-notificaciones {
+  display: none;
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 250px;
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.panel-notificaciones.activo {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+.panel-notificaciones h4 {
+  margin: 0;
+  background: #005c99;
+  color: white;
+  padding: 10px;
+  font-size: 1em;
+}
+
+.panel-notificaciones ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.panel-notificaciones li {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9em;
+}
+
+.panel-notificaciones li:last-child {
+  border-bottom: none;
+}
+
+.panel-notificaciones li:hover {
+  background-color: #f8f9fc;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
