@@ -278,6 +278,35 @@ document.addEventListener("DOMContentLoaded", () => {
     aplicarFiltros(listaProductosElement, inputBuscadorElement)
   );
 
+     // === CERRAR SESIÓN ===
+  const btnCerrarSesion = document.getElementById("btn-cerrar");
+
+  if (btnCerrarSesion) {
+    btnCerrarSesion.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const confirmar = confirm("¿Seguro que deseas cerrar sesión?");
+      if (!confirmar) return;
+
+      // 🧹 Limpia datos de sesión (ajusta si usas localStorage o token)
+      localStorage.removeItem("usuarioActivo");
+      sessionStorage.removeItem("usuarioActivo");
+      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
+
+      // 🔔 Notificación de cierre
+      agregarNotificacion("Sesión cerrada correctamente", "info");
+
+      // 🔁 Redirige al login
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 800);
+    });
+  } else {
+    console.warn("⚠️ No se encontró el botón de cerrar sesión (#btn-cerrar).");
+  }
+
+
   // Ejemplos de notificaciones
   agregarNotificacion("Promoción de PonyMalta 2x1");
   agregarNotificacion("Descuento en fruta fresca 🍎");
