@@ -424,3 +424,32 @@ body {
 .btn-cerrar-modal:hover {
     background-color: #004a7a; 
 }
+
+/* ============================================= */
+/* === ESTILOS PARA LA DISPONIBILIDAD (STOCK) === */
+/* ============================================= */
+
+/* Contenedor general del texto de disponibilidad en la tarjeta */
+.disponibilidad {
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 3px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 5px;
+    /* Quitar el fondo para solo mostrar el color del texto, como en tu imagen */
+    background-color: transparent; 
+}
+
+/* Estilo para "Disponible" (Amarillo) */
+.estado-disponible {
+    /* Color amarillo/dorado similar al de la imagen */
+    color: #ffc107; 
+}
+
+/* Estilo para "No disponible" (Gris) */
+.estado-no-disponible {
+    /* Color gris oscuro */
+    color: #6c757d; 
+}
+

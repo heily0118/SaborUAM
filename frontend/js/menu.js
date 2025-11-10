@@ -77,7 +77,7 @@ function crearModal(titulo, contenidoHTML) {
 
 /**
  * Muestra el modal con los detalles completos del producto y lugar.
- * ✅ CORRECCIÓN: Ahora muestra el estado de disponibilidad basado en el stock.
+ * ✅ Ahora muestra el estado de disponibilidad basado en el stock.
  */
 function mostrarModalVerMas(producto) {
     // Asume la estructura anidada: producto.lugar
@@ -120,7 +120,7 @@ function mostrarModalVerMas(producto) {
 
 /**
  * Función para pintar las tarjetas de productos en el HTML.
- * ✅ CORRECCIÓN: Se añade el indicador de disponibilidad (texto y clase de color).
+ * ✅ CORRECCIÓN: Se ajusta la estructura HTML para mostrar "Estado:" y aplicar la clase de color solo al estado.
  */
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
     listaProductos.innerHTML = ""; 
@@ -169,7 +169,8 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
                 
                 <p class="precio">${precioFormateado}</p>
                 <p class="lugar">${nombreLugar}</p> 
-                <p class="disponibilidad ${estadoClase}">${estado}</p> </div>
+                <p>Estado: <span class="disponibilidad ${estadoClase}">${estado}</span></p>
+            </div>
         `;
         
         listaProductos.appendChild(tarjeta);
