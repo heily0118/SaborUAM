@@ -1,221 +1,46 @@
-/* ======== ESTILO GENERAL ======== */
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background-color: #f8f9fc;
-  text-align: center;
-  color: #333;
+/* ... (Estilos anteriores) ... */
+
+/* Estilos para el botón Entrar dentro del modal (AGREGADO) */
+.btn-entrar-modal {
+    background-color: #004aad; /* Azul principal */
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    
+    /* Para centrar el botón en el contenedor, si está dentro de un <div class="acciones"> */
+    display: inline-block;
+    margin: 15px auto 0 auto; 
 }
 
-/* ======== ENCABEZADO AZUL ======== */
-.encabezado {
-  background-color: #004aad;
-  border-bottom: 8px solid #d4af37;
-  padding: 40px 20px;
-  position: relative;
+.btn-entrar-modal:hover {
+    background-color: #005c99; /* Un azul ligeramente más oscuro al pasar el mouse */
 }
 
-.contenido-header {
-  display: flex;               
-  align-items: center;         
-  justify-content: center; 
-  gap: 20px;  
-}
-
-.logo {
-  position: absolute;
-  left: 40px; 
-  width: 100px;
-  height: auto;
-}
-
-.texto-header h1 {
-  font-size: 36px;
-  color: white;
-  margin: 0;
-}
-
-.dorado {
-  color: #d4af37;
-}
-
-.slogan {
-  color: #ffffff;
-  font-style: normal;
-  font-weight: bold;
-  margin-top: 5px;
-  font-size: 15px;
-}
-
-
-.bienvenida {
-  margin-top: 50px;
-  padding: 0 20px;
-}
-
-.bienvenida h2 {
-  font-size: 26px;
-  color: #004aad;
-}
-
-.bienvenida p {
-  font-size: 16px;
-  color: #444;
-  max-width: 600px;
-  margin: 10px auto 0 auto;
-}
-
-
-.acciones {
-  margin-top: 40px;
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-}
-
-.btn {
-  font-size: 16px;
-  font-weight: bold;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-login {
-  background-color: white;
-  color: #004aad;
-  border: 2px solid #004aad;
-}
-
-.btn-login:hover {
-  background-color: #004aad;
-  color: white;
-}
-
-
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal.activo {
-  display: flex;
-}
-
-.modal-contenido {
-  background: white;
-  padding: 30px;
-  border-radius: 15px;
-  width: 380px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  position: relative;
-  animation: aparecer 0.3s ease;
-}
-
-@keyframes aparecer {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.modal-contenido h2 {
-  text-align: center;
-  color: #005c99;
-  margin-bottom: 15px;
-}
-
-.modal label {
-  display: block;
-  font-weight: 600;
-  color: #333;
-  margin-top: 10px;
-}
-
-.modal input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-top: 5px;
-}
-
-.acciones {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.btn-registrar {
-  background: #d4af37;
-  color: white;
-  font-weight: 600;
-  border: none;
-  padding: 10px 25px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.btn-registrar:hover {
-  background: #b38f2d;
-}
-
-.btn-cerrar {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  color: #005c99;
-  font-size: 25px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-cerrar:hover {
-  color: #d4af37;
-}
-
-
-@media (max-width: 600px) {
-  .texto-header h1 {
-    font-size: 28px;
-  }
-
-  .acciones {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .btn {
-    width: 80%;
-  }
-}
-
-
-.form-control {
-    margin-bottom: 20px;
-}
-
-.error-text {
-    color: #dc3545;
-    font-size: 0.8em;
-    margin-top: 5px;
-    min-height: 1.2em;
-    visibility: hidden;
+/* Nota: El botón puede ser estilizado con .modal-contenido input[type="submit"] 
+   si no le asignas una clase específica como 'btn-entrar-modal'. */
+.modal-contenido input[type="submit"] {
+    /* Si no quieres añadir una clase al HTML, usa esto: */
+    width: auto; /* Ancho automático para que no ocupe todo el modal */
+    background-color: #004aad; /* Azul principal */
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    
+    /* Para centrarlo correctamente: */
     display: block;
-    text-align: left;
-}
-.form-control.error input {
-    border-color: #dc3545; /* Borde rojo */
-    box-shadow: 0 0 5px rgba(220, 53, 69, 0.4);
-}
-.form-control.error .error-text {
-    visibility: visible; /
+    margin: 15px auto 0 auto; 
 }
 
+.modal-contenido input[type="submit"]:hover {
+    background-color: #005c99; 
+}
+
+/* ... (Resto de tus estilos, asegurando que .btn-registrar, .btn-cerrar, etc., queden al final) ... */
