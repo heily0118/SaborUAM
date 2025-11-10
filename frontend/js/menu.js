@@ -12,21 +12,51 @@ const btnNotificaciones = document.getElementById('btn-notificaciones');
 const listaNotificaciones = document.getElementById('lista-notificaciones');
 const contadorNotificaciones = document.getElementById('contador-notificaciones');
 
-// Almacenará la lista completa de la API
 let todosLosProductos = [];
 
-// --- FUNCIONES DE RENDERIZADO Y LÓGICA ---
+// --- FUNCIONES DE UTILIDAD DE DATOS ---
 
 /**
- * Crea la estructura básica del modal para la vista del cliente.
+ * Mapea los productos si vienen en formato 'plano' (sin la propiedad 'lugar') 
+ * al formato anidado (con la propiedad 'lugar'), esperado por ambos scripts.
+ */
+function mapearProductoParaMenu(productoPlano) {
+    // Si ya tiene la estructura anidada, la devuelve.
+    if (productoPlano.lugar && productoPlano.lugar.nombre) {
+        return productoPlano; 
+    }
+
+    // Si viene plano, crea la estructura anidada 'lugar'
+    const lugar = {
+        NIT: productoPlano.NIT || '',
+        nombre: productoPlano.NOMBRE_LUGAR || productoPlano.nombreLugar || 'Lugar Desconocido',
+        tipo: productoPlano.tipo || '',
+        horario_atencion: productoPlano.horario || '', 
+        dias: productoPlano.dias || '',
+        ubicacion: productoPlano.ubicacion || '',
+        stock: productoPlano.stock ?? 0,
+        precio: productoPlano.precio ?? 0 
+    };
+    
+    // Retorna el producto con la información anidada
+    return {
+        ...productoPlano,
+        lugar: lugar,
+    };
+}
+
+// --- FUNCIONES DE MODAL Y DETALLE ---
+
+/**
+ * Crea la estructura básica del modal (VENTANA EMERGENTE).
  */
 function crearModal(titulo, contenidoHTML) {
-    // Eliminar cualquier modal existente antes de crear uno nuevo
     document.querySelector('.modal')?.remove(); 
     
     const m = document.createElement('div');
     m.classList.add('modal', 'activo');
     
+    // Estructura del modal de detalles completo
     m.innerHTML = `
         <div class="modal-contenido">
             <h2>${titulo}</h2>
@@ -36,10 +66,7 @@ function crearModal(titulo, contenidoHTML) {
     
     document.body.appendChild(m);
     
-    // Listener para cerrar el modal con el botón
     m.querySelector('.btn-cerrar-modal')?.addEventListener('click', () => m.remove());
-    
-    // Listener para cerrar el modal al hacer clic fuera
     m.addEventListener('click', (e) => {
         if (e.target === m) {
             m.remove();
@@ -50,60 +77,50 @@ function crearModal(titulo, contenidoHTML) {
 
 /**
  * Muestra el modal con los detalles completos del producto y lugar.
- * (Esta función se mantiene con los detalles completos para el modal de "Más Información")
- * @param {Object} producto - El objeto de datos completo del producto.
+ * Utiliza la estructura anidada (producto.lugar) para la información.
  */
 function mostrarModalVerMas(producto) {
-    const productoDetalles = {
-        nombreProducto: producto.nombreProducto || 'N/A',
-        descripcion: producto.descripcion || 'Sin descripción',
-        tipo_menu: producto.tipo_menu || 'N/A',
-        precio: producto.precio ?? 'N/A',
-        estado: producto.estado || 'Disponible',
-        lugar: {
-            NIT: producto.NIT || 'N/A',
-            nombre: producto.NOMBRE_LUGAR || 'Lugar Desconocido',
-            tipo: producto.tipo || 'N/A',
-            horario_atencion: producto.horario || 'N/A',
-            dias: producto.dias || 'N/A',
-            ubicacion: producto.ubicacion || 'N/A',
-        }
-    };
+    // Asume la estructura anidada: producto.lugar
+    const lugarDetalles = producto.lugar || {}; 
+    const precioParaMostrar = lugarDetalles.precio ?? producto.precio ?? 0;
+    const estado = (lugarDetalles.stock ?? 0) > 0 ? 'Disponible' : 'No disponible';
     
     const precioFormateado = new Intl.NumberFormat('es-CO', {
         style: 'currency',
         currency: 'COP',
         minimumFractionDigits: 0
-    }).format(productoDetalles.precio ?? 0);
+    }).format(precioParaMostrar);
     
     const contenido = `
         <h3>📜 Información del producto</h3>
-        <p><strong>Nombre:</strong> ${productoDetalles.nombreProducto}</p>
-        <p><strong>Descripción:</strong> ${productoDetalles.descripcion}</p>
-        <p><strong>Tipo:</strong> ${productoDetalles.tipo_menu}</p>
+        <p><strong>Nombre:</strong> ${producto.nombreProducto || 'N/A'}</p>
+        <p><strong>Descripción:</strong> ${producto.descripcion || 'Sin descripción'}</p>
+        <p><strong>Tipo:</strong> ${producto.tipo_menu || 'N/A'}</p>
         <p><strong>Precio:</strong> ${precioFormateado}</p>
-        <p><strong>Estado:</strong> ${productoDetalles.estado}</p>
+        <p><strong>Estado:</strong> ${estado}</p>
 
         <hr style="margin:10px 0;">
 
         <h3>📍 Información del lugar</h3>
-        <p><strong>NIT:</strong> ${productoDetalles.lugar.NIT}</p>
-        <p><strong>Nombre:</strong> ${productoDetalles.lugar.nombre}</p>
-        <p><strong>Tipo:</strong> ${productoDetalles.lugar.tipo}</p>
-        <p><strong>Horario:</strong> ${productoDetalles.lugar.horario_atencion}</p>
-        <p><strong>Días:</strong> ${productoDetalles.lugar.dias}</p>
-        <p><strong>Ubicación:</strong> ${productoDetalles.lugar.ubicacion}</p>
+        <p><strong>NIT:</strong> ${lugarDetalles.NIT || 'N/A'}</p>
+        <p><strong>Nombre:</strong> ${lugarDetalles.nombre || 'Lugar Desconocido'}</p>
+        <p><strong>Tipo:</strong> ${lugarDetalles.tipo || 'N/A'}</p>
+        <p><strong>Horario:</strong> ${lugarDetalles.horario_atencion || lugarDetalles.horario || 'N/A'}</p>
+        <p><strong>Días:</strong> ${lugarDetalles.dias || 'N/A'}</p>
+        <p><strong>Ubicación:</strong> ${lugarDetalles.ubicacion || 'N/A'}</p>
     `;
     
     crearModal('Detalles del producto', contenido);
 }
 
+// --- FUNCIONES DE RENDERIZADO, LÓGICA Y CARGA ---
 
 /**
- * Función para pintar las tarjetas de productos en el HTML. (AJUSTADA)
+ * Función para pintar las tarjetas de productos en el HTML.
+ * Utiliza la estructura anidada (producto.lugar) para precio y nombre del lugar.
  */
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
-    listaProductos.innerHTML = ""; // Limpiar antes de pintar
+    listaProductos.innerHTML = ""; 
 
     if (productos.length === 0) {
         listaProductos.innerHTML = `<p class="sin-resultados">No se encontraron resultados para: <strong>${filtroAplicado}</strong>.</p>`;
@@ -111,62 +128,69 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
     }
 
     productos.forEach(producto => {
-        const nombreLugar = producto.NOMBRE_LUGAR || 'Lugar Desconocido';
+        // Usa la estructura anidada producto.lugar
+        const nombreLugar = producto.lugar?.nombre || 'Lugar Desconocido';
+        const precioDelLugar = producto.lugar?.precio ?? producto.precio ?? 0;
+        
         const tarjeta = document.createElement('div');
         tarjeta.classList.add('tarjeta');
         
+        // Se almacena el objeto completo con la estructura anidada para el modal.
         const productoData = JSON.stringify(producto);
 
         const precioFormateado = new Intl.NumberFormat('es-CO', {
             style: 'currency',
             currency: 'COP',
             minimumFractionDigits: 0
-        }).format(producto.precio ?? 0);
+        }).format(precioDelLugar);
         
         const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
 
-        // ESTE ES EL HTML AJUSTADO PARA SER MINIMALISTA
         tarjeta.innerHTML = `
-            <img src="${imgSrc}" alt="${producto.nombreProducto}">
+            <img src="${imgSrc}" alt="${producto.nombreProducto}" onerror="this.onerror=null;this.src='https://via.placeholder.com/220x150'">
+            
             <div class="info">
-                <h3>${producto.nombreProducto}</h3>
+                <div class="nombre-y-accion">
+                    <h3>${producto.nombreProducto}</h3>
+                    <div class="acciones-tarjeta">
+                        <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
+                        <div class="menu-opciones">
+                            <button class="detalles-btn" data-producto='${productoData}'>Más Información</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <p class="precio">${precioFormateado}</p>
                 <p class="lugar">${nombreLugar}</p> 
             </div>
-            <div class="acciones-tarjeta">
-                <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
-                <div class="menu-opciones">
-                    <button class="detalles-btn" data-producto='${productoData}'>Más Información</button>
-                </div>
-            </div>
         `;
-        
-        // Lógica para registrar consulta al hacer clic (Mantenida)
-        tarjeta.addEventListener('click', async () => { /* ... tu lógica de registro ... */ });
         
         listaProductos.appendChild(tarjeta);
     });
 
     try { lucide.createIcons(); } catch(e) {}
     
-    // LÓGICA: EVENTOS DE BOTONES DE TARJETA Y MODAL (MANTENIDA)
+    // LÓGICA: EVENTOS DE BOTONES DE TARJETA (3 PUNTOS y Más Información)
     document.querySelectorAll('.tarjeta').forEach(t => {
         const menuBtn = t.querySelector('.menu-btn');
         const menu = t.querySelector('.menu-opciones');
         
-        // 1. Mostrar/Ocultar Menú (puntos verticales)
+        // 1. Mostrar/Ocultar Menú (al hacer clic en los 3 puntos)
         menuBtn?.addEventListener('click', e => {
             e.stopPropagation();
-            document.querySelectorAll('.menu-opciones').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+            // Cierra otros menús antes de abrir el actual
+            document.querySelectorAll('.menu-opciones').forEach(m => { 
+                if (m !== menu) m.classList.remove('show'); 
+            });
             menu?.classList.toggle('show');
         });
 
-        // 2. Listener para "Más Información"
+        // 2. Listener para el botón "Más Información"
         t.querySelector('.detalles-btn')?.addEventListener('click', e => { 
             e.stopPropagation(); 
             const productoData = JSON.parse(e.target.dataset.producto);
             mostrarModalVerMas(productoData); 
-            menu?.classList.remove('show');
+            menu?.classList.remove('show'); 
         });
     });
 
@@ -175,86 +199,120 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
 }
 
 /**
+ * Carga los productos desde el servidor y aplica el mapeo.
+ */
+async function cargarProductos() {
+    try {
+        const res = await fetch(`${API_URL}/api/productos`, { cache: "no-store" });
+        if (!res.ok) throw new Error('Error al cargar productos');
+        
+        const productos = await res.json();
+        if (!Array.isArray(productos)) throw new Error('Formato de datos incorrecto');
+        
+        // APLICA EL MAPEO: Transforma los datos al formato anidado si es necesario.
+        todosLosProductos = productos.map(p => mapearProductoParaMenu(p));
+        
+        aplicarFiltros(); // Renderiza la vista inicial con todos los productos
+    } catch (err) {
+        console.error('❌ Error cargando productos, usando datos simulados:', err);
+        
+        // SIMULACIÓN DE DATOS con la estructura anidada esperada (similar a admin.js)
+        todosLosProductos = [
+            { 
+                nombreProducto: 'Desayuno UAM', 
+                descripcion: 'Huevos, café y pan.', 
+                tipo_menu: 'desayuno', 
+                codigo: 'DES001',
+                estado: 'Disponible', 
+                imagen: null, 
+                lugar: { 
+                    nombre: 'Cafetería UAM', 
+                    NIT: '900123456', 
+                    tipo: 'Cafetería', 
+                    horario_atencion: '7:00-16:00', 
+                    dias: 'Lun-Vie', 
+                    ubicacion: 'Bloque A', 
+                    stock: 10, 
+                    precio: 12000 
+                } 
+            },
+            { 
+                nombreProducto: 'Almuerzo Ejecutivo', 
+                descripcion: 'Sopa, seco y jugo.', 
+                tipo_menu: 'almuerzo', 
+                codigo: 'ALM002',
+                estado: 'Disponible', 
+                imagen: null, 
+                lugar: { 
+                    nombre: 'Restaurante Central', 
+                    NIT: '900654321', 
+                    tipo: 'Restaurante', 
+                    horario_atencion: '12:00-14:00', 
+                    dias: 'Lun-Vie', 
+                    ubicacion: 'Bloque C', 
+                    stock: 50, 
+                    precio: 15000 
+                } 
+            }
+        ];
+        aplicarFiltros(); 
+    }
+}
+
+/**
  * Aplica los filtros (Menú y Búsqueda) y llama al renderizado.
+ * ✅ CORRECCIÓN: Se ajusta la lógica de 'includes' para manejar plurales/singulares.
  */
 function aplicarFiltros() {
-    // 1. Obtener filtros activos
     const filtroActivoBtn = document.querySelector('.filtro-btn.activo');
     const filtroMenu = filtroActivoBtn ? filtroActivoBtn.textContent.trim() : 'Todos';
     const textoBusqueda = inputBuscador.value.trim().toLowerCase();
     
-    // 2. Filtrar por menú (categoría)
     let productosFiltrados = todosLosProductos;
     
-    if (filtroMenu.toLowerCase() !== 'todos') {
-        const tipoDeseado = filtroMenu.toLowerCase();
+    // Filtrado por tipo de menú
+    if (filtroMenu.toLowerCase() !== 'todos' && filtroMenu.toLowerCase() !== 'menú') {
+        
+        const tipoDeseado = filtroMenu.toLowerCase(); 
         
         productosFiltrados = productosFiltrados.filter(producto => {
+            
             const tipoProducto = (producto.tipo_menu || '').toLowerCase();
             
-            if (tipoDeseado === 'desayunos' && tipoProducto.includes('desayuno')) return true;
-            if (tipoDeseado === 'almuerzos' && tipoProducto.includes('almuerzo')) return true;
-            if (tipoDeseado === 'bebidas' && tipoProducto.includes('bebida')) return true;
-            if (tipoDeseado === 'otros' && (tipoProducto.includes('otro') || tipoProducto.includes('varios') || tipoProducto === '')) return true;
-            
-            return tipoProducto === tipoDeseado; 
+            // Lógica corregida: Si el texto del producto ('desayuno') está incluido en el botón ('desayunos'), o viceversa.
+            return tipoProducto.includes(tipoDeseado) || tipoDeseado.includes(tipoProducto);
         });
     }
     
-    // 3. Filtrar por búsqueda de texto
+    // Filtrado por búsqueda de texto
     if (textoBusqueda) {
-        productosFiltrados = productosFiltrados.filter(producto => {
-            const nombre = producto.nombreProducto ? producto.nombreProducto.toLowerCase() : '';
-            const descripcion = producto.descripcion ? producto.descripcion.toLowerCase() : '';
-            return nombre.includes(textoBusqueda) || descripcion.includes(textoBusqueda);
-        });
+        productosFiltrados = productosFiltrados.filter(p => 
+            (p.nombreProducto || '').toLowerCase().includes(textoBusqueda) || 
+            (p.descripcion || '').toLowerCase().includes(textoBusqueda) ||
+            (p.lugar?.nombre || '').toLowerCase().includes(textoBusqueda) 
+        );
     }
-
-    const filtroMostrado = textoBusqueda ? `"${textoBusqueda}"` : filtroMenu;
-    renderizarProductos(productosFiltrados, filtroMostrado);
+    
+    // Renderiza los productos que cumplen ambos filtros
+    renderizarProductos(productosFiltrados, filtroActivoBtn?.textContent.trim() || 'resultados');
 }
-
-
-// === FUNCIÓN PRINCIPAL: CARGAR PRODUCTOS INICIALMENTE ===
-async function cargarDatosIniciales() {
-    try {
-        listaProductos.innerHTML = '<p class="cargando">Cargando productos...</p>';
-        
-        const res = await fetch(`${API_URL}/api/productos`);
-        todosLosProductos = await res.json();
-        
-        aplicarFiltros(); 
-        
-    } catch (error) {
-        console.error('❌ Error al cargar productos iniciales:', error);
-        listaProductos.innerHTML = "<p>Hubo un problema al cargar los productos. Por favor, verifica tu conexión.</p>";
-    }
-}
-
 
 // --- EVENT LISTENERS ---
 
-// 1. EVENTO DE FILTRO POR TIPO DE MENÚ
-botonesFiltro.forEach(boton => {
-    boton.addEventListener('click', () => {
+// Filtros de menú
+botonesFiltro.forEach(btn => {
+    btn.addEventListener('click', () => {
         botonesFiltro.forEach(b => b.classList.remove('activo'));
-        boton.classList.add('activo');
+        btn.classList.add('activo');
         aplicarFiltros();
     });
 });
 
-// 2. EVENTO DE BÚSQUEDA
+// Buscador
 inputBuscador?.addEventListener('keyup', aplicarFiltros);
-inputBuscador?.addEventListener('change', aplicarFiltros);
 
-// 3. CERRAR SESIÓN
-if (btnCerrar) {
-    btnCerrar.addEventListener('click', () => {
-        localStorage.removeItem('usuario_num');
-        window.location.href = 'usuario.html';
-    });
-}
 
+<<<<<<< HEAD
 
 
 
@@ -316,3 +374,16 @@ document.addEventListener("click", (event) => {
 cargarNotificaciones();
 
 });
+=======
+// Carga inicial al cargar el DOM
+document.addEventListener('DOMContentLoaded', () => {
+    console.info('[menu.js] DOM listo');
+    cargarProductos();
+    
+    // Lógica para cerrar la sesión (si existe un botón de cerrar)
+    btnCerrar?.addEventListener('click', () => {
+        alert('Simulación: Cerrando sesión...');
+        // Aquí iría el código real para cerrar la sesión (ej: limpiar tokens, redirigir)
+    });
+});
+>>>>>>> 05d428526d1af14fa072a151f51880e2416af733
