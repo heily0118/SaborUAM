@@ -77,7 +77,8 @@ body {
     font-size: 16px;
     font-weight: bold;
     border: none;
-    padding: 12px 25px;
+    /* CAMBIO CLAVE 1: Reducimos el padding vertical a 10px */
+    padding: 10px 25px; 
     border-radius: 8px;
     cursor: pointer;
     transition: 0.3s;
@@ -86,6 +87,7 @@ body {
 .btn-login {
     background-color: white;
     color: #004aad;
+    /* CAMBIO CLAVE 2: Mantenemos el border, pero ahora el padding hace que la altura coincida con .btn-registrar */
     border: 2px solid #004aad;
 }
 
@@ -119,7 +121,6 @@ body {
     position: relative;
     animation: aparecer 0.3s ease;
     
-    /* Necesario para alinear los botones del modal */
     display: flex; 
     flex-direction: column;
 }
@@ -150,16 +151,16 @@ body {
     margin-top: 5px;
 }
 
-/* Nota: La clase .acciones se usa en el header, no la usamos en el modal para centrar el botón Entrar */
-
+/* El padding de .btn-registrar ya era 10px 25px */
 .btn-registrar {
     background: #d4af37;
     color: white;
     font-weight: 600;
     border: none;
-    padding: 10px 25px;
+    padding: 10px 25px; 
     border-radius: 8px;
     cursor: pointer;
+    margin-top: 20px; 
 }
 
 .btn-registrar:hover {
@@ -182,25 +183,22 @@ body {
     color: #d4af37;
 }
 
-/* === ESTILOS PARA EL BOTÓN DE ENTRAR EN EL MODAL DE LOGIN (AZUL y CENTRADO) === */
-.modal-contenido input[type="submit"], 
-.modal-contenido .btn-entrar-modal {
+/* === ESTILO PARA EL BOTÓN 'ENTRAR' EN EL MODAL DE LOGIN (AZUL - Mantenido) === */
+.btn-entrar {
     width: auto; 
-    background-color: #004aad; 
-    color: white;
+    background-color: #004aad !important; 
+    color: white !important; 
     font-weight: bold;
     border: none;
     padding: 10px 30px;
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    display: block;
-    margin: 15px auto 0 auto; /* Centra el botón */
+    display: inline-block;
 }
 
-.modal-contenido input[type="submit"]:hover,
-.modal-contenido .btn-entrar-modal:hover {
-    background-color: #005c99; 
+.btn-entrar:hover {
+    background-color: #005c99 !important; 
 }
 
 
@@ -315,7 +313,7 @@ body {
 /* === ESTILOS PARA EL MODAL DE DETALLES PRODUCTO === */
 /* ================================================= */
 
-/* Estilo para el botón de cerrar del modal de DETALLES (Azul y a la izquierda) */
+/* Estilo para el botón de cerrar del modal de DETALLES (Azul y a la izquierda - Mantenido) */
 .btn-cerrar-modal {
     padding: 10px 20px;
     border: none;
@@ -323,18 +321,16 @@ body {
     cursor: pointer;
     margin-top: 20px; 
     
-    /* Alineación a la izquierda (corregido) */
-    align-self: flex-start; 
+    align-self: flex-start !important; 
 
-    /* Colores */
-    background-color: #005c99; 
-    color: white;
+    background-color: #005c99 !important; 
+    color: white !important;
     font-weight: bold;
     transition: background-color 0.2s;
 }
 
 .btn-cerrar-modal:hover {
-    background-color: #004a7a; 
+    background-color: #004a7a !important; 
 }
 
 
@@ -342,7 +338,6 @@ body {
 /* === ESTILOS PARA LA DISPONIBILIDAD (STOCK) === */
 /* ============================================= */
 
-/* Contenedor del estado (la palabra 'Disponible' o 'No disponible') */
 .disponibilidad {
     font-weight: bold;
     font-size: 0.9em;
@@ -350,15 +345,15 @@ body {
     border-radius: 4px;
     display: inline-block;
     margin-top: 5px;
-    background-color: transparent; /* Sin color de fondo */
+    background-color: transparent; 
 }
 
-/* Estilo para "Disponible" (Amarillo) */
+/* Estilo para "Disponible" (Amarillo - Mantenido) */
 .estado-disponible {
-    color: #ffc107; /* Amarillo/Dorado solicitado */
+    color: #ffc107; 
 }
 
-/* Estilo para "No disponible" (Gris) */
+/* Estilo para "No disponible" (Gris - Mantenido) */
 .estado-no-disponible {
-    color: #6c757d; /* Gris oscuro solicitado */
+    color: #6c757d; 
 }
