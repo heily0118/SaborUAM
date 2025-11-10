@@ -1,9 +1,10 @@
-// menu.js
+// Archivo: frontend/js/menu.js
 
-// === CONFIGURACIÓN BASE ===
-const API_URL = "http://localhost:3000";
+// Configuracion base
+const API_URL = "http://localhost:3000"; // Dirección base del backend local
 
-// === SELECCIÓN DE ELEMENTOS ===
+
+// Selecion de elementos del dom
 const listaProductos = document.getElementById('lista-productos');
 const botonesFiltro = document.querySelectorAll('.filtro-btn');
 const btnCerrar = document.getElementById('btn-cerrar');
@@ -12,21 +13,22 @@ const btnNotificaciones = document.getElementById('btn-notificaciones');
 const listaNotificaciones = document.getElementById('lista-notificaciones');
 const contadorNotificaciones = document.getElementById('contador-notificaciones');
 
-let todosLosProductos = [];
+let todosLosProductos = []; // Variable global para almacenar los productos cargados
 
-// --- FUNCIONES DE UTILIDAD DE DATOS ---
 
 /**
- * Mapea los productos si vienen en formato 'plano' (sin la propiedad 'lugar') 
- * al formato anidado (con la propiedad 'lugar'), esperado por ambos scripts.
+ * Mapea un producto recibido desde el backend (en formato plano)
+ * al formato anidado esperado por el frontend.
+ * Si el producto ya tiene la propiedad 'lugar', simplemente la devuelve.
+ * 
+ * @param {Object} productoPlano - Producto recibido del servidor.
+ * @returns {Object} Producto con estructura anidada (producto.lugar).
  */
 function mapearProductoParaMenu(productoPlano) {
-    // Si ya tiene la estructura anidada, la devuelve.
     if (productoPlano.lugar && productoPlano.lugar.nombre) {
         return productoPlano; 
     }
 
-    // Si viene plano, crea la estructura anidada 'lugar'
     const lugar = {
         NIT: productoPlano.NIT || '',
         nombre: productoPlano.NOMBRE_LUGAR || productoPlano.nombreLugar || 'Lugar Desconocido',
@@ -38,25 +40,25 @@ function mapearProductoParaMenu(productoPlano) {
         precio: productoPlano.precio ?? 0 
     };
     
-    // Retorna el producto con la información anidada
-    return {
-        ...productoPlano,
-        lugar: lugar,
-    };
+    return { ...productoPlano, lugar };
 }
 
-// --- FUNCIONES DE MODAL Y DETALLE ---
+
 
 /**
- * Crea la estructura básica del modal (VENTANA EMERGENTE).
+ * Crea un modal genérico (ventana emergente) con un título y contenido HTML.
+ * También permite cerrarlo haciendo clic fuera del contenido.
+ * 
+ * @param {string} titulo - Título del modal.
+ * @param {string} contenidoHTML - Contenido HTML que se mostrará dentro del modal.
+ * @returns {HTMLElement} - El elemento del modal creado.
  */
 function crearModal(titulo, contenidoHTML) {
-    document.querySelector('.modal')?.remove(); 
+    document.querySelector('.modal')?.remove(); // Elimina modales previos
     
     const m = document.createElement('div');
     m.classList.add('modal', 'activo');
     
-    // Estructura del modal de detalles completo
     m.innerHTML = `
         <div class="modal-contenido">
             <h2>${titulo}</h2>
@@ -65,26 +67,24 @@ function crearModal(titulo, contenidoHTML) {
         </div>`;
     
     document.body.appendChild(m);
-    
+
+    // Eventos de cierre del modal
     m.querySelector('.btn-cerrar-modal')?.addEventListener('click', () => m.remove());
-    m.addEventListener('click', (e) => {
-        if (e.target === m) {
-            m.remove();
-        }
-    });
+    m.addEventListener('click', (e) => { if (e.target === m) m.remove(); });
     return m;
 }
 
+
 /**
- * Muestra el modal con los detalles completos del producto y lugar.
- * ✅ Ahora muestra el estado de disponibilidad basado en el stock.
+ * Muestra un modal con todos los detalles de un producto y su lugar asociado.
+ * También calcula el estado de disponibilidad según el stock.
+ * 
+ * @param {Object} producto - Objeto del producto con su información completa.
  */
 function mostrarModalVerMas(producto) {
-    // Asume la estructura anidada: producto.lugar
     const lugarDetalles = producto.lugar || {}; 
     const precioParaMostrar = lugarDetalles.precio ?? producto.precio ?? 0;
     
-    // Obtener stock y determinar estado
     const stockActual = lugarDetalles.stock ?? 0;
     const estado = stockActual > 0 ? 'Disponible' : 'No disponible';
     
@@ -116,26 +116,30 @@ function mostrarModalVerMas(producto) {
     crearModal('Detalles del producto', contenido);
 }
 
-// --- FUNCIONES DE RENDERIZADO, LÓGICA Y CARGA ---
+
+
 
 /**
- * Función para pintar las tarjetas de productos en el HTML.
- * ✅ CORRECCIÓN: Se ajusta la estructura HTML para mostrar "Estado:" y aplicar la clase de color solo al estado.
+ * Renderiza las tarjetas de productos dentro del contenedor principal.
+ * Aplica estilos de estado ("disponible" o "no disponible").
+ * 
+ * @param {Array} productos - Lista de productos a mostrar.
+ * @param {string} filtroAplicado - Texto del filtro o categoría actual.
  */
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
     listaProductos.innerHTML = ""; 
 
+    // Si no hay productos, muestra mensaje
     if (productos.length === 0) {
         listaProductos.innerHTML = `<p class="sin-resultados">No se encontraron resultados para: <strong>${filtroAplicado}</strong>.</p>`;
         return;
     }
 
+    // Crear una tarjeta por producto
     productos.forEach(producto => {
-        // Usa la estructura anidada producto.lugar
         const nombreLugar = producto.lugar?.nombre || 'Lugar Desconocido';
         const precioDelLugar = producto.lugar?.precio ?? producto.precio ?? 0;
 
-        // Determinar estado basado en el stock
         const stockActual = producto.lugar?.stock ?? 0;
         const estado = stockActual > 0 ? 'Disponible' : 'No disponible';
         const estadoClase = stockActual > 0 ? 'estado-disponible' : 'estado-no-disponible';
@@ -144,7 +148,6 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         tarjeta.classList.add('tarjeta');
         
         const productoData = JSON.stringify(producto);
-
         const precioFormateado = new Intl.NumberFormat('es-CO', {
             style: 'currency',
             currency: 'COP',
@@ -153,6 +156,7 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         
         const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
 
+        // Estructura HTML de la tarjeta
         tarjeta.innerHTML = `
             <img src="${imgSrc}" alt="${producto.nombreProducto}" onerror="this.onerror=null;this.src='https://via.placeholder.com/220x150'">
             
@@ -176,13 +180,15 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         listaProductos.appendChild(tarjeta);
     });
 
+    // Actualiza iconos (usando librería Lucide)
     try { lucide.createIcons(); } catch(e) {}
-    
-    // LÓGICA: EVENTOS DE BOTONES DE TARJETA (3 PUNTOS y Más Información)
+
+    // === EVENTOS DE CADA TARJETA ===
     document.querySelectorAll('.tarjeta').forEach(t => {
         const menuBtn = t.querySelector('.menu-btn');
         const menu = t.querySelector('.menu-opciones');
         
+        // Abre/cierra el menú contextual (tres puntos)
         menuBtn?.addEventListener('click', e => {
             e.stopPropagation();
             document.querySelectorAll('.menu-opciones').forEach(m => { 
@@ -191,6 +197,7 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
             menu?.classList.toggle('show');
         });
 
+        // Abre el modal de detalles
         t.querySelector('.detalles-btn')?.addEventListener('click', e => { 
             e.stopPropagation(); 
             const productoData = JSON.parse(e.target.dataset.producto);
@@ -199,11 +206,14 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         });
     });
 
+    // Cierra todos los menús al hacer clic fuera
     document.addEventListener('click', () => document.querySelectorAll('.menu-opciones').forEach(m => m.classList.remove('show')));
 }
 
+
 /**
- * Carga los productos desde el servidor y aplica el mapeo.
+ * Carga los productos desde el servidor y aplica el mapeo al formato correcto.
+ * Si ocurre un error, genera datos simulados para mostrar ejemplos.
  */
 async function cargarProductos() {
     try {
@@ -213,76 +223,40 @@ async function cargarProductos() {
         const productos = await res.json();
         if (!Array.isArray(productos)) throw new Error('Formato de datos incorrecto');
         
-        // APLICA EL MAPEO: Transforma los datos al formato anidado si es necesario.
         todosLosProductos = productos.map(p => mapearProductoParaMenu(p));
-        
-        aplicarFiltros(); // Renderiza la vista inicial con todos los productos
+        aplicarFiltros(); // Renderiza la vista inicial
     } catch (err) {
-        console.error('❌ Error cargando productos, usando datos simulados:', err);
+        console.error('Error cargando productos, usando datos simulados:', err);
         
-        // SIMULACIÓN DE DATOS con la estructura anidada esperada 
+        // Datos de ejemplo en caso de fallo del servidor
         todosLosProductos = [
             { 
                 nombreProducto: 'Desayuno UAM', 
                 descripcion: 'Huevos, café y pan.', 
                 tipo_menu: 'desayuno', 
-                codigo: 'DES001',
-                estado: 'Disponible', 
-                imagen: null, 
-                lugar: { 
-                    nombre: 'Cafetería UAM', 
-                    NIT: '900123456', 
-                    tipo: 'Cafetería', 
-                    horario_atencion: '7:00-16:00', 
-                    dias: 'Lun-Vie', 
-                    ubicacion: 'Bloque A', 
-                    stock: 10, // Stock disponible
-                    precio: 12000 
-                } 
+                lugar: { nombre: 'Cafetería UAM', stock: 10, precio: 12000 }
             },
             { 
                 nombreProducto: 'Sandwich de Queso', 
                 descripcion: 'Ideal para la tarde.', 
                 tipo_menu: 'onces', 
-                codigo: 'ONC003',
-                estado: 'Agotado', 
-                imagen: null, 
-                lugar: { 
-                    nombre: 'Snack Rápido', 
-                    NIT: '900777888', 
-                    tipo: 'Snack', 
-                    horario_atencion: '8:00-18:00', 
-                    dias: 'Lun-Sab', 
-                    ubicacion: 'Cerca a la Biblioteca', 
-                    stock: 0, // Stock agotado
-                    precio: 5000 
-                } 
+                lugar: { nombre: 'Snack Rápido', stock: 0, precio: 5000 }
             },
             { 
                 nombreProducto: 'Almuerzo Ejecutivo', 
                 descripcion: 'Sopa, seco y jugo.', 
                 tipo_menu: 'almuerzo', 
-                codigo: 'ALM002',
-                estado: 'Disponible', 
-                imagen: null, 
-                lugar: { 
-                    nombre: 'Restaurante Central', 
-                    NIT: '900654321', 
-                    tipo: 'Restaurante', 
-                    horario_atencion: '12:00-14:00', 
-                    dias: 'Lun-Vie', 
-                    ubicacion: 'Bloque C', 
-                    stock: 50, 
-                    precio: 15000 
-                } 
+                lugar: { nombre: 'Restaurante Central', stock: 50, precio: 15000 }
             }
         ];
         aplicarFiltros(); 
     }
 }
 
+
 /**
- * Aplica los filtros (Menú y Búsqueda) y llama al renderizado.
+ * Aplica los filtros seleccionados y el texto de búsqueda
+ * para mostrar solo los productos que coincidan.
  */
 function aplicarFiltros() {
     const filtroActivoBtn = document.querySelector('.filtro-btn.activo');
@@ -291,20 +265,16 @@ function aplicarFiltros() {
     
     let productosFiltrados = todosLosProductos;
     
-    // Filtrado por tipo de menú (manejo de plurales/singulares)
+    // Filtro por tipo de menú
     if (filtroMenu.toLowerCase() !== 'todos' && filtroMenu.toLowerCase() !== 'menú') {
-        
         const tipoDeseado = filtroMenu.toLowerCase(); 
-        
         productosFiltrados = productosFiltrados.filter(producto => {
-            
             const tipoProducto = (producto.tipo_menu || '').toLowerCase();
-            
             return tipoProducto.includes(tipoDeseado) || tipoDeseado.includes(tipoProducto);
         });
     }
     
-    // Filtrado por búsqueda de texto
+    // Filtro por búsqueda de texto
     if (textoBusqueda) {
         productosFiltrados = productosFiltrados.filter(p => 
             (p.nombreProducto || '').toLowerCase().includes(textoBusqueda) || 
@@ -313,13 +283,11 @@ function aplicarFiltros() {
         );
     }
     
-    // Renderiza los productos que cumplen ambos filtros
     renderizarProductos(productosFiltrados, filtroActivoBtn?.textContent.trim() || 'resultados');
 }
 
-// --- EVENT LISTENERS ---
 
-// Filtros de menú
+// Evento para botones de filtro
 botonesFiltro.forEach(btn => {
     btn.addEventListener('click', () => {
         botonesFiltro.forEach(b => b.classList.remove('activo'));
@@ -328,16 +296,15 @@ botonesFiltro.forEach(btn => {
     });
 });
 
-// Buscador
+// Evento del buscador
 inputBuscador?.addEventListener('keyup', aplicarFiltros);
 
-
-// Carga inicial al cargar el DOM
+// Carga inicial del menú
 document.addEventListener('DOMContentLoaded', () => {
     console.info('[menu.js] DOM listo');
     cargarProductos();
-    
-    // Lógica para cerrar la sesión (si existe un botón de cerrar)
+
+    // Lógica de cierre de sesión
     btnCerrar?.addEventListener('click', () => {
         alert('Simulación: Cerrando sesión...');
     });

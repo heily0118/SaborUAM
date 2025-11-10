@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
       !contrasena
     ) {
       alert('Por favor completa todos los campos.');
-      return; // Detiene la ejecución si falta algún campo
+      return; // Se detiene la ejecución si falta algún campo
     }
 
     try {
