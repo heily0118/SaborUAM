@@ -301,14 +301,32 @@ body {
 }
 
 /* ==================================================== */
-/* === ESTILOS PARA EL MENÚ DESPLEGABLE DE LA TARJETA === */
+/* === ESTILOS ESPECÍFICOS PARA LA TARJETA DEL MENÚ === */
 /* ==================================================== */
 
-/* Posicionamiento para el menú (puntos verticales) */
+/* Contenedor que alinea el nombre (h3) y el menú de 3 puntos (acciones-tarjeta) */
+.nombre-y-accion {
+    display: flex;
+    justify-content: space-between; /* Empuja el nombre a la izquierda y la acción a la derecha */
+    align-items: center; /* Centra verticalmente */
+    margin-bottom: 5px;
+    position: relative; /* Importante para el posicionamiento del menú */
+}
+
+.nombre-y-accion h3 {
+    margin: 0;
+    /* Evita que el texto sea muy largo y empuje el botón */
+    flex-grow: 1; 
+    padding-right: 10px; 
+    font-size: 1.1em;
+}
+
+/* Contenedor de los 3 puntos, lo posicionamos relativo al .nombre-y-accion */
 .acciones-tarjeta {
-    position: absolute; /* Permite posicionar el menú dentro de la tarjeta */
-    top: 5px;
-    right: 5px;
+    position: static; /* Volver al flujo normal, ya que el flexbox lo posiciona */
+    /* Asegura que no tenga márgenes/padding extraños si ya tenías estilos */
+    top: auto; 
+    right: auto;
     z-index: 10;
 }
 
@@ -318,21 +336,22 @@ body {
     border: none;
     padding: 5px;
     cursor: pointer;
-    color: #005c99; /* Color azul */
+    color: #005c99; 
+    line-height: 1; /* Para centrar bien el icono */
 }
 
 /* Contenedor del menú desplegable */
 .menu-opciones {
     position: absolute;
-    top: 30px; /* Debajo del botón de 3 puntos */
+    top: 100%; /* Justo debajo de la línea del nombre (dentro de .nombre-y-accion) */
     right: 0;
     width: 150px;
     background-color: white;
-    border: 1px solid #d4af37; /* Borde dorado */
+    border: 1px solid #d4af37;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: none; /* Oculto por defecto */
-    z-index: 20; /* Asegura que esté por encima de otros elementos */
+    display: none; 
+    z-index: 20; 
     padding: 5px 0;
 }
 
@@ -357,13 +376,9 @@ body {
     background-color: #f0f0f0;
 }
 
-
-/* ==================================================== */
-/* === ESTILOS PARA EL MODAL (VENTANA EMERGENTE) === */
-/* ==================================================== */
-
-/* Fondo oscuro y centrado del modal */
+/* Estilos para el MODAL (Ventana Emergente de Detalles) - MANTENER */
 .modal {
+    /* ... (todos los estilos del modal deben ir aquí) ... */
     position: fixed;
     top: 0;
     left: 0;
@@ -376,57 +391,11 @@ body {
     z-index: 1000;
 }
 
-/* Contenido del modal (la tarjeta de detalles) */
 .modal-contenido {
+    /* ... (estilos de la caja del modal) ... */
     background-color: white;
     padding: 30px;
     border-radius: 12px;
     width: 90%;
     max-width: 500px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    text-align: left;
-    position: relative;
-}
-
-.modal-contenido h2 {
-    color: #005c99;
-    border-bottom: 2px solid #d4af37;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
-
-.modal-contenido h3 {
-    color: #005c99;
-    margin-top: 15px;
-    font-size: 1.1em;
-}
-
-.modal-contenido p {
-    margin: 5px 0;
-    line-height: 1.4;
-}
-
-/* Botón Cerrar (con el estilo amarillo del administrador) */
-.btn-cerrar-modal {
-    display: block;
-    width: 100%;
-    padding: 10px 20px;
-    margin-top: 20px;
-    background-color: #d4af37; /* Dorado */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-.btn-cerrar-modal:hover {
-    background-color: #b8860b;
-}
-
-/* Estilo para la tarjeta base (si no lo tienes) */
-.tarjeta {
-    position: relative; /* Esencial para que .acciones-tarjeta funcione */
-    /* ... otros estilos de la tarjeta (fondo blanco, borde dorado, etc.) */
 }

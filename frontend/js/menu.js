@@ -12,7 +12,6 @@ const btnNotificaciones = document.getElementById('btn-notificaciones');
 const listaNotificaciones = document.getElementById('lista-notificaciones');
 const contadorNotificaciones = document.getElementById('contador-notificaciones');
 
-// Almacenará la lista completa de la API
 let todosLosProductos = [];
 
 // --- FUNCIONES DE MODAL Y DETALLE ---
@@ -21,13 +20,12 @@ let todosLosProductos = [];
  * Crea la estructura básica del modal (VENTANA EMERGENTE).
  */
 function crearModal(titulo, contenidoHTML) {
-    // Eliminar cualquier modal existente antes de crear uno nuevo
     document.querySelector('.modal')?.remove(); 
     
     const m = document.createElement('div');
     m.classList.add('modal', 'activo');
     
-    // Usamos la estructura visual del modal de administrador
+    // Estructura del modal de detalles completo (similar a la vista de Administrador)
     m.innerHTML = `
         <div class="modal-contenido">
             <h2>${titulo}</h2>
@@ -37,7 +35,6 @@ function crearModal(titulo, contenidoHTML) {
     
     document.body.appendChild(m);
     
-    // Listener para cerrar el modal
     m.querySelector('.btn-cerrar-modal')?.addEventListener('click', () => m.remove());
     m.addEventListener('click', (e) => {
         if (e.target === m) {
@@ -48,8 +45,7 @@ function crearModal(titulo, contenidoHTML) {
 }
 
 /**
- * Muestra el modal con los detalles completos del producto y lugar, tal como en el administrador.
- * @param {Object} producto - El objeto de datos completo del producto.
+ * Muestra el modal con los detalles completos del producto y lugar.
  */
 function mostrarModalVerMas(producto) {
     const productoDetalles = {
@@ -60,7 +56,7 @@ function mostrarModalVerMas(producto) {
         precio: producto.precio ?? 'N/A',
         estado: producto.estado || 'Disponible',
         
-        // Información del Lugar (asumiendo que vienen anidados o con prefijo)
+        // Información del Lugar 
         lugar: {
             NIT: producto.NIT || 'N/A',
             nombre: producto.NOMBRE_LUGAR || 'Lugar Desconocido',
@@ -102,7 +98,7 @@ function mostrarModalVerMas(producto) {
 // --- FUNCIONES DE RENDERIZADO Y LÓGICA ---
 
 /**
- * Función para pintar las tarjetas de productos en el HTML (Estilo minimalista).
+ * Función para pintar las tarjetas de productos en el HTML (Estilo minimalista con menú interno).
  */
 function renderizarProductos(productos, filtroAplicado = 'Menú') {
     listaProductos.innerHTML = ""; 
@@ -127,30 +123,33 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         
         const imgSrc = producto.imagen ? `${API_URL}/uploads/${producto.imagen}` : 'https://via.placeholder.com/220x150';
 
-        // HTML minimalista para la tarjeta (como en image_eb4702.png)
         tarjeta.innerHTML = `
             <img src="${imgSrc}" alt="${producto.nombreProducto}">
+            
             <div class="info">
-                <h3>${producto.nombreProducto}</h3>
+                <div class="nombre-y-accion">
+                    <h3>${producto.nombreProducto}</h3>
+                    <div class="acciones-tarjeta">
+                        <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
+                        <div class="menu-opciones">
+                            <button class="detalles-btn" data-producto='${productoData}'>Más Información</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <p class="precio">${precioFormateado}</p>
                 <p class="lugar">${nombreLugar}</p> 
             </div>
-            <div class="acciones-tarjeta">
-                <button class="menu-btn"><i data-lucide="more-vertical"></i></button>
-                <div class="menu-opciones">
-                    <button class="detalles-btn" data-producto='${productoData}'>Más Información</button>
-                </div>
-            </div>
         `;
+        
+        tarjeta.addEventListener('click', async () => { /* ... tu lógica de registro ... */ });
         
         listaProductos.appendChild(tarjeta);
     });
 
     try { lucide.createIcons(); } catch(e) {}
     
-    // ==================================================
     // LÓGICA: EVENTOS DE BOTONES DE TARJETA (3 PUNTOS y Más Información)
-    // ==================================================
     document.querySelectorAll('.tarjeta').forEach(t => {
         const menuBtn = t.querySelector('.menu-btn');
         const menu = t.querySelector('.menu-opciones');
@@ -158,7 +157,6 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
         // 1. Mostrar/Ocultar Menú (al hacer clic en los 3 puntos)
         menuBtn?.addEventListener('click', e => {
             e.stopPropagation();
-            // Cierra otros menús abiertos para que solo uno esté visible
             document.querySelectorAll('.menu-opciones').forEach(m => { 
                 if (m !== menu) m.classList.remove('show'); 
             });
@@ -170,13 +168,15 @@ function renderizarProductos(productos, filtroAplicado = 'Menú') {
             e.stopPropagation(); 
             const productoData = JSON.parse(e.target.dataset.producto);
             mostrarModalVerMas(productoData); 
-            menu?.classList.remove('show'); // Oculta el menú después de abrir el modal
+            menu?.classList.remove('show'); 
         });
     });
 
     // 3. Cerrar cualquier menú al hacer clic en cualquier parte de la ventana
     document.addEventListener('click', () => document.querySelectorAll('.menu-opciones').forEach(m => m.classList.remove('show')));
 }
+
+// ... (El resto de funciones: aplicarFiltros, cargarDatosIniciales, y notificaciones se mantienen igual) ...
 
 /**
  * Aplica los filtros (Menú y Búsqueda) y llama al renderizado.
