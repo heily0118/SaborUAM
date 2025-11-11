@@ -377,3 +377,29 @@ body {
 .estado-no-disponible {
     color: #6c757d; 
 }
+/* ======== PIE DE PÁGINA ======== */
+.footer {
+  background-color: #ffffff;  /* Fondo blanco */
+  color: #333;               /* Texto oscuro */
+  padding: 25px 15px;
+  text-align: center;
+  margin-top: 60px;
+  font-size: 15px;
+}
+
+.footer a {
+  color: #d4af37;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.footer .copy {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #555;
+}
+
