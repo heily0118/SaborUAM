@@ -1,40 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Define que el documento está en español -->
   <meta charset="UTF-8">
+
+  <!-- Permite que la página se adapte correctamente a pantallas pequeñas (como celulares) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu - SaborUAM</title>
+
+  <!-- Título que aparece en la pestaña del navegador -->
+  <title>Menú - SaborUAM</title>
+
+  <!-- Archivo externo que contiene los estilos visuales de la página (colores, tamaños, etc.) -->
   <link rel="stylesheet" href="css/menu.css">
+
+  <!-- Librería de íconos llamada Lucide (sirve para mostrar íconos como campanas o lupas) -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-  <!-- ENCABEZADO -->
+  <!-- === ENCABEZADO === -->
+  <!-- Muestra el nombre del sistema y el acceso a notificaciones o cierre de sesión -->
   <header class="header">
     <div class="titulo">
+      <!-- Título principal del sitio -->
       <h1>SaborUAM</h1>
     </div>
 
     <div class="acciones-header">
-     <div class="notificaciones">
-  <i data-lucide="bell" id="iconoNotificacion" class="icono-notificacion"></i>
-  <span id="contadorNotificaciones" class="contador-notificacion">0</span>
-  <div class="panel-notificaciones" id="panelNotificaciones">
-    <h4>Notificaciones</h4>
-    <ul id="listaNotificaciones"></ul>
-  </div>
-</div>
+      <!-- Sección donde se muestran las notificaciones -->
+      <div class="notificaciones">
 
+        <!-- Ícono de campana que abre el panel de notificaciones -->
+        <i data-lucide="bell" id="iconoNotificacion" class="icono-notificacion"></i>
+
+        <!-- Muestra la cantidad de notificaciones nuevas -->
+        <span id="contadorNotificaciones" class="contador-notificacion">0</span>
+
+        <!-- Panel desplegable que muestra la lista de notificaciones -->
+        <div class="panel-notificaciones" id="panelNotificaciones">
+          <h4>Notificaciones</h4>
+          <ul id="listaNotificaciones"></ul>
+        </div>
+      </div>
+
+      <!-- Botón que permite al usuario cerrar sesión -->
       <button id="btn-cerrar" class="btn-cerrar">Cerrar sesión</button>
     </div>
   </header>
 
-  <!-- CONTENIDO PRINCIPAL -->
+  <!-- === CONTENIDO PRINCIPAL === -->
+  <!-- Contiene tanto la barra lateral de filtros como la zona de productos -->
   <main class="contenedor">
 
-    <!-- BARRA LATERAL -->
+    <!-- === BARRA LATERAL === -->
+    <!-- Permite filtrar los productos según su tipo -->
     <aside class="barra-filtro">
       <h2>Menú</h2>
+
+      <!-- Lista de botones que representan los filtros -->
       <ul>
         <li><button class="filtro-btn activo">Todos</button></li>
         <li><button class="filtro-btn">Desayunos</button></li>
@@ -44,20 +67,37 @@
       </ul>
     </aside>
 
-    <!-- ZONA PRINCIPAL -->
+    <!-- === ZONA PRINCIPAL === -->
+    <!-- Es el espacio donde se muestran los productos del menú -->
     <section class="zona-principal">
+
+      <!-- Barra de búsqueda para encontrar productos por nombre -->
       <div class="buscador">
         <input type="text" placeholder="Buscar producto...">
+
+        <!-- Botón con el ícono de lupa para ejecutar la búsqueda -->
         <button><i data-lucide="search"></i></button>
       </div>
 
-      <!-- TARJETAS DE PRODUCTOS -->
+
+      <!-- Aquí se cargan dinámicamente las tarjetas de productos desde JavaScript -->
       <div class="productos" id="lista-productos"></div>
 
     </section>
   </main>
 
+  <!-- === SCRIPTS === -->
+  <!-- Librería Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tu archivo JS -->
   <script src="js/menu.js"></script>
-  <script>lucide.createIcons();</script>
+
+  <!-- Activar íconos cuando el DOM esté listo -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+    });
+  </script>
 </body>
 </html>

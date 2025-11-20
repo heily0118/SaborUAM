@@ -20,6 +20,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 15px 30px;
+  position: relative;
 }
 
 .titulo h1 {
@@ -112,17 +113,18 @@ body {
   flex: 1;
   padding: 30px;
 }
+
 /* ======= BUSCADOR ======= */
 .buscador {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 40px auto; /* más espacio arriba y abajo */
+  margin: 40px auto;
 }
 
 .buscador input {
   padding: 10px 15px;
-  width: 300px; /* un poco más angosto para verse más centrado */
+  width: 300px;
   border-radius: 10px 0 0 10px;
   border: 1px solid #ccc;
   font-size: 1em;
@@ -187,7 +189,7 @@ body {
   color: #005c99;
 }
 
-.lugar{
+.lugar {
   color: #666;
   font-size: 0.9em;
 }
@@ -199,8 +201,6 @@ body {
   color: #333;
   cursor: pointer;
 }
-
-
 
 /* ======= BOTÓN FLOTANTE ======= */
 .btn-agregar {
@@ -229,7 +229,8 @@ body {
   display: none;
   position: fixed;
   top: 0; left: 0;
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   background: rgba(0,0,0,0.4);
   justify-content: center;
   align-items: center;
@@ -242,36 +243,12 @@ body {
   border-radius: 15px;
   width: 400px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  max-height: 85vh;         /* limita la altura para que quepa mejor */
-  overflow-y: auto;          /* activa el scroll vertical */
-  scroll-behavior: smooth;   /* movimiento suave */
-  scroll-padding-top: 0;     /* sin espacio extra arriba */
-  margin-top: 0;             /* elimina espacio superior */
-  padding-top: 0;            /* quita relleno superior */
+  max-height: 85vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
-.modal h2 {
-  margin-bottom: 15px;
-  color: #005c99;
-  text-align: center;
-}
-
-.modal label {
-  display: block;
-  margin-top: 10px;
-  font-weight: 600;
-  color: #333;
-}
-
-.modal input,
-.modal textarea {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  margin-top: 5px;
-}
-
+/* Botones y acciones en modal */
 .acciones {
   margin-top: 20px;
   display: flex;
@@ -295,22 +272,137 @@ body {
   background-color: #ccc;
   color: #333;
 }
-/* Cuando el modal está activo (visible) */
+
 .modal.activo {
   display: flex;
 }
 
+/* ======= TARJETA MENÚ (3 PUNTOS) ======= */
+.nombre-y-accion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  position: relative;
+}
+
+.nombre-y-accion h3 {
+  margin: 0;
+  flex-grow: 1;
+  padding-right: 10px;
+  font-size: 1.1em;
+}
+
+.acciones-tarjeta {
+  position: static;
+  top: auto;
+  right: auto;
+  z-index: 10;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: #005c99;
+  line-height: 1;
+}
+
+.menu-opciones {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 150px;
+  background-color: white;
+  border: 1px solid #d4af37;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none;
+  z-index: 20;
+  padding: 5px 0;
+}
+
+.menu-opciones.show {
+  display: block;
+}
+
+.detalles-btn {
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: #005c99;
+  font-size: 14px;
+}
+
+.detalles-btn:hover {
+  background-color: #f0f0f0;
+}
+
+/* ======= MODAL PERSONALIZADO ======= */
+.modal-contenido {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-cerrar-modal {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 20px;
+  align-self: flex-start;
+  background-color: #005c99;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.btn-cerrar-modal:hover {
+  background-color: #004a7a;
+}
+
+/* ======= DISPONIBILIDAD ======= */
+.disponibilidad {
+  font-weight: bold;
+  font-size: 0.9em;
+  padding: 3px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 5px;
+  background-color: transparent;
+}
+
+.estado-disponible {
+  color: #ffc107;
+}
+
+.estado-no-disponible {
+  color: #6c757d;
+}
+
 /* ======= NOTIFICACIONES ======= */
+
 .notificaciones {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
 }
 
 .icono-notificacion {
-  position: relative;
-  cursor: pointer;
-  font-size: 24px;
+  width: 28px;
+  height: 28px;
   color: white;
+  cursor: pointer;
   transition: transform 0.2s ease;
 }
 
@@ -318,76 +410,75 @@ body {
   transform: scale(1.1);
 }
 
-/* Contador rojo sobre la campana */
 .contador-notificacion {
   position: absolute;
-  top: -5px;
-  right: -8px;
+  top: -4px;
+  right: -4px;
   background: red;
   color: white;
-  font-size: 0.7em;
-  font-weight: bold;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  display: none; /* solo aparece si hay notificaciones */
-  align-items: center;
-  justify-content: center;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
 }
 
-/* Panel desplegable */
+
+/* Panel de notificaciones */
 .panel-notificaciones {
-  display: none;
   position: absolute;
-  top: 40px;
+  top: 45px;
   right: 0;
-  width: 250px;
+  width: 280px;
   background: white;
-  color: #333;
-  border: 1px solid #ccc;
   border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  display: none;
+  flex-direction: column;
   overflow: hidden;
+  z-index: 2000;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.panel-notificaciones.activo {
-  display: block;
-  animation: fadeIn 0.3s ease;
+.panel-notificaciones.visible {
+  display: flex !important;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .panel-notificaciones h4 {
   margin: 0;
-  background: #005c99;
+  background-color: #005c99;
   color: white;
   padding: 10px;
-  font-size: 1em;
+  text-align: center;
+  border-bottom: 2px solid #d4af37;
 }
 
-.panel-notificaciones ul {
+#listaNotificaciones {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 10px;
   max-height: 200px;
   overflow-y: auto;
 }
 
-.panel-notificaciones li {
-  padding: 10px;
+#listaNotificaciones li {
+  padding: 8px 10px;
   border-bottom: 1px solid #eee;
-  font-size: 0.9em;
+  font-size: 14px;
 }
 
-.panel-notificaciones li:last-child {
-  border-bottom: none;
+#listaNotificaciones li.info {
+  color: #005c99;
 }
 
-.panel-notificaciones li:hover {
-  background-color: #f8f9fc;
+#listaNotificaciones li.exito {
+  color: #28a745;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+#listaNotificaciones li.error {
+  color: #dc3545;
 }
-

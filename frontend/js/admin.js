@@ -495,6 +495,35 @@ document.addEventListener('DOMContentLoaded', () => {
         mostrarProductos(filtrados);
     });
 
+
+      // === CERRAR SESIÓN (ADMINISTRADOR) ===
+  const btnCerrarSesion = document.querySelector(".btn-cerrar");
+
+  if (btnCerrarSesion) {
+    btnCerrarSesion.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const confirmar = confirm("¿Seguro que deseas cerrar sesión del administrador?");
+      if (!confirmar) return;
+
+      // 🧹 Elimina datos de sesión (ajusta según tu login)
+      localStorage.removeItem("adminActivo");
+      sessionStorage.removeItem("adminActivo");
+      localStorage.removeItem("tokenAdmin");
+      sessionStorage.removeItem("tokenAdmin");
+
+      // 🔔 Notificación visual
+      agregarNotificacion("Sesión del administrador cerrada correctamente", "info");
+
+      // 🔁 Redirigir al login del admin
+      setTimeout(() => {
+        window.location.href = "login_admin.html";
+      }, 800);
+    });
+  } else {
+    console.warn("⚠️ No se encontró el botón .btn-cerrar en el DOM.");
+  }
+
     // Carga inicial 
     // Llama a la función qque carga los productos cuando se inicia la página.
     cargarProductos();
